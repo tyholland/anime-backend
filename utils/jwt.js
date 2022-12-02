@@ -1,5 +1,5 @@
 const { expressjwt } = require('express-jwt');
-const { secret } = require('../config');
+const secret = process.env.REACT_APP_SECRET;
 
 module.exports.middleware = () => {
   return expressjwt({ secret, 
@@ -22,6 +22,7 @@ module.exports.middleware = () => {
       /^\/scrap\/coupon\/.*/, // gets coupons for specific site.
       '/users/create', // creates one user.
       '/users/login', // login user and generate token
+      '/users/account', 
       '/users/forgotPassword', // sends an email with temporary password
       '/users/contactUs',
       '/users/login', //login user and generate token

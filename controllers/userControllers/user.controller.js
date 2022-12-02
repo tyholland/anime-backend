@@ -1,9 +1,21 @@
 ﻿const { secret } = require('../../config/index');
-const knex = require('../../utils/knex').instance();
+const mysql = require('../../utils/mysql').instance();
 const bcrypt = require('bcryptjs');
 const { validateInput, validateLogin } = require('../../utils/validations');
 const jwt = require('jsonwebtoken');
 const { sendEmail } = require('../../utils/mailer');
+
+module.exports.getAccount = (req, res) => {
+  mysql.query(`SELECT * FROM accounts as a, users as u WHERE u.id = a.user_id AND u.firebase_uid = "${req.body.firebaseUID}"`, (error, results, fields) => {
+    if (error) {
+      return res.status(500).json(error);
+    }
+
+    return res.status(200).json(results);
+  });
+
+  mysql.end();
+};
 
 //Get all
 module.exports.getAllUser = (req, res) => { //Make this admin route for an admin panel maybe?
@@ -12,7 +24,6 @@ module.exports.getAllUser = (req, res) => { //Make this admin route for an admin
     .then((allUsers) => res.status(200).json(allUsers))
     .catch((err) => res.status(500).json(err));
 };
-
 
 //Get one user by Email
 module.exports.getOneUserEmail = (req, res) => {

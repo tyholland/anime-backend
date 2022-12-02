@@ -1,4 +1,4 @@
-const {getAllUser, loginUser, addUser, updateUser, deleteUser, forgotPassword, getOneUserEmail, contactUs} = require('./../../controllers/userControllers/user.controller');
+const {getAccount, getAllUser, loginUser, addUser, updateUser, deleteUser, forgotPassword, getOneUserEmail, contactUs} = require('./../../controllers/userControllers/user.controller');
 const {authenticateToken} = require('../../utils/index');
 
 
@@ -11,5 +11,6 @@ module.exports = (app) => {
   app.delete('/users/delete', authenticateToken,  deleteUser); // deletes a user. Requires no params
   app.post('/users/forgotPassword', forgotPassword); //sets temp password in db and emails to user
   app.post('/users/contactUs', contactUs); // creates contact in db, emails sales with message
+  app.post('/users/account', getAccount); 
 };
 

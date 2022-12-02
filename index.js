@@ -17,7 +17,7 @@ const config = require('./config');
  * App Variables
  */
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const app = express();
 
 /**
@@ -64,12 +64,6 @@ app.get('/doc', (req, res) => {
 
 require('./routes/routes')(app);
 
-if (config.serverEnv !== 'prod') {
-  app.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
-  });
-}
-
-if (config.serverEnv === 'prod') {
-  module.exports = app;
-}
+app.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
+});
