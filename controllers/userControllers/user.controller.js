@@ -1,12 +1,14 @@
-﻿const { secret } = require('../../config/index');
-const mysql = require('../../utils/mysql').instance();
+﻿const mysql = require('../../utils/mysql').instance();
 const bcrypt = require('bcryptjs');
 const { validateInput, validateLogin } = require('../../utils/validations');
 const jwt = require('jsonwebtoken');
 const { sendEmail } = require('../../utils/mailer');
+const secret = process.env.REACT_APP_SECRET;
 
 module.exports.getAccount = (req, res) => {
-  mysql.query(`SELECT * FROM accounts as a, users as u WHERE u.id = a.user_id AND u.firebase_uid = "${req.body.firebaseUID}"`, (error, results, fields) => {
+  const { firebaseUID } = req.body;
+
+  mysql.query('SELECT * FROM accounts as a, users as u WHERE u.id = a.user_id AND u.firebase_uid = ?', [firebaseUID], (error, results) => {
     if (error) {
       return res.status(500).json(error);
     }
@@ -54,34 +56,62 @@ module.exports.loginUser = async (req, res) => {
 };
 
 //Create a user
-module.exports.addUser = async (req, res) => { //Needs jwt somehow
-  const checkValidate = validateInput(req.body);
-  if (checkValidate.length > 0) {
-    return res.status(400).json(checkValidate);
-  }
-  // const {} = req.body;
-  let hashed = bcrypt.hashSync(req.body.password, 8);
-  knex('users')
-    .insert(
-      {
-        username: req.body.username,
-        email: req.body.email,
-        password: hashed,
-        created_on: new Date(),
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
-        age: req.body.age,
-        race: req.body.race,
-        gender: req.body.gender,
-        phone: req.body.phone,
-        zip: req.body.zip,
-        categories: req.body.categories,
-        favorites: req.body.favorites
-      },
-      ['user_id', 'username', 'email', 'first_name', 'last_name', 'age', 'race', 'gender', 'phone', 'zip', 'categories', 'favorites']
-    )
-    .then((user) => res.status(200).json(user[0]))
-    .catch((err) => res.status(500).json(err));
+module.exports.addUser = async (req, res) => {
+  const { email, username } = req.body;
+  const date = new Date().toISOString();
+  const defaultPoints = 9000;
+
+  mysql.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
+    if (error) {
+      return res.status(500).json({
+        ...error,
+        action: 'select users'
+      });
+    }
+
+  if (results[0]?.email === email) {
+      return res.status(400).json({
+        message: 'User\'s email already exists'
+      });
+    }
+
+    mysql.query('SELECT * FROM accounts WHERE username = ?', [username], (error, results) => {
+      if (error) {
+        return res.status(500).json({
+          ...error,
+          action: 'select accounts'
+        });
+      }
+
+      if (results[0]?.username === username) {
+        return res.status(400).json({
+          message: 'Username already exists'
+        });
+      }
+
+      mysql.query('INSERT INTO `users` (`email`, `firebase_uid`, `create_date`) VALUES (?, ?, ?)', [email, '123', date], (error, users) => {
+        if (error) {
+          return res.status(500).json({
+            ...error,
+            action: 'insert into users'
+          });
+        }
+
+        mysql.query('INSERT INTO `accounts` (`user_id`, `points`, `username`) VALUES (?, ?, ?)', [users.insertId, defaultPoints, username], (error) => {
+          if (error) {
+            return res.status(500).json({
+              ...error,
+              action: 'insert into accounts'
+            });
+          }
+
+          return res.status(200).json({
+            success: true,
+          });
+        });
+      });
+    });
+  });
 };
 
 //Update a user

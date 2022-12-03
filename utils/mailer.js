@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
-const { emailUsername, emailSMTPPassword } = require('../config');
+const emailUsername = process.env.REACT_APP_EMAIL_USERNAME
+const emailSMTPPassword = process.env.REACT_APP_EMAIL_PASSWORD
 
 module.exports.sendEmail = async (fromEmail, toEmail, subject, text) => {
   try {

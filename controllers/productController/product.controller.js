@@ -1,4 +1,4 @@
-const { stripe } = require('../../config');
+const stripe = process.env.REACT_APP_STRIPE;
 const stripeConnect = require('stripe')(stripe);
 
 //Get extra products !!! REQUIRES PRICE ID !!!

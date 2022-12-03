@@ -1,6 +1,7 @@
 const knex = require('../../utils/knex').instance();
-const { secret, googleRedirect } = require('../../config');
 const jwt = require('jsonwebtoken');
+const secret = process.env.REACT_APP_SECRET;
+const googleRedirect = process.env.REACT_APP_GOOGLE_REDIRECT;
 
 module.exports.googleLogin = (req, res) => {
   const {

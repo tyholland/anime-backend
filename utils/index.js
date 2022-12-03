@@ -1,9 +1,6 @@
 /* eslint-disable no-useless-escape */
-const { secret } = require('../config');
+const secret = process.env.REACT_APP_SECRET;
 const jwt = require('jsonwebtoken');
-
-
-
 
 module.exports.formatDate = () => {
   const date = new Date();
@@ -12,7 +9,6 @@ module.exports.formatDate = () => {
 };
 
 module.exports.authenticateToken = (req, res, next) => { // only does email I think
-
   const token = req.cookies.token; //bearer token
   if (token == null) return res.status(401).json({type: 'NO AUTH TOKEN!'});
   jwt.verify(token, secret, (err, user) => {

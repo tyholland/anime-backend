@@ -1,7 +1,11 @@
 const { googleLogin } = require('../../controllers/googleController/google.controller');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-const { google, googleCallback } = require('../../config');
+const googleCallback = process.env.REACT_APP_GOOGLE_CALLBACK;
+const google = {
+  clientId: process.env.REACT_APP_GOOGLE_ID,
+  clientSecret: process.env.REACT_APP_GOOGLE_SECRET,
+};
 
 module.exports = (app) => {
   let userProfile;

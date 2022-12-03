@@ -11,7 +11,6 @@ const session = require('express-session');
 const errorhandler = require('errorhandler');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const config = require('./config');
 
 /**
  * App Variables
