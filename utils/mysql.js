@@ -16,7 +16,6 @@ const connectToDB = () => {
 
 module.exports.instance = () => {
   if (connection) {
-    connection.connect();
     return connection;
   }
 

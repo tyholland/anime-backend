@@ -18,14 +18,10 @@ module.exports.middleware = () => {
       '/uninstalled/create', // creates an uninstalled user.
       '/scrap/product', // gets product page details.
       '/scrap/price', // gets product price change
-      '/users',
       /^\/scrap\/coupon\/.*/, // gets coupons for specific site.
       '/users/create', // creates one user.
-      '/users/login', // login user and generate token
-      '/users/account', 
-      '/users/forgotPassword', // sends an email with temporary password
-      '/users/contactUs',
-      '/users/login', //login user and generate token
+      '/users/account',
+      '/character',
       '/products', // gets all products
       /^\/products\/extra\/.*/, // gets extra products by last product id
       /^\/products\/.*/, // gets single product by id
