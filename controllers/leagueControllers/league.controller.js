@@ -16,8 +16,8 @@ module.exports.getLeague = (req, res) => {
   });
 };
 
-module.exports.addLeague = (res, res) => {
-  const {name, user_id} = res.body;
+module.exports.addLeague = (req, res) => {
+  const {name, user_id} = req.body;
   const date = new Date().toISOString();
 
   mysql.query('INSERT INTO `league` (`name`, `num_teams`, `active`, `user_id`, `has_ended`, `create_date`) VALUES (?, ?, ?, ?, ?, ?)', [name, 1, 1, user_id, 0, date], (error, results) => {

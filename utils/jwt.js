@@ -21,7 +21,7 @@ module.exports.middleware = () => {
       /^\/scrap\/coupon\/.*/, // gets coupons for specific site.
       '/users/create', // creates one user.
       '/users/account',
-      '/character',
+      '/player',
       '/products', // gets all products
       /^\/products\/extra\/.*/, // gets extra products by last product id
       /^\/products\/.*/, // gets single product by id
