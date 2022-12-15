@@ -15,7 +15,6 @@ module.exports.getAccount = (req, res) => {
 module.exports.addUser = async (req, res) => {
   const { email, username } = req.body;
   const date = new Date().toISOString();
-  const defaultPoints = 9000;
 
   mysql.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
     if (error) {
@@ -53,7 +52,7 @@ module.exports.addUser = async (req, res) => {
           });
         }
 
-        mysql.query('INSERT INTO `accounts` (`user_id`, `points`, `username`) VALUES (?, ?, ?)', [users.insertId, defaultPoints, username], (error) => {
+        mysql.query('INSERT INTO `accounts` (`user_id`, `username`) VALUES (?, ?, ?)', [users.insertId, username], (error) => {
           if (error) {
             return res.status(500).json({
               ...error,
