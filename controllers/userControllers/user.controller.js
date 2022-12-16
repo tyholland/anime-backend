@@ -68,3 +68,37 @@ module.exports.createUser = async (req, res) => {
     });
   });
 };
+
+module.exports.deleteAccount = async (req, res) => {
+  const { id } = req.params;
+
+  mysql.query('UPDATE users SET active = ? WHERE id = ?', [1, id], (error, results) => {
+    if (error) {
+      return res.status(500).json({
+        ...error,
+        action: 'delete account'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+    });
+  });
+};
+
+module.exports.updateAccount = async (req, res) => {
+  const { id } = req.params;
+
+  mysql.query('UPDATE accounts SET username = ? WHERE user_id = ?', [1, id], (error, results) => {
+    if (error) {
+      return res.status(500).json({
+        ...error,
+        action: 'delete account'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+    });
+  });
+};
