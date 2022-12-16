@@ -1,8 +1,17 @@
-const {getLeague, updateLeague, addLeague, deleteLeague} = require('../../controllers/leagueControllers/league.controller');
+const {
+  getLeague,
+  updateLeague,
+  createLeague,
+  deleteLeague,
+  getAllLeagues,
+  joinLeague
+} = require('../../controllers/leagueControllers/league.controller');
 
 module.exports = (app) => {
   app.get('/league/:id', getLeague);
-  app.post('/league/create', addLeague);
+  app.get('/league/join/:userId', getAllLeagues);
+  app.post('/league/create', createLeague);
+  app.post('/league/:id', joinLeague);
   app.put('/league/:id', updateLeague);
   app.delete('/league/:id', deleteLeague);
 };

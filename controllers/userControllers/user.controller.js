@@ -12,7 +12,7 @@ module.exports.getAccount = (req, res) => {
   });
 };
 
-module.exports.addUser = async (req, res) => {
+module.exports.createUser = async (req, res) => {
   const { email, username } = req.body;
   const date = new Date().toISOString();
 
