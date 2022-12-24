@@ -106,12 +106,12 @@ module.exports.getAllLeagues = (req, res) => {
 };
 
 module.exports.createLeague = (req, res) => {
-  const { name, user_id } = req.body;
+  const { name, userId, numTeams } = req.body;
   const date = new Date().toISOString();
 
   mysql.query(
     'INSERT INTO `league` (`name`, `num_teams`, `active`, `creator_id`, `has_ended`, `create_date`) VALUES (?, ?, ?, ?, ?, ?)',
-    [name, 1, 1, user_id, 0, date],
+    [name, numTeams, 1, userId, 0, date],
     (error, results) => {
       if (error) {
         return res.status(500).json({
@@ -120,7 +120,7 @@ module.exports.createLeague = (req, res) => {
         });
       }
 
-      createNewTeam(user_id, results[0].id);
+      return createNewTeam(userId, results[0].id);
     }
   );
 };

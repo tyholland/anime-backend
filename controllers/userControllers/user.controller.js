@@ -17,7 +17,7 @@ module.exports.getAccount = (req, res) => {
 };
 
 module.exports.createUser = async (req, res) => {
-  const { email, username } = req.body;
+  const { email, username, firebaseId } = req.body;
   const date = new Date().toISOString();
 
   mysql.query(
@@ -56,7 +56,7 @@ module.exports.createUser = async (req, res) => {
 
           mysql.query(
             'INSERT INTO `users` (`email`, `firebase_uid`, `create_date`) VALUES (?, ?, ?)',
-            [email, '123', date],
+            [email, firebaseId, date],
             (error, users) => {
               if (error) {
                 return res.status(500).json({
