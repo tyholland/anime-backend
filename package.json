@@ -8,9 +8,9 @@
     "dev:build-server": "NODE_ENV=development webpack --config webpack.server.js --mode=development -w",
     "dev:start": "env-cmd -f .env.local nodemon ./index.js",
     "start": "run-p dev:*",
-    "prepare": "cd .. && husky install server/.husky",
     "clean": "rm -rf node_modules && npm install && npm run prepare",
-    "lint": "eslint \"*.js\" \"**/*.js\" \"**/**/*.js\" \"**/**/**/*.js\" --fix",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
     "unit-test": "jest"
   },
   "dependencies": {
