@@ -1,6 +1,6 @@
 const mysql = require('../../utils/mysql').instance();
 
-const createNewTeam = (userId, leagueId) => {
+const createNewTeam = (userId, leagueId, res) => {
   mysql.query(
     'INSERT INTO `league_members` (`user_id`, `league_id`) VALUES (?, ?)',
     [userId, leagueId],
@@ -13,26 +13,9 @@ const createNewTeam = (userId, leagueId) => {
       }
 
       mysql.query(
-        'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `bench_a`, `bench_b`, `bench_c`, `bench_d`, `bench_e`, `week`, `points`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [
-          members[0].id,
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-          '',
-        ],
-        (error, results) => {
+        'INSERT INTO `team` (`league_member_id`, `week`) VALUES (?, ?)',
+        [members.insertId, 1],
+        (error, team) => {
           if (error) {
             return res.status(500).json({
               ...error,
@@ -40,10 +23,54 @@ const createNewTeam = (userId, leagueId) => {
             });
           }
 
-          return res.status(200).json({
-            member: members,
-            team: results,
-          });
+          mysql.query(
+            'SELECT * FROM team t, league_members l WHERE t.league_member_id = l.id ORDER BY l.id = ?',
+            [members.insertId],
+            (error, data) => {
+              if (error) {
+                return res.status(500).json({
+                  ...error,
+                  action: 'get all team and league member info',
+                });
+              }
+
+              mysql.query(
+                'SELECT * FROM league WHERE id = ?',
+                [data[0].league_id],
+                (error, league) => {
+                  if (error) {
+                    return res.status(500).json({
+                      ...error,
+                      action: 'get league after create',
+                    });
+                  }
+
+                  return res.status(200).json({
+                    leagueId: data[0].league_id,
+                    leagueName: league[0].name,
+                    teamId: team.insertId,
+                    teamName: data[0].team_name,
+                    week: data[0].week,
+                    players: {
+                      captain: data[0].captain,
+                      brawlerA: data[0].brawler_a,
+                      brawlerB: data[0].brawler_b,
+                      bsBrawler: data[0].bs_brawler,
+                      bsSupport: data[0].bs_support,
+                      support: data[0].support,
+                      villain: data[0].villain,
+                      battlefield: data[0].battlefield,
+                      benchA: data[0].bench_a,
+                      benchB: data[0].bench_b,
+                      benchC: data[0].bench_c,
+                      benchD: data[0].bench_d,
+                      benchE: data[0].bench_e,
+                    },
+                  });
+                }
+              );
+            }
+          );
         }
       );
     }
@@ -120,7 +147,7 @@ module.exports.createLeague = (req, res) => {
         });
       }
 
-      return createNewTeam(userId, results[0].id);
+      return createNewTeam(userId, results.insertId, res);
     }
   );
 };
@@ -147,7 +174,7 @@ module.exports.joinLeague = (req, res) => {
         });
       }
 
-      createNewTeam(user_id, id);
+      createNewTeam(user_id, id, res);
     }
   );
 };

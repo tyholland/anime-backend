@@ -17,12 +17,13 @@ module.exports.getAccount = (req, res) => {
 };
 
 module.exports.createUser = async (req, res) => {
-  const { email, username, firebaseId } = req.body;
+  const { userEmail, firebaseId } = req.body;
   const date = new Date().toISOString();
+  const points = 9000;
 
   mysql.query(
     'SELECT * FROM users WHERE email = ?',
-    [email],
+    [userEmail],
     (error, results) => {
       if (error) {
         return res.status(500).json({
@@ -31,54 +32,46 @@ module.exports.createUser = async (req, res) => {
         });
       }
 
-      if (results[0]?.email === email) {
+      if (results[0]?.email === userEmail) {
         return res.status(400).json({
           message: 'User\'s email already exists',
         });
       }
 
       mysql.query(
-        'SELECT * FROM accounts WHERE username = ?',
-        [username],
-        (error, results) => {
+        'INSERT INTO `users` (`email`, `firebase_uid`, `create_date`) VALUES (?, ?, ?)',
+        [userEmail, firebaseId, date],
+        (error, users) => {
           if (error) {
             return res.status(500).json({
               ...error,
-              action: 'select accounts',
-            });
-          }
-
-          if (results[0]?.username === username) {
-            return res.status(400).json({
-              message: 'Username already exists',
+              action: 'insert into users',
             });
           }
 
           mysql.query(
-            'INSERT INTO `users` (`email`, `firebase_uid`, `create_date`) VALUES (?, ?, ?)',
-            [email, firebaseId, date],
-            (error, users) => {
+            'INSERT INTO `accounts` (`user_id`, `points`) VALUES (?, ?)',
+            [users.insertId, points],
+            (error) => {
               if (error) {
                 return res.status(500).json({
                   ...error,
-                  action: 'insert into users',
+                  action: 'insert into accounts',
                 });
               }
 
               mysql.query(
-                'INSERT INTO `accounts` (`user_id`, `username`) VALUES (?, ?, ?)',
-                [users.insertId, username],
-                (error) => {
+                'SELECT u.email, acct.user_id, acct.points, u.active, acct.username FROM accounts acct, users u WHERE u.id = acct.user_id ORDER BY u.id = ?',
+                [users.insertId],
+                (error, data) => {
                   if (error) {
                     return res.status(500).json({
                       ...error,
-                      action: 'insert into accounts',
+                      action: 'get account and user data',
                     });
                   }
 
-                  return res.status(200).json({
-                    success: true,
-                  });
+                  return res.status(200).json(data[0]);
                 }
               );
             }
