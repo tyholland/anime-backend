@@ -15,43 +15,43 @@ const affinitiesTypes = (character) => {
   } = character;
   const affinities = [
     {
-      type: 'Fire',
+      type: 'fire',
       value: fire,
     },
     {
-      type: 'Water',
+      type: 'water',
       value: water,
     },
     {
-      type: 'Wind',
+      type: 'wind',
       value: wind,
     },
     {
-      type: 'Earth',
+      type: 'earth',
       value: earth,
     },
     {
-      type: 'Arcane',
+      type: 'arcane',
       value: arcane,
     },
     {
-      type: 'Electric',
+      type: 'electric',
       value: electric,
     },
     {
-      type: 'Celestrial',
+      type: 'celestrial',
       value: celestrial,
     },
     {
-      type: 'Darkness',
+      type: 'darkness',
       value: darkness,
     },
     {
-      type: 'Ice',
+      type: 'ice',
       value: ice,
     },
     {
-      type: 'No Affinity',
+      type: 'noAffinity',
       value: no_affinity,
     },
   ];
@@ -76,14 +76,14 @@ const characterAttr = (players, char) => {
   }
 
   return {
-    id: char[0].id,
-    name: char[0].name,
-    points: char[0].power_level,
-    affinity: affinitiesTypes(char[0]),
+    id: main[0].id,
+    name: main[0].name,
+    points: main[0].power_level,
+    affinity: affinitiesTypes(main[0]),
   };
 };
 
-const formatTeam = (data, res) => {
+const formatTeam = (data, member, res) => {
   const {
     captain,
     brawler_a,
@@ -119,49 +119,53 @@ const formatTeam = (data, res) => {
   const characterIds = characterArr.filter((item) => !!item);
 
   if (!characterIds.length) {
-    return {
-      captain: {
-        id: null,
+    return res.status(200).json({
+      teamName: member.team_name,
+      leagueName: member.name,
+      team: {
+        captain: {
+          id: null,
+        },
+        brawler_a: {
+          id: null,
+        },
+        brawler_b: {
+          id: null,
+        },
+        bs_brawler: {
+          id: null,
+        },
+        bs_support: {
+          id: null,
+        },
+        support: {
+          id: null,
+        },
+        villain: {
+          id: null,
+        },
+        battlefield: {
+          id: null,
+        },
+        bench_a: {
+          id: null,
+        },
+        bench_b: {
+          id: null,
+        },
+        bench_c: {
+          id: null,
+        },
+        bench_d: {
+          id: null,
+        },
+        bench_e: {
+          id: null,
+        },
+        week,
+        points,
       },
-      brawler_a: {
-        id: null,
-      },
-      brawler_b: {
-        id: null,
-      },
-      bs_brawler: {
-        id: null,
-      },
-      bs_support: {
-        id: null,
-      },
-      support: {
-        id: null,
-      },
-      villain: {
-        id: null,
-      },
-      battlefield: {
-        id: null,
-      },
-      bench_a: {
-        id: null,
-      },
-      bench_b: {
-        id: null,
-      },
-      bench_c: {
-        id: null,
-      },
-      bench_d: {
-        id: null,
-      },
-      bench_e: {
-        id: null,
-      },
-      week,
-      points,
-    };
+    });
   }
 
   mysql.query(
@@ -175,23 +179,27 @@ const formatTeam = (data, res) => {
         });
       }
 
-      return {
-        captain: characterAttr(players, captain),
-        brawler_a: characterAttr(players, brawler_a),
-        brawler_b: characterAttr(players, brawler_b),
-        bs_brawler: characterAttr(players, bs_brawler),
-        bs_support: characterAttr(players, bs_support),
-        support: characterAttr(players, support),
-        villain: characterAttr(players, villain),
-        battlefield: characterAttr(players, battlefield),
-        bench_a: characterAttr(players, bench_a),
-        bench_b: characterAttr(players, bench_b),
-        bench_c: characterAttr(players, bench_c),
-        bench_d: characterAttr(players, bench_d),
-        bench_e: characterAttr(players, bench_e),
-        week,
-        points,
-      };
+      return res.status(200).json({
+        teamName: member.team_name,
+        leagueName: member.name,
+        team: {
+          captain: characterAttr(players, captain),
+          brawler_a: characterAttr(players, brawler_a),
+          brawler_b: characterAttr(players, brawler_b),
+          bs_brawler: characterAttr(players, bs_brawler),
+          bs_support: characterAttr(players, bs_support),
+          support: characterAttr(players, support),
+          villain: characterAttr(players, villain),
+          battlefield: characterAttr(players, battlefield),
+          bench_a: characterAttr(players, bench_a),
+          bench_b: characterAttr(players, bench_b),
+          bench_c: characterAttr(players, bench_c),
+          bench_d: characterAttr(players, bench_d),
+          bench_e: characterAttr(players, bench_e),
+          week,
+          points,
+        },
+      });
     }
   );
 };
@@ -221,13 +229,7 @@ module.exports.getTeam = (req, res) => {
             });
           }
 
-          const teamDetails = formatTeam(team[0], res);
-
-          return res.status(200).json({
-            teamName: member[0].team_name,
-            team: teamDetails,
-            leagueName: member[0].name,
-          });
+          return formatTeam(team[0], member[0], res);
         }
       );
     }
