@@ -4,12 +4,12 @@ const {
   createLeague,
   deleteLeague,
   getAllLeagues,
-  joinLeague
+  joinLeague,
 } = require('../../controllers/leagueControllers/league.controller');
 
 module.exports = (app) => {
   app.get('/league/:id', getLeague);
-  app.get('/league/join/:userId', getAllLeagues);
+  app.get('/league/view/:userId', getAllLeagues);
   app.post('/league/create', createLeague);
   app.post('/league/:id', joinLeague);
   app.put('/league/:id', updateLeague);

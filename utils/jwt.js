@@ -34,7 +34,7 @@ module.exports.middleware = () => {
 
       // public routes that will need authentication
       /^\/league\/.*/,
-      /^\/league\/join\/.*/,
+      /^\/league\/view\/.*/,
       '/league/create',
       /^\/users\/.*/,
       /^\/team\/.*\/.*/,

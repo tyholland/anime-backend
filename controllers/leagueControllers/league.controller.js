@@ -67,38 +67,17 @@ module.exports.getAllLeagues = (req, res) => {
   const { userId } = req.params;
 
   mysql.query(
-    'SELECT * FROM league_members WHERE user_id = ?',
+    'SELECT l.name, lm.team_name, t.id as teamId, l.id as leagueId FROM league_members lm, league l, team t WHERE user_id = ? AND lm.league_id = l.id AND t.league_member_id = lm.id',
     [userId],
-    (error, leagues) => {
+    (error, data) => {
       if (error) {
         return res.status(500).json({
           ...error,
-          action: 'get league members',
+          action: 'get league members, league, and team info',
         });
       }
 
-      const leagueIds = [];
-
-      leagues.forEach((item) => {
-        const { id } = item;
-
-        leagueIds.push(id);
-      });
-
-      mysql.query(
-        'SELECT * FROM league WHERE id IN (?)',
-        [leagueIds],
-        (error, results) => {
-          if (error) {
-            return res.status(500).json({
-              ...error,
-              action: 'get league',
-            });
-          }
-
-          return res.status(200).json(results);
-        }
-      );
+      return res.status(200).json(data);
     }
   );
 };
