@@ -1,5 +1,88 @@
 const mysql = require('../../utils/mysql').instance();
 
+const affinitiesTypes = (character) => {
+  const {
+    fire,
+    water,
+    wind,
+    earth,
+    arcane,
+    electric,
+    celestrial,
+    darkness,
+    ice,
+    no_affinity,
+  } = character;
+  const affinities = [
+    {
+      type: 'Fire',
+      value: fire,
+    },
+    {
+      type: 'Water',
+      value: water,
+    },
+    {
+      type: 'Wind',
+      value: wind,
+    },
+    {
+      type: 'Earth',
+      value: earth,
+    },
+    {
+      type: 'Arcane',
+      value: arcane,
+    },
+    {
+      type: 'Electric',
+      value: electric,
+    },
+    {
+      type: 'Celestrial',
+      value: celestrial,
+    },
+    {
+      type: 'Darkness',
+      value: darkness,
+    },
+    {
+      type: 'Ice',
+      value: ice,
+    },
+    {
+      type: 'No Affinity',
+      value: no_affinity,
+    },
+  ];
+
+  return affinities.filter((item) => {
+    if (!!item.value && item.value > 0) {
+      return item;
+    }
+  });
+};
+
+const characterAttr = (players, char) => {
+  const main = players.filter((item) => item.id === char);
+
+  if (!main.length) {
+    return {
+      id: null,
+      name: null,
+      points: null,
+      affinity: null,
+    };
+  }
+
+  return {
+    id: char[0].id,
+    name: char[0].name,
+    points: char[0].power_level,
+    affinity: affinitiesTypes(char[0]),
+  };
+};
+
 const formatTeam = (data, res) => {
   const {
     captain,
@@ -18,23 +101,24 @@ const formatTeam = (data, res) => {
     week,
     points,
   } = data;
-  let characterIds = [3, 4];
+  const characterArr = [
+    captain,
+    brawler_a,
+    brawler_b,
+    bs_brawler,
+    bs_support,
+    support,
+    villain,
+    battlefield,
+    bench_a,
+    bench_b,
+    bench_c,
+    bench_d,
+    bench_e,
+  ];
+  const characterIds = characterArr.filter((item) => !!item);
 
-  if (
-    !captain &&
-    !brawler_a &&
-    !brawler_b &&
-    !bs_brawler &&
-    !bs_support &&
-    !support &&
-    !villain &&
-    !battlefield &&
-    !bench_a &&
-    !bench_b &&
-    !bench_c &&
-    !bench_d &&
-    !bench_e
-  ) {
+  if (!characterIds.length) {
     return {
       captain: {
         id: null,
@@ -83,7 +167,7 @@ const formatTeam = (data, res) => {
   mysql.query(
     'SELECT * FROM players WHERE id in (?)',
     [characterIds.join(',')],
-    (error) => {
+    (error, players) => {
       if (error) {
         return res.status(500).json({
           ...error,
@@ -92,136 +176,19 @@ const formatTeam = (data, res) => {
       }
 
       return {
-        captain: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        brawler_a: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        brawler_b: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        bs_brawler: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        bs_support: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        support: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        villain: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        batllefield: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        bench_a: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        bench_b: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        bench_c: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        bench_d: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
-        bench_e: {
-          id: '',
-          name: '',
-          points: '',
-          affinity: [
-            {
-              type: '',
-            },
-          ],
-        },
+        captain: characterAttr(players, captain),
+        brawler_a: characterAttr(players, brawler_a),
+        brawler_b: characterAttr(players, brawler_b),
+        bs_brawler: characterAttr(players, bs_brawler),
+        bs_support: characterAttr(players, bs_support),
+        support: characterAttr(players, support),
+        villain: characterAttr(players, villain),
+        battlefield: characterAttr(players, battlefield),
+        bench_a: characterAttr(players, bench_a),
+        bench_b: characterAttr(players, bench_b),
+        bench_c: characterAttr(players, bench_c),
+        bench_d: characterAttr(players, bench_d),
+        bench_e: characterAttr(players, bench_e),
         week,
         points,
       };
@@ -297,7 +264,7 @@ module.exports.updateTeam = (req, res) => {
     bsSupport,
     support,
     villain,
-    battlefied,
+    battlefield,
     benchA,
     benchB,
     benchC,
@@ -317,7 +284,7 @@ module.exports.updateTeam = (req, res) => {
       bsSupport,
       support,
       villain,
-      battlefied,
+      battlefield,
       benchA,
       benchB,
       benchC,
