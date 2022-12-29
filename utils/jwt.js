@@ -2,14 +2,15 @@ const { expressjwt } = require('express-jwt');
 const secret = process.env.REACT_APP_SECRET;
 
 module.exports.middleware = () => {
-  return expressjwt({ secret, 
+  return expressjwt({
+    secret,
     algorithms: ['HS256'],
-    getToken: function getTokenFromCookie(req){
-      if(!req.cookies.token){
+    getToken: function getTokenFromCookie(req) {
+      if (!req.cookies.token) {
         return null;
       }
       return req.cookies.token;
-    }
+    },
   }).unless({
     path: [
       // public routes that don't require authentication
@@ -36,7 +37,7 @@ module.exports.middleware = () => {
       /^\/league\/join\/.*/,
       '/league/create',
       /^\/users\/.*/,
-      /^\/team\/.*/,
+      /^\/team\/.*\/.*/,
       /^\/team\/name\/.*/,
     ],
   });

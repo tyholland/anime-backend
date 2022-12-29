@@ -2,73 +2,44 @@ const mysql = require('../../utils/mysql').instance();
 
 const createNewTeam = (userId, leagueId, res) => {
   mysql.query(
-    'INSERT INTO `league_members` (`user_id`, `league_id`) VALUES (?, ?)',
-    [userId, leagueId],
-    (error, members) => {
+    'SELECT email FROM users WHERE id = ?',
+    [userId],
+    (error, user) => {
       if (error) {
         return res.status(500).json({
           ...error,
-          action: 'create league member',
+          action: 'get user email',
         });
       }
 
+      const defaultTeam = `Team ${user[0].email.split('@')[0]}`;
+
       mysql.query(
-        'INSERT INTO `team` (`league_member_id`, `week`) VALUES (?, ?)',
-        [members.insertId, 1],
-        (error, team) => {
+        'INSERT INTO `league_members` (`user_id`, `league_id`, `team_name`) VALUES (?, ?, ?)',
+        [userId, leagueId, defaultTeam],
+        (error, members) => {
           if (error) {
             return res.status(500).json({
               ...error,
-              action: 'add new team',
+              action: 'create league member',
             });
           }
 
           mysql.query(
-            'SELECT * FROM team t, league_members l WHERE t.league_member_id = l.id ORDER BY l.id = ?',
-            [members.insertId],
-            (error, data) => {
+            'INSERT INTO `team` (`league_member_id`, `week`) VALUES (?, ?)',
+            [members.insertId, 1],
+            (error, team) => {
               if (error) {
                 return res.status(500).json({
                   ...error,
-                  action: 'get all team and league member info',
+                  action: 'add new team',
                 });
               }
 
-              mysql.query(
-                'SELECT * FROM league WHERE id = ?',
-                [data[0].league_id],
-                (error, league) => {
-                  if (error) {
-                    return res.status(500).json({
-                      ...error,
-                      action: 'get league after create',
-                    });
-                  }
-
-                  return res.status(200).json({
-                    leagueId: data[0].league_id,
-                    leagueName: league[0].name,
-                    teamId: team.insertId,
-                    teamName: data[0].team_name,
-                    week: data[0].week,
-                    players: {
-                      captain: data[0].captain,
-                      brawlerA: data[0].brawler_a,
-                      brawlerB: data[0].brawler_b,
-                      bsBrawler: data[0].bs_brawler,
-                      bsSupport: data[0].bs_support,
-                      support: data[0].support,
-                      villain: data[0].villain,
-                      battlefield: data[0].battlefield,
-                      benchA: data[0].bench_a,
-                      benchB: data[0].bench_b,
-                      benchC: data[0].bench_c,
-                      benchD: data[0].bench_d,
-                      benchE: data[0].bench_e,
-                    },
-                  });
-                }
-              );
+              return res.status(200).json({
+                teamId: team.insertId,
+                leagueId,
+              });
             }
           );
         }
