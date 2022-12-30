@@ -13,10 +13,11 @@ const createNewTeam = (userId, leagueId, res) => {
       }
 
       const defaultTeam = `Team ${user[0].email.split('@')[0]}`;
+      const defaultPoints = 9000;
 
       mysql.query(
-        'INSERT INTO `league_members` (`user_id`, `league_id`, `team_name`) VALUES (?, ?, ?)',
-        [userId, leagueId, defaultTeam],
+        'INSERT INTO `league_members` (`user_id`, `league_id`, `team_name`, `points`) VALUES (?, ?, ?, ?)',
+        [userId, leagueId, defaultTeam, defaultPoints],
         (error, members) => {
           if (error) {
             return res.status(500).json({

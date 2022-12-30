@@ -19,7 +19,6 @@ module.exports.getAccount = (req, res) => {
 module.exports.createUser = async (req, res) => {
   const { userEmail, firebaseId } = req.body;
   const date = new Date().toISOString();
-  const points = 9000;
 
   mysql.query(
     'SELECT * FROM users WHERE email = ?',
@@ -50,8 +49,8 @@ module.exports.createUser = async (req, res) => {
           }
 
           mysql.query(
-            'INSERT INTO `accounts` (`user_id`, `points`) VALUES (?, ?)',
-            [users.insertId, points],
+            'INSERT INTO `accounts` (`user_id`) VALUES (?, ?)',
+            [users.insertId],
             (error) => {
               if (error) {
                 return res.status(500).json({
@@ -61,7 +60,7 @@ module.exports.createUser = async (req, res) => {
               }
 
               mysql.query(
-                'SELECT u.email, acct.user_id, acct.points, u.active, acct.username FROM accounts acct, users u WHERE u.id = acct.user_id ORDER BY u.id = ?',
+                'SELECT u.email, acct.user_id, u.active, acct.username FROM accounts acct, users u WHERE u.id = acct.user_id ORDER BY u.id = ?',
                 [users.insertId],
                 (error, data) => {
                   if (error) {

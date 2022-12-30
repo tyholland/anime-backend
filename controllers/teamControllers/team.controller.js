@@ -122,6 +122,7 @@ const formatTeam = (data, member, res) => {
     return res.status(200).json({
       teamName: member.team_name,
       leagueName: member.name,
+      userPoints: member.userPoints,
       team: {
         captain: {
           id: null,
@@ -182,6 +183,7 @@ const formatTeam = (data, member, res) => {
       return res.status(200).json({
         teamName: member.team_name,
         leagueName: member.name,
+        userPoints: member.userPoints,
         team: {
           captain: characterAttr(players, captain),
           brawler_a: characterAttr(players, brawler_a),
@@ -208,7 +210,7 @@ module.exports.getTeam = (req, res) => {
   const { id, league_id } = req.params;
 
   mysql.query(
-    'SELECT lm.id, lm.team_name, l.name FROM league_members as lm, league as l WHERE lm.user_id = ? AND lm.league_id = ? AND lm.league_id = l.id',
+    'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name FROM league_members as lm, league as l WHERE lm.user_id = ? AND lm.league_id = ? AND lm.league_id = l.id',
     [id, league_id],
     (error, member) => {
       if (error) {
@@ -296,7 +298,7 @@ module.exports.updateTeam = (req, res) => {
       id,
       week,
     ],
-    (error, results) => {
+    (error) => {
       if (error) {
         return res.status(500).json({
           ...error,
@@ -304,7 +306,72 @@ module.exports.updateTeam = (req, res) => {
         });
       }
 
-      return res.status(200).json(results);
+      mysql.query(
+        'SELECT league_member_id FROM team WHERE id = ?',
+        [id],
+        (error, team) => {
+          if (error) {
+            return res.status(500).json({
+              ...error,
+              action: 'get players in team',
+            });
+          }
+
+          const characterArr = [
+            captain.id,
+            brawlerA.id,
+            brawlerB.id,
+            bsBrawler.id,
+            bsSupport.id,
+            support.id,
+            villain.id,
+            battlefield.id,
+            benchA.id,
+            benchB.id,
+            benchC.id,
+            benchD.id,
+            benchE.id,
+          ];
+          const characterIds = characterArr.filter((item) => !!item);
+
+          mysql.query(
+            'SELECT * FROM players WHERE id in (?)',
+            [characterIds],
+            (error, players) => {
+              if (error) {
+                return res.status(500).json({
+                  ...error,
+                  action: 'get players in team',
+                });
+              }
+
+              let totalPoints = 0;
+              const defaultPoints = 9000;
+              players.forEach((item) => {
+                totalPoints += item.power_level;
+              });
+              const userPoints = defaultPoints - totalPoints;
+
+              mysql.query(
+                'UPDATE league_members SET points = ? WHERE id = ?',
+                [userPoints, team[0].league_member_id],
+                (error) => {
+                  if (error) {
+                    return res.status(500).json({
+                      ...error,
+                      action: 'update team',
+                    });
+                  }
+
+                  return res.status(200).json({
+                    success: true,
+                  });
+                }
+              );
+            }
+          );
+        }
+      );
     }
   );
 };
