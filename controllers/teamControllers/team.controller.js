@@ -170,7 +170,7 @@ const formatTeam = (data, member, res) => {
 
   mysql.query(
     'SELECT * FROM players WHERE id in (?)',
-    [characterIds.join(',')],
+    [characterIds],
     (error, players) => {
       if (error) {
         return res.status(500).json({
@@ -277,22 +277,22 @@ module.exports.updateTeam = (req, res) => {
   } = req.body;
 
   mysql.query(
-    'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, bench_a = ?, bench_b = ?, bench_c = ?, bench_d = ?, bench_e = ?, week = ?, points = ? WHERE league_member_id = ? and week = ?',
+    'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, bench_a = ?, bench_b = ?, bench_c = ?, bench_d = ?, bench_e = ?, points = ? WHERE id = ? AND week = ?',
     [
-      captain,
-      brawlerA,
-      brawlerB,
-      bsBrawler,
-      bsSupport,
-      support,
-      villain,
-      battlefield,
-      benchA,
-      benchB,
-      benchC,
-      benchD,
-      benchE,
-      points,
+      captain.id,
+      brawlerA.id,
+      brawlerB.id,
+      bsBrawler.id,
+      bsSupport.id,
+      support.id,
+      villain.id,
+      battlefield.id,
+      benchA.id,
+      benchB.id,
+      benchC.id,
+      benchD.id,
+      benchE.id,
+      parseInt(points),
       id,
       week,
     ],
