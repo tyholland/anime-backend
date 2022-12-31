@@ -52,16 +52,20 @@ const createNewTeam = (userId, leagueId, res) => {
 module.exports.getLeague = (req, res) => {
   const { id } = req.params;
 
-  mysql.query('SELECT * FROM league WHERE id = ?', [id], (error, results) => {
-    if (error) {
-      return res.status(500).json({
-        ...error,
-        action: 'get league',
-      });
-    }
+  mysql.query(
+    'SELECT l.name, l.num_teams, t.id as teamId FROM league l, league_members lm, team t WHERE l.id = ? AND l.id = lm.league_id AND lm.id = t.league_member_id',
+    [id],
+    (error, results) => {
+      if (error) {
+        return res.status(500).json({
+          ...error,
+          action: 'get league',
+        });
+      }
 
-    return res.status(200).json(results);
-  });
+      return res.status(200).json(results);
+    }
+  );
 };
 
 module.exports.getAllLeagues = (req, res) => {
