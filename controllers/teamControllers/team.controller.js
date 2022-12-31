@@ -279,37 +279,37 @@ module.exports.updateTeam = (req, res) => {
   } = req.body;
 
   mysql.query(
-    'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, bench_a = ?, bench_b = ?, bench_c = ?, bench_d = ?, bench_e = ?, points = ? WHERE id = ? AND week = ?',
-    [
-      captain.id,
-      brawlerA.id,
-      brawlerB.id,
-      bsBrawler.id,
-      bsSupport.id,
-      support.id,
-      villain.id,
-      battlefield.id,
-      benchA.id,
-      benchB.id,
-      benchC.id,
-      benchD.id,
-      benchE.id,
-      parseInt(points),
-      id,
-      week,
-    ],
-    (error) => {
+    'SELECT league_member_id FROM team WHERE id = ?',
+    [id],
+    (error, team) => {
       if (error) {
         return res.status(500).json({
           ...error,
-          action: 'update team',
+          action: 'get players in team',
         });
       }
 
+      const characterArr = [
+        captain.id,
+        brawlerA.id,
+        brawlerB.id,
+        bsBrawler.id,
+        bsSupport.id,
+        support.id,
+        villain.id,
+        battlefield.id,
+        benchA.id,
+        benchB.id,
+        benchC.id,
+        benchD.id,
+        benchE.id,
+      ];
+      const characterIds = characterArr.filter((item) => !!item);
+
       mysql.query(
-        'SELECT league_member_id FROM team WHERE id = ?',
-        [id],
-        (error, team) => {
+        'SELECT * FROM players WHERE id in (?)',
+        [characterIds],
+        (error, players) => {
           if (error) {
             return res.status(500).json({
               ...error,
@@ -317,40 +317,47 @@ module.exports.updateTeam = (req, res) => {
             });
           }
 
-          const characterArr = [
-            captain.id,
-            brawlerA.id,
-            brawlerB.id,
-            bsBrawler.id,
-            bsSupport.id,
-            support.id,
-            villain.id,
-            battlefield.id,
-            benchA.id,
-            benchB.id,
-            benchC.id,
-            benchD.id,
-            benchE.id,
-          ];
-          const characterIds = characterArr.filter((item) => !!item);
+          let totalPoints = 0;
+          const defaultPoints = 9000;
+          players.forEach((item) => {
+            totalPoints += item.power_level;
+          });
+          const userPoints = defaultPoints - totalPoints;
+
+          if (userPoints < 0) {
+            return res.status(404).json({
+              message:
+                'The Scouter says your power level is OVER 9000! Please readjust your roster',
+            });
+          }
 
           mysql.query(
-            'SELECT * FROM players WHERE id in (?)',
-            [characterIds],
-            (error, players) => {
+            'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, bench_a = ?, bench_b = ?, bench_c = ?, bench_d = ?, bench_e = ?, points = ? WHERE id = ? AND week = ?',
+            [
+              captain.id,
+              brawlerA.id,
+              brawlerB.id,
+              bsBrawler.id,
+              bsSupport.id,
+              support.id,
+              villain.id,
+              battlefield.id,
+              benchA.id,
+              benchB.id,
+              benchC.id,
+              benchD.id,
+              benchE.id,
+              parseInt(points),
+              id,
+              week,
+            ],
+            (error) => {
               if (error) {
                 return res.status(500).json({
                   ...error,
-                  action: 'get players in team',
+                  action: 'update team',
                 });
               }
-
-              let totalPoints = 0;
-              const defaultPoints = 9000;
-              players.forEach((item) => {
-                totalPoints += item.power_level;
-              });
-              const userPoints = defaultPoints - totalPoints;
 
               mysql.query(
                 'UPDATE league_members SET points = ? WHERE id = ?',
