@@ -2,9 +2,7 @@ const mysql = require('../../utils/mysql').instance();
 const {
   formatTeam,
   affinitiesTypes,
-  weeklyBoost,
-  supportBoost,
-  battlefieldBoost,
+  getBoostPoints,
 } = require('../../utils/index');
 
 module.exports.getTeam = (req, res) => {
@@ -136,22 +134,21 @@ module.exports.updateTeam = (req, res) => {
             const affinities = affinitiesTypes(item);
             const isBattlefield = item.id === battlefield.id;
             const isBsSupport = item.id === bsSupport.id;
-            const weekBoost =
-              weeklyBoost(affinities, team[0].week) * item.power_level;
             const specificSupport =
-              item.id === bsSupport.id ? bsSupport.id : support.id;
-            const supportPower =
-              supportBoost(players, affinities, specificSupport) *
-              item.power_level;
-            const fieldBoost =
-              battlefieldBoost(players, affinities, battlefield.id) *
-              item.power_level;
-            const total =
-              weekBoost +
-              (isBattlefield || isBsSupport ? 0 : supportPower) +
-              (isBattlefield ? 0 : fieldBoost) +
-              item.power_level;
-            teamPoints += Math.floor(total);
+              item.id === bsBrawler.id ? bsSupport.id : support.id;
+
+            const boost = getBoostPoints(
+              isBattlefield,
+              isBsSupport,
+              specificSupport,
+              battlefield.id,
+              affinities,
+              item.power_level,
+              team[0].week,
+              players
+            );
+
+            teamPoints += item.power_level + boost.total;
           });
 
           mysql.query(
