@@ -223,8 +223,15 @@ const supportBoost = (players, mainAffinities, support) => {
   const hasMatch = mainAffinities.filter((item) => {
     return affinities.some((res) => res.type === item.type);
   });
+  let matchPoints = 0;
 
-  return hasMatch.length ? hasMatch[0].value / 100 : 0;
+  if (hasMatch.length) {
+    hasMatch.forEach((item) => {
+      matchPoints += item.value / 100;
+    });
+  }
+
+  return matchPoints;
 };
 
 const battlefieldBoost = (players, mainAffinities, field) => {
@@ -233,8 +240,15 @@ const battlefieldBoost = (players, mainAffinities, field) => {
   const hasMatch = mainAffinities.filter((item) => {
     return affinities.some((res) => res.type === item.type);
   });
+  let matchPoints = 0;
 
-  return hasMatch.length ? hasMatch[0].value / 100 : 0;
+  if (hasMatch.length) {
+    hasMatch.forEach((item) => {
+      matchPoints += item.value / 100;
+    });
+  }
+
+  return matchPoints;
 };
 
 // const villainDamage = (players, mainAffinities, villain) => {
@@ -249,7 +263,7 @@ const battlefieldBoost = (players, mainAffinities, field) => {
 
 module.exports.getBoostPoints = (
   isBattlefield,
-  isBsSupport,
+  isSupportInvalid,
   specificSupport,
   battlefield,
   affinities,
@@ -263,8 +277,7 @@ module.exports.getBoostPoints = (
   const battlefieldSupport =
     battlefieldBoost(players, affinities, battlefield) * powerLevel;
 
-  const supportPoints =
-    isBattlefield || isBsSupport ? 0 : Math.floor(boostSupport);
+  const supportPoints = isSupportInvalid ? 0 : Math.floor(boostSupport);
   const fieldPoints = isBattlefield ? 0 : Math.floor(battlefieldSupport);
   const weekPoints = Math.floor(weekBoost);
   const totalPoints = supportPoints + fieldPoints + weekPoints;
@@ -308,14 +321,16 @@ const characterAttr = (players, char, rank, details) => {
   const isBattlefield = rank === 'battlefield';
   const isBsBrawler = rank === 'bs_brawler';
   const isBsSupport = rank === 'bs_support';
+  const isSupport = rank === 'support';
   const affinities = this.affinitiesTypes(main[0]);
   const damage = weeklyDamage(weakness, week) !== 0;
   const weekDamage = damage ? power_level / weeklyDamage(weakness, week) : 0;
   const specificSupport = isBsBrawler ? bs_support : support;
+  const isSupportInvalid = isSupport || isBsSupport || isBattlefield;
 
   const boost = this.getBoostPoints(
     isBattlefield,
-    isBsSupport,
+    isSupportInvalid,
     specificSupport,
     battlefield,
     affinities,

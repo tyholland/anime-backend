@@ -134,12 +134,14 @@ module.exports.updateTeam = (req, res) => {
             const affinities = affinitiesTypes(item);
             const isBattlefield = item.id === battlefield.id;
             const isBsSupport = item.id === bsSupport.id;
+            const isSupport = item.id === support.id;
             const specificSupport =
               item.id === bsBrawler.id ? bsSupport.id : support.id;
+            const isSupportInvalid = isSupport || isBsSupport || isBattlefield;
 
             const boost = getBoostPoints(
               isBattlefield,
-              isBsSupport,
+              isSupportInvalid,
               specificSupport,
               battlefield.id,
               affinities,
