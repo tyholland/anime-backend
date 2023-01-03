@@ -24,8 +24,8 @@ module.exports.authenticateToken = (req, res, next) => {
 
 module.exports.createNewTeam = (userId, leagueId, res) => {
   mysql.query(
-    'SELECT email FROM users WHERE id = ?',
-    [userId],
+    'SELECT u.email, l.week FROM users u, league l WHERE u.id = ? AND l.id = ?',
+    [userId, leagueId],
     (error, user) => {
       if (error) {
         return res.status(500).json({
@@ -50,7 +50,7 @@ module.exports.createNewTeam = (userId, leagueId, res) => {
 
           mysql.query(
             'INSERT INTO `team` (`league_member_id`, `week`) VALUES (?, ?)',
-            [members.insertId, 1],
+            [members.insertId, user[0].week],
             (error, team) => {
               if (error) {
                 return res.status(500).json({
@@ -71,7 +71,7 @@ module.exports.createNewTeam = (userId, leagueId, res) => {
   );
 };
 
-module.exports.affinitiesTypes = (character) => {
+module.exports.getAffinitiesTypes = (character) => {
   const {
     fire,
     water,
@@ -198,7 +198,7 @@ const season = [
   },
 ];
 
-const weeklyBoost = (affinities, week) => {
+const getWeeklyBoost = (affinities, week) => {
   const weekAffinity = season.filter((item) => {
     return (
       item.week === week &&
@@ -209,17 +209,21 @@ const weeklyBoost = (affinities, week) => {
   return weekAffinity.length ? weekAffinity[0].value / 100 : 0;
 };
 
-const weeklyDamage = (weakness, week) => {
+const getWeeklyDamage = (weakness, week) => {
+  if (!weakness || weakness === 'None') {
+    return 0;
+  }
+
   const damage = season.filter((item) => {
-    return item.week === week && weakness === item.element;
+    return item.week === week && weakness.toLowerCase() === item.element;
   });
 
   return damage.length ? damage[0].value / 100 : 0;
 };
 
-const supportBoost = (players, mainAffinities, support) => {
+const getSupportBoost = (players, mainAffinities, support) => {
   const character = players.filter((item) => item.id === support)[0];
-  const affinities = this.affinitiesTypes(character);
+  const affinities = this.getAffinitiesTypes(character);
   const hasMatch = mainAffinities.filter((item) => {
     return affinities.some((res) => res.type === item.type);
   });
@@ -234,9 +238,23 @@ const supportBoost = (players, mainAffinities, support) => {
   return matchPoints;
 };
 
-const battlefieldBoost = (players, mainAffinities, field) => {
+const getVillainDamage = (players, weakness, villain) => {
+  if (!weakness || weakness === 'None') {
+    return 0;
+  }
+
+  const character = players.filter((item) => item.id === villain)[0];
+  const affinities = this.getAffinitiesTypes(character);
+  const hasMatch = affinities.filter((item) => {
+    return item.type === weakness.toLowerCase();
+  });
+
+  return hasMatch.length ? hasMatch[0].value / 100 : 0;
+};
+
+const getBattlefieldBoost = (players, mainAffinities, field) => {
   const character = players.filter((item) => item.id === field)[0];
-  const affinities = this.affinitiesTypes(character);
+  const affinities = this.getAffinitiesTypes(character);
   const hasMatch = mainAffinities.filter((item) => {
     return affinities.some((res) => res.type === item.type);
   });
@@ -251,15 +269,19 @@ const battlefieldBoost = (players, mainAffinities, field) => {
   return matchPoints;
 };
 
-// const villainDamage = (players, mainAffinities, villain) => {
-//   const character = players.filter((item) => item.id === villain)[0];
-//   const affinities = this.affinitiesTypes(character);
-//   const hasMatch = mainAffinities.filter((item) => {
-//     return affinities.some((res) => res.type === item.type);
-//   });
+const getBattlefieldDamage = (players, weakness, field) => {
+  if (!weakness || weakness === 'None') {
+    return 0;
+  }
 
-//   return hasMatch.length ? hasMatch[0].value / 100 : 0;
-// };
+  const character = players.filter((item) => item.id === field)[0];
+  const affinities = this.getAffinitiesTypes(character);
+  const hasMatch = affinities.filter((item) => {
+    return item.type === weakness.toLowerCase();
+  });
+
+  return hasMatch.length ? hasMatch[0].value / 100 : 0;
+};
 
 module.exports.getBoostPoints = (
   isBattlefield,
@@ -271,11 +293,11 @@ module.exports.getBoostPoints = (
   week,
   players
 ) => {
-  const weekBoost = weeklyBoost(affinities, week) * powerLevel;
+  const weekBoost = getWeeklyBoost(affinities, week) * powerLevel;
   const boostSupport =
-    supportBoost(players, affinities, specificSupport) * powerLevel;
+    getSupportBoost(players, affinities, specificSupport) * powerLevel;
   const battlefieldSupport =
-    battlefieldBoost(players, affinities, battlefield) * powerLevel;
+    getBattlefieldBoost(players, affinities, battlefield) * powerLevel;
 
   const supportPoints = isSupportInvalid ? 0 : Math.floor(boostSupport);
   const fieldPoints = isBattlefield ? 0 : Math.floor(battlefieldSupport);
@@ -291,15 +313,51 @@ module.exports.getBoostPoints = (
   };
 };
 
+module.exports.getDamagePoints = (
+  villain,
+  battlefield,
+  powerLevel,
+  weakness,
+  week,
+  players
+) => {
+  const weekDamage = getWeeklyDamage(weakness, week) * powerLevel;
+  const villainDamage =
+    getVillainDamage(players, weakness, villain) * powerLevel;
+  const battlefieldDamage =
+    getBattlefieldDamage(players, weakness, battlefield) * powerLevel;
+
+  const villainPoints = Math.floor(villainDamage);
+  const fieldPoints = Math.floor(battlefieldDamage);
+  const weekPoints = Math.floor(weekDamage);
+  const totalPoints = villainPoints + fieldPoints + weekPoints;
+
+  return {
+    week: weekPoints,
+    villain: villainPoints,
+    battlefield: fieldPoints,
+    voting: 0,
+    total: totalPoints,
+  };
+};
+
 const characterAttr = (players, char, rank, details) => {
   const main = players.filter((item) => item.id === char);
-  const { week, support, battlefield, bs_support } = details;
+  const {
+    week,
+    support,
+    battlefield,
+    bs_support,
+    opponentVillain,
+    opponentBattlefield,
+  } = details;
 
   if (!main.length) {
     return {
       id: null,
       name: null,
-      points: null,
+      teamPoints: null,
+      matchPoints: null,
       affinity: null,
       boost: {
         week: null,
@@ -322,9 +380,7 @@ const characterAttr = (players, char, rank, details) => {
   const isBsBrawler = rank === 'bs_brawler';
   const isBsSupport = rank === 'bs_support';
   const isSupport = rank === 'support';
-  const affinities = this.affinitiesTypes(main[0]);
-  const damage = weeklyDamage(weakness, week) !== 0;
-  const weekDamage = damage ? power_level / weeklyDamage(weakness, week) : 0;
+  const affinities = this.getAffinitiesTypes(main[0]);
   const specificSupport = isBsBrawler ? bs_support : support;
   const isSupportInvalid = isSupport || isBsSupport || isBattlefield;
 
@@ -339,12 +395,23 @@ const characterAttr = (players, char, rank, details) => {
     players
   );
 
-  const characterPoints = power_level + boost.total;
+  const damage = this.getDamagePoints(
+    opponentVillain,
+    opponentBattlefield,
+    power_level,
+    weakness,
+    week,
+    players
+  );
+
+  const teamPoints = power_level + boost.total;
+  const matchPoints = teamPoints - damage.total;
 
   return {
-    id: id,
-    name: name,
-    points: characterPoints,
+    id,
+    name,
+    teamPoints,
+    matchPoints,
     affinity: affinities,
     boost: {
       week: boost.week,
@@ -353,10 +420,10 @@ const characterAttr = (players, char, rank, details) => {
       voting: boost.voting,
     },
     damage: {
-      week: Math.floor(weekDamage),
-      villain: 0,
-      battlefield: 0,
-      voting: null,
+      week: damage.week,
+      villain: damage.villain,
+      battlefield: damage.battlefield,
+      voting: damage.voting,
     },
   };
 };
@@ -371,128 +438,141 @@ module.exports.formatTeam = (data, member, res) => {
     support,
     villain,
     battlefield,
-    bench_a,
-    bench_b,
-    bench_c,
-    bench_d,
-    bench_e,
     week,
     points,
+    id,
+    status,
   } = data;
-  const characterArr = [
-    captain,
-    brawler_a,
-    brawler_b,
-    bs_brawler,
-    bs_support,
-    support,
-    villain,
-    battlefield,
-    bench_a,
-    bench_b,
-    bench_c,
-    bench_d,
-    bench_e,
-  ];
-  const characterIds = characterArr.filter((item) => !!item);
 
-  if (!characterIds.length) {
-    return res.status(200).json({
-      teamName: member.team_name,
-      leagueName: member.name,
-      userPoints: member.userPoints,
-      team: {
-        captain: {
-          id: null,
-        },
-        brawler_a: {
-          id: null,
-        },
-        brawler_b: {
-          id: null,
-        },
-        bs_brawler: {
-          id: null,
-        },
-        bs_support: {
-          id: null,
-        },
-        support: {
-          id: null,
-        },
-        villain: {
-          id: null,
-        },
-        battlefield: {
-          id: null,
-        },
-        bench_a: {
-          id: null,
-        },
-        bench_b: {
-          id: null,
-        },
-        bench_c: {
-          id: null,
-        },
-        bench_d: {
-          id: null,
-        },
-        bench_e: {
-          id: null,
-        },
-        week,
-        points,
-      },
-    });
-  }
+  const homeTeam = status === 'home' ? 'team_a' : 'team_b';
+  const awayTeam = status === 'away' ? 'team_a' : 'team_b';
 
   mysql.query(
-    'SELECT * FROM players WHERE id in (?)',
-    [characterIds],
-    (error, players) => {
+    `SELECT t.villain, t.battlefield FROM matchup m, team t WHERE m.league_id = ? AND m.week = ? AND m.${homeTeam} = ? AND t.id = m.${awayTeam}`,
+    [member.league_id, week, id],
+    (error, matchup) => {
       if (error) {
         return res.status(500).json({
           ...error,
-          action: 'get players in team',
+          action: 'get week matchup',
         });
       }
 
-      const details = {
-        week,
-        support,
+      const characterArr = [
+        captain,
+        brawler_a,
+        brawler_b,
+        bs_brawler,
         bs_support,
-        battlefield,
+        support,
         villain,
-      };
+        battlefield,
+        matchup[0].villain,
+        matchup[0].battlefield,
+      ];
 
-      return res.status(200).json({
-        teamName: member.team_name,
-        leagueName: member.name,
-        userPoints: member.userPoints,
-        team: {
-          captain: characterAttr(players, captain, 'captain', details),
-          brawler_a: characterAttr(players, brawler_a, 'brawler_a', details),
-          brawler_b: characterAttr(players, brawler_b, 'brawler_b', details),
-          bs_brawler: characterAttr(players, bs_brawler, 'bs_brawler', details),
-          bs_support: characterAttr(players, bs_support, 'bs_support', details),
-          support: characterAttr(players, support, 'support', details),
-          villain: characterAttr(players, villain, 'villain', details),
-          battlefield: characterAttr(
-            players,
+      const characterIds = characterArr.filter((item) => !!item);
+
+      if (!characterIds.length) {
+        return res.status(200).json({
+          teamName: member.team_name,
+          leagueName: member.name,
+          userPoints: member.userPoints,
+          team: {
+            captain: {
+              id: null,
+            },
+            brawler_a: {
+              id: null,
+            },
+            brawler_b: {
+              id: null,
+            },
+            bs_brawler: {
+              id: null,
+            },
+            bs_support: {
+              id: null,
+            },
+            support: {
+              id: null,
+            },
+            villain: {
+              id: null,
+            },
+            battlefield: {
+              id: null,
+            },
+            week,
+            points,
+          },
+        });
+      }
+
+      mysql.query(
+        'SELECT * FROM players WHERE id in (?)',
+        [characterIds],
+        (error, players) => {
+          if (error) {
+            return res.status(500).json({
+              ...error,
+              action: 'get players in team',
+            });
+          }
+
+          const details = {
+            week,
+            support,
+            bs_support,
             battlefield,
-            'battlefield',
-            details
-          ),
-          bench_a: characterAttr(players, bench_a, 'bench_a', details),
-          bench_b: characterAttr(players, bench_b, 'bench_b', details),
-          bench_c: characterAttr(players, bench_c, 'bench_c', details),
-          bench_d: characterAttr(players, bench_d, 'bench_d', details),
-          bench_e: characterAttr(players, bench_e, 'bench_e', details),
-          week,
-          points,
-        },
-      });
+            opponentVillain: matchup[0].villain,
+            opponentBattlefield: matchup[0].battlefield,
+          };
+
+          return res.status(200).json({
+            teamName: member.team_name,
+            leagueName: member.name,
+            userPoints: member.userPoints,
+            team: {
+              captain: characterAttr(players, captain, 'captain', details),
+              brawler_a: characterAttr(
+                players,
+                brawler_a,
+                'brawler_a',
+                details
+              ),
+              brawler_b: characterAttr(
+                players,
+                brawler_b,
+                'brawler_b',
+                details
+              ),
+              bs_brawler: characterAttr(
+                players,
+                bs_brawler,
+                'bs_brawler',
+                details
+              ),
+              bs_support: characterAttr(
+                players,
+                bs_support,
+                'bs_support',
+                details
+              ),
+              support: characterAttr(players, support, 'support', details),
+              villain: characterAttr(players, villain, 'villain', details),
+              battlefield: characterAttr(
+                players,
+                battlefield,
+                'battlefield',
+                details
+              ),
+              week,
+              points,
+            },
+          });
+        }
+      );
     }
   );
 };

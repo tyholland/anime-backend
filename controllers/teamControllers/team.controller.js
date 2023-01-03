@@ -1,7 +1,7 @@
 const mysql = require('../../utils/mysql').instance();
 const {
   formatTeam,
-  affinitiesTypes,
+  getAffinitiesTypes,
   getBoostPoints,
 } = require('../../utils/index');
 
@@ -9,7 +9,7 @@ module.exports.getTeam = (req, res) => {
   const { id, league_id } = req.params;
 
   mysql.query(
-    'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name FROM league_members as lm, league as l WHERE lm.user_id = ? AND lm.league_id = ? AND lm.league_id = l.id',
+    'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members as lm, league as l WHERE lm.user_id = ? AND lm.league_id = ? AND lm.league_id = l.id',
     [id, league_id],
     (error, member) => {
       if (error) {
@@ -68,11 +68,6 @@ module.exports.updateTeam = (req, res) => {
     support,
     villain,
     battlefield,
-    benchA,
-    benchB,
-    benchC,
-    benchD,
-    benchE,
   } = req.body;
 
   mysql.query(
@@ -95,11 +90,6 @@ module.exports.updateTeam = (req, res) => {
         support.id,
         villain.id,
         battlefield.id,
-        benchA.id,
-        benchB.id,
-        benchC.id,
-        benchD.id,
-        benchE.id,
       ];
       const characterIds = characterArr.filter((item) => !!item);
 
@@ -131,7 +121,7 @@ module.exports.updateTeam = (req, res) => {
           let teamPoints = 0;
 
           players.forEach((item) => {
-            const affinities = affinitiesTypes(item);
+            const affinities = getAffinitiesTypes(item);
             const isBattlefield = item.id === battlefield.id;
             const isBsSupport = item.id === bsSupport.id;
             const isSupport = item.id === support.id;
@@ -154,7 +144,7 @@ module.exports.updateTeam = (req, res) => {
           });
 
           mysql.query(
-            'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, bench_a = ?, bench_b = ?, bench_c = ?, bench_d = ?, bench_e = ?, points = ? WHERE id = ?',
+            'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, points = ? WHERE id = ?',
             [
               captain.id,
               brawlerA.id,
@@ -164,11 +154,6 @@ module.exports.updateTeam = (req, res) => {
               support.id,
               villain.id,
               battlefield.id,
-              benchA.id,
-              benchB.id,
-              benchC.id,
-              benchD.id,
-              benchE.id,
               teamPoints,
               id,
             ],
