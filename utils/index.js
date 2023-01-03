@@ -321,15 +321,19 @@ module.exports.getDamagePoints = (
   week,
   players
 ) => {
-  const weekDamage = getWeeklyDamage(weakness, week) * powerLevel;
-  const villainDamage =
-    getVillainDamage(players, weakness, villain) * powerLevel;
-  const battlefieldDamage =
-    getBattlefieldDamage(players, weakness, battlefield) * powerLevel;
+  const weekDamage = getWeeklyDamage(weakness, week);
+  const villainDamage = getVillainDamage(players, weakness, villain);
+  const battlefieldDamage = getBattlefieldDamage(
+    players,
+    weakness,
+    battlefield
+  );
 
-  const villainPoints = Math.floor(villainDamage);
-  const fieldPoints = Math.floor(battlefieldDamage);
-  const weekPoints = Math.floor(weekDamage);
+  const villainPoints =
+    villainDamage === 0 ? 0 : Math.floor(powerLevel / villainDamage);
+  const fieldPoints =
+    battlefieldDamage === 0 ? 0 : Math.floor(powerLevel / battlefieldDamage);
+  const weekPoints = weekDamage === 0 ? 0 : Math.floor(powerLevel / weekDamage);
   const totalPoints = villainPoints + fieldPoints + weekPoints;
 
   return {
