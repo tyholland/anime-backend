@@ -1,210 +1,11 @@
 const mysql = require('../../utils/mysql').instance();
-
-const affinitiesTypes = (character) => {
-  const {
-    fire,
-    water,
-    wind,
-    earth,
-    arcane,
-    electric,
-    celestrial,
-    darkness,
-    ice,
-    no_affinity,
-  } = character;
-  const affinities = [
-    {
-      type: 'fire',
-      value: fire,
-    },
-    {
-      type: 'water',
-      value: water,
-    },
-    {
-      type: 'wind',
-      value: wind,
-    },
-    {
-      type: 'earth',
-      value: earth,
-    },
-    {
-      type: 'arcane',
-      value: arcane,
-    },
-    {
-      type: 'electric',
-      value: electric,
-    },
-    {
-      type: 'celestrial',
-      value: celestrial,
-    },
-    {
-      type: 'darkness',
-      value: darkness,
-    },
-    {
-      type: 'ice',
-      value: ice,
-    },
-    {
-      type: 'noAffinity',
-      value: no_affinity,
-    },
-  ];
-
-  return affinities.filter((item) => {
-    if (!!item.value && item.value > 0) {
-      return item;
-    }
-  });
-};
-
-const characterAttr = (players, char) => {
-  const main = players.filter((item) => item.id === char);
-
-  if (!main.length) {
-    return {
-      id: null,
-      name: null,
-      points: null,
-      affinity: null,
-    };
-  }
-
-  return {
-    id: main[0].id,
-    name: main[0].name,
-    points: main[0].power_level,
-    affinity: affinitiesTypes(main[0]),
-  };
-};
-
-const formatTeam = (data, member, res) => {
-  const {
-    captain,
-    brawler_a,
-    brawler_b,
-    bs_brawler,
-    bs_support,
-    support,
-    villain,
-    battlefield,
-    bench_a,
-    bench_b,
-    bench_c,
-    bench_d,
-    bench_e,
-    week,
-    points,
-  } = data;
-  const characterArr = [
-    captain,
-    brawler_a,
-    brawler_b,
-    bs_brawler,
-    bs_support,
-    support,
-    villain,
-    battlefield,
-    bench_a,
-    bench_b,
-    bench_c,
-    bench_d,
-    bench_e,
-  ];
-  const characterIds = characterArr.filter((item) => !!item);
-
-  if (!characterIds.length) {
-    return res.status(200).json({
-      teamName: member.team_name,
-      leagueName: member.name,
-      userPoints: member.userPoints,
-      team: {
-        captain: {
-          id: null,
-        },
-        brawler_a: {
-          id: null,
-        },
-        brawler_b: {
-          id: null,
-        },
-        bs_brawler: {
-          id: null,
-        },
-        bs_support: {
-          id: null,
-        },
-        support: {
-          id: null,
-        },
-        villain: {
-          id: null,
-        },
-        battlefield: {
-          id: null,
-        },
-        bench_a: {
-          id: null,
-        },
-        bench_b: {
-          id: null,
-        },
-        bench_c: {
-          id: null,
-        },
-        bench_d: {
-          id: null,
-        },
-        bench_e: {
-          id: null,
-        },
-        week,
-        points,
-      },
-    });
-  }
-
-  mysql.query(
-    'SELECT * FROM players WHERE id in (?)',
-    [characterIds],
-    (error, players) => {
-      if (error) {
-        return res.status(500).json({
-          ...error,
-          action: 'get players in team',
-        });
-      }
-
-      return res.status(200).json({
-        teamName: member.team_name,
-        leagueName: member.name,
-        userPoints: member.userPoints,
-        team: {
-          captain: characterAttr(players, captain),
-          brawler_a: characterAttr(players, brawler_a),
-          brawler_b: characterAttr(players, brawler_b),
-          bs_brawler: characterAttr(players, bs_brawler),
-          bs_support: characterAttr(players, bs_support),
-          support: characterAttr(players, support),
-          villain: characterAttr(players, villain),
-          battlefield: characterAttr(players, battlefield),
-          bench_a: characterAttr(players, bench_a),
-          bench_b: characterAttr(players, bench_b),
-          bench_c: characterAttr(players, bench_c),
-          bench_d: characterAttr(players, bench_d),
-          bench_e: characterAttr(players, bench_e),
-          week,
-          points,
-        },
-      });
-    }
-  );
-};
+const {
+  formatTeam,
+  affinitiesTypes,
+  weeklyBoost,
+  supportBoost,
+  battlefieldBoost,
+} = require('../../utils/index');
 
 module.exports.getTeam = (req, res) => {
   const { id, league_id } = req.params;
@@ -274,12 +75,10 @@ module.exports.updateTeam = (req, res) => {
     benchC,
     benchD,
     benchE,
-    week,
-    points,
   } = req.body;
 
   mysql.query(
-    'SELECT league_member_id FROM team WHERE id = ?',
+    'SELECT t.league_member_id, l.week FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.league_id AND lm.league_id = l.id',
     [id],
     (error, team) => {
       if (error) {
@@ -331,8 +130,32 @@ module.exports.updateTeam = (req, res) => {
             });
           }
 
+          let teamPoints = 0;
+
+          players.forEach((item) => {
+            const affinities = affinitiesTypes(item);
+            const isBattlefield = item.id === battlefield.id;
+            const isBsSupport = item.id === bsSupport.id;
+            const weekBoost =
+              weeklyBoost(affinities, team[0].week) * item.power_level;
+            const specificSupport =
+              item.id === bsSupport.id ? bsSupport.id : support.id;
+            const supportPower =
+              supportBoost(players, affinities, specificSupport) *
+              item.power_level;
+            const fieldBoost =
+              battlefieldBoost(players, affinities, battlefield.id) *
+              item.power_level;
+            const total =
+              weekBoost +
+              (isBattlefield || isBsSupport ? 0 : supportPower) +
+              (isBattlefield ? 0 : fieldBoost) +
+              item.power_level;
+            teamPoints += Math.floor(total);
+          });
+
           mysql.query(
-            'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, bench_a = ?, bench_b = ?, bench_c = ?, bench_d = ?, bench_e = ?, points = ? WHERE id = ? AND week = ?',
+            'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, bench_a = ?, bench_b = ?, bench_c = ?, bench_d = ?, bench_e = ?, points = ? WHERE id = ?',
             [
               captain.id,
               brawlerA.id,
@@ -347,9 +170,8 @@ module.exports.updateTeam = (req, res) => {
               benchC.id,
               benchD.id,
               benchE.id,
-              parseInt(points),
+              teamPoints,
               id,
-              week,
             ],
             (error) => {
               if (error) {

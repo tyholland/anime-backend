@@ -1,53 +1,5 @@
 const mysql = require('../../utils/mysql').instance();
-
-const createNewTeam = (userId, leagueId, res) => {
-  mysql.query(
-    'SELECT email FROM users WHERE id = ?',
-    [userId],
-    (error, user) => {
-      if (error) {
-        return res.status(500).json({
-          ...error,
-          action: 'get user email',
-        });
-      }
-
-      const defaultTeam = `Team ${user[0].email.split('@')[0]}`;
-      const defaultPoints = 9000;
-
-      mysql.query(
-        'INSERT INTO `league_members` (`user_id`, `league_id`, `team_name`, `points`) VALUES (?, ?, ?, ?)',
-        [userId, leagueId, defaultTeam, defaultPoints],
-        (error, members) => {
-          if (error) {
-            return res.status(500).json({
-              ...error,
-              action: 'create league member',
-            });
-          }
-
-          mysql.query(
-            'INSERT INTO `team` (`league_member_id`, `week`) VALUES (?, ?)',
-            [members.insertId, 1],
-            (error, team) => {
-              if (error) {
-                return res.status(500).json({
-                  ...error,
-                  action: 'add new team',
-                });
-              }
-
-              return res.status(200).json({
-                teamId: team.insertId,
-                leagueId,
-              });
-            }
-          );
-        }
-      );
-    }
-  );
-};
+const { createNewTeam } = require('../../utils/index');
 
 module.exports.getLeague = (req, res) => {
   const { id } = req.params;
