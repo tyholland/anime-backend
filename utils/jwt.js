@@ -27,9 +27,10 @@ module.exports.middleware = () => {
       /^\/league\/view\/.*/,
       '/league/create',
       /^\/users\/.*/,
+      /^\/team\/name\/.*/,
+      /^\/team\/info\/.*/,
       /^\/team\/.*\/.*/,
       /^\/team\/.*/,
-      /^\/team\/name\/.*/,
     ],
   });
 };

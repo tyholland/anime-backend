@@ -4,7 +4,7 @@ module.exports.getAccount = (req, res) => {
   const { firebaseUID } = req.body;
 
   mysql.query(
-    'SELECT * FROM accounts as a, users as u WHERE u.id = a.user_id AND u.firebase_uid = ?',
+    'SELECT * FROM accounts a, users u WHERE u.id = a.user_id AND u.firebase_uid = ?',
     [firebaseUID],
     (error, results) => {
       if (error) {

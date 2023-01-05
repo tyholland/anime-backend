@@ -9,7 +9,7 @@ module.exports.getTeam = (req, res) => {
   const { id, league_id } = req.params;
 
   mysql.query(
-    'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members as lm, league as l WHERE lm.user_id = ? AND lm.league_id = ? AND lm.league_id = l.id',
+    'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members lm, league l WHERE lm.user_id = ? AND lm.league_id = ? AND lm.league_id = l.id',
     [id, league_id],
     (error, member) => {
       if (error) {
@@ -37,14 +37,33 @@ module.exports.getTeam = (req, res) => {
   );
 };
 
-module.exports.updateTeamName = (req, res) => {
-  const { name, leagueId } = req.body;
-  const { id } = req.params;
+module.exports.getTeamInfo = (req, res) => {
+  const { member_id } = req.params;
 
   mysql.query(
-    'UPDATE league_members SET team_name = ? WHERE league_id = ? and user_id = ?',
-    [name, leagueId, id],
-    (error, results) => {
+    'SELECT lm.team_name, lm.points, lm.id, l.name FROM league_members lm, league l WHERE lm.id = ? AND lm.league_id = l.id',
+    [member_id],
+    (error, member) => {
+      if (error) {
+        return res.status(500).json({
+          ...error,
+          action: 'get league member info',
+        });
+      }
+
+      return res.status(200).json(member);
+    }
+  );
+};
+
+module.exports.updateTeamName = (req, res) => {
+  const { name } = req.body;
+  const { member_id } = req.params;
+
+  mysql.query(
+    'UPDATE league_members SET team_name = ? WHERE id = ?',
+    [name, member_id],
+    (error) => {
       if (error) {
         return res.status(500).json({
           ...error,
@@ -52,7 +71,9 @@ module.exports.updateTeamName = (req, res) => {
         });
       }
 
-      return res.status(200).json(results);
+      return res.status(200).json({
+        success: true,
+      });
     }
   );
 };

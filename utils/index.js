@@ -535,7 +535,7 @@ module.exports.formatTeam = (data, member, res) => {
 
           return res.status(200).json({
             teamName: member.team_name,
-            leagueName: member.name,
+            memberId: member.id,
             userPoints: member.userPoints,
             team: {
               captain: characterAttr(players, captain, 'captain', details),
