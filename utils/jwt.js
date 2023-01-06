@@ -31,6 +31,7 @@ module.exports.middleware = () => {
       /^\/team\/info\/.*/,
       /^\/team\/.*\/.*/,
       /^\/team\/.*/,
+      /^\/matchup\/.*/,
     ],
   });
 };

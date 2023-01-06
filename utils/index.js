@@ -448,8 +448,13 @@ module.exports.formatTeam = (data, member, res) => {
     status,
   } = data;
 
-  const homeTeam = status === 'home' ? 'team_a' : 'team_b';
-  const awayTeam = status === 'away' ? 'team_a' : 'team_b';
+  let homeTeam = 'team_a';
+  let awayTeam = 'team_b';
+
+  if (status === 'away') {
+    homeTeam = 'team_b';
+    awayTeam = 'team_a';
+  }
 
   mysql.query(
     `SELECT t.villain, t.battlefield FROM matchup m, team t WHERE m.league_id = ? AND m.week = ? AND m.${homeTeam} = ? AND t.id = m.${awayTeam}`,

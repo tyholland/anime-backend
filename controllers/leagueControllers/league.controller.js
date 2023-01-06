@@ -5,7 +5,7 @@ module.exports.getLeague = (req, res) => {
   const { id } = req.params;
 
   mysql.query(
-    'SELECT l.name, l.num_teams, t.id as teamId FROM league l, league_members lm, team t WHERE l.id = ? AND l.id = lm.league_id AND lm.id = t.league_member_id',
+    'SELECT l.name, l.num_teams, t.id as teamId, m.id as matchupId FROM league l, league_members lm, team t, matchup m WHERE l.id = ? AND l.id = lm.league_id AND lm.id = t.league_member_id AND lm.id = m.league_id AND t.week = m.week AND (t.id = m.team_a OR t.id = m.team_b)',
     [id],
     (error, results) => {
       if (error) {
@@ -24,7 +24,7 @@ module.exports.getAllLeagues = (req, res) => {
   const { userId } = req.params;
 
   mysql.query(
-    'SELECT l.name, lm.team_name, t.id as teamId, l.id as leagueId FROM league_members lm, league l, team t WHERE user_id = ? AND lm.league_id = l.id AND t.league_member_id = lm.id',
+    'SELECT l.name, l.id as leagueId, lm.team_name, t.id as teamId, m.id as matchupId FROM league_members lm, league l, team t, matchup m WHERE lm.user_id = ? AND lm.league_id = l.id AND lm.id = t.league_member_id AND lm.league_id = m.league_id AND t.week = m.week AND (t.id = m.team_a OR t.id = m.team_b)',
     [userId],
     (error, data) => {
       if (error) {
