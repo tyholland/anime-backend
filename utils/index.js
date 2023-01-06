@@ -363,6 +363,7 @@ const characterAttr = (players, char, rank, details) => {
       teamPoints: null,
       matchPoints: null,
       affinity: null,
+      originalPower: null,
       boost: {
         week: null,
         support: null,
@@ -417,6 +418,7 @@ const characterAttr = (players, char, rank, details) => {
     teamPoints,
     matchPoints,
     affinity: affinities,
+    originalPower: power_level,
     boost: {
       week: boost.week,
       support: boost.support,
