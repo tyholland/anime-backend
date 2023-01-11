@@ -1,4 +1,6 @@
 ﻿const mysql = require('../../utils/mysql').instance();
+const jwt = require('jsonwebtoken');
+const secret = process.env.REACT_APP_SECRET;
 
 module.exports.getAccount = (req, res) => {
   const { firebaseUID } = req.body;
@@ -8,10 +10,41 @@ module.exports.getAccount = (req, res) => {
     [firebaseUID],
     (error, results) => {
       if (error) {
-        return res.status(500).json(error);
+        return res.status(500).json({
+          ...error,
+          action: 'no account available',
+        });
       }
 
       return res.status(200).json(results);
+    }
+  );
+};
+
+module.exports.loginUser = (req, res) => {
+  const { firebaseUID, email } = req.body;
+
+  mysql.query(
+    'SELECT u.email, u.firebase_uid, a.user_id, u.active, a.username FROM accounts a, users u WHERE u.id = a.user_id AND u.firebase_uid = ? AND u.email = ?',
+    [firebaseUID, email],
+    (error, data) => {
+      if (error) {
+        return res.status(500).json({
+          ...error,
+          action: 'user does not exist',
+        });
+      }
+
+      const user = {
+        email,
+        firebaseUID,
+      };
+      const accessToken = jwt.sign(user, secret, { expiresIn: '7d' });
+
+      return res.status(200).json({
+        ...data[0],
+        accessToken,
+      });
     }
   );
 };
@@ -60,7 +93,7 @@ module.exports.createUser = async (req, res) => {
               }
 
               mysql.query(
-                'SELECT u.email, acct.user_id, u.active, acct.username FROM accounts acct, users u WHERE u.id = acct.user_id ORDER BY u.id = ?',
+                'SELECT u.email, u.firebase_uid, acct.user_id, u.active, acct.username FROM accounts acct, users u WHERE u.id = acct.user_id ORDER BY u.id = ?',
                 [users.insertId],
                 (error, data) => {
                   if (error) {
@@ -70,7 +103,18 @@ module.exports.createUser = async (req, res) => {
                     });
                   }
 
-                  return res.status(200).json(data[0]);
+                  const user = {
+                    email: data[0].email,
+                    firebaseUID: data[0].firebase_uid,
+                  };
+                  const accessToken = jwt.sign(user, secret, {
+                    expiresIn: '7d',
+                  });
+
+                  return res.status(200).json({
+                    ...data[0],
+                    accessToken,
+                  });
                 }
               );
             }

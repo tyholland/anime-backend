@@ -11,10 +11,17 @@ module.exports.formatDate = () => {
   return formattedDate;
 };
 
+module.exports.getAuthToken = (token) => {
+  return token.replace('Basic ', '');
+};
+
 module.exports.authenticateToken = (req, res, next) => {
-  // only does email I think
-  const token = req.cookies.token; //bearer token
-  if (token == null) return res.status(401).json({ type: 'NO AUTH TOKEN!' });
+  let token = req.headers.authorization;
+
+  if (!token) return res.status(401).json({ type: 'NO AUTH TOKEN!' });
+
+  token = this.getAuthToken(token);
+
   jwt.verify(token, secret, (err, user) => {
     if (err) return res.status(403).json({ type: 'BAD AUTH TOKEN' });
     req.user = user;
