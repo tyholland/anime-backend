@@ -1,5 +1,4 @@
 const { expressjwt } = require('express-jwt');
-const { getAuthToken } = require('.');
 const secret = process.env.REACT_APP_SECRET;
 
 module.exports.middleware = () => {
@@ -7,11 +6,11 @@ module.exports.middleware = () => {
     secret,
     algorithms: ['HS256'],
     getToken: function getTokenFromAuth(req) {
-      if (!req.headers.authorization) {
+      if (!req.cookies.token) {
         return null;
       }
 
-      return getAuthToken(req.headers.authorization);
+      return req.cookies.token;
     },
   }).unless({
     path: [

@@ -18,6 +18,7 @@ const logger = require('morgan');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
+const originUrl = process.env.REACT_APP_ORIGIN_URL;
 
 /**
  *  App Configuration
@@ -33,14 +34,23 @@ app.use(
   session({
     resave: false,
     saveUninitialized: true,
-    secret: 'SECRET'
+    secret: 'SECRET',
   })
 );
 app.use(errorhandler());
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,set-cookie');
+  const token = req.cookies.token;
+
+  res.setHeader('Access-Control-Allow-Origin', token ? originUrl : '*');
+  res.setHeader('Access-Control-Allow-Credentials', !!token);
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, OPTIONS, PUT, PATCH, DELETE'
+  );
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-Requested-With,content-type,set-cookie'
+  );
   next();
 });
 
