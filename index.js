@@ -19,13 +19,21 @@ const logger = require('morgan');
 const PORT = process.env.PORT || 3001;
 const app = express();
 const originUrl = process.env.REACT_APP_ORIGIN_URL;
+const corsOptionsDelegate = (req, callback) => {
+  let corsOptions = {
+    origin: req.method === 'OPTIONS' ? originUrl : '*',
+    credentials: req.method === 'OPTIONS',
+  };
+
+  callback(null, corsOptions);
+};
 
 /**
  *  App Configuration
  */
 app.use(express.static('./build'));
 app.use(express.static('./doc'));
-app.use(cors());
+app.use(cors(corsOptionsDelegate));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(cookieParser());
