@@ -6,16 +6,16 @@ const {
 } = require('../../utils/index');
 
 module.exports.getTeam = (req, res) => {
-  const { id, league_id } = req.params;
+  const { user_id, league_id } = req.params;
 
   mysql.query(
     'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members lm, league l WHERE lm.user_id = ? AND lm.league_id = ? AND lm.league_id = l.id',
-    [id, league_id],
+    [user_id, league_id],
     (error, member) => {
-      if (error) {
+      if (error || !member.length) {
         return res.status(500).json({
           ...error,
-          action: 'get league members',
+          action: 'get league and league member info',
         });
       }
 
@@ -26,7 +26,7 @@ module.exports.getTeam = (req, res) => {
           if (error) {
             return res.status(500).json({
               ...error,
-              action: 'get league members',
+              action: 'get team from league member',
             });
           }
 

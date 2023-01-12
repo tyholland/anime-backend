@@ -30,8 +30,6 @@ module.exports.middleware = () => {
       '/league/create',
       /^\/users\/.*/,
       /^\/team\/name\/.*/,
-      /^\/team\/info\/.*/,
-      /^\/team\/.*\/.*/,
       /^\/team\/.*/,
       /^\/matchup\/.*/,
     ],

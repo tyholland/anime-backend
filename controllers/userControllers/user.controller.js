@@ -25,7 +25,7 @@ module.exports.loginUser = (req, res) => {
   const { firebaseUID, email } = req.body;
 
   mysql.query(
-    'SELECT u.email, u.firebase_uid, a.user_id, u.active, a.username FROM accounts a, users u WHERE u.id = a.user_id AND u.firebase_uid = ? AND u.email = ?',
+    'SELECT u.email, a.user_id, u.active, a.username FROM accounts a, users u WHERE u.id = a.user_id AND u.firebase_uid = ? AND u.email = ?',
     [firebaseUID, email],
     (error, data) => {
       if (error) {
@@ -93,7 +93,7 @@ module.exports.createUser = async (req, res) => {
               }
 
               mysql.query(
-                'SELECT u.email, u.firebase_uid, acct.user_id, u.active, acct.username FROM accounts acct, users u WHERE u.id = acct.user_id ORDER BY u.id = ?',
+                'SELECT u.email, acct.user_id, u.active, acct.username FROM accounts acct, users u WHERE u.id = acct.user_id ORDER BY u.id = ?',
                 [users.insertId],
                 (error, data) => {
                   if (error) {
