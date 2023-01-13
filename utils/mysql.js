@@ -1,4 +1,5 @@
 const mysql = require('mysql');
+const util = require('util');
 let connection;
 
 const connectToDB = () => {
@@ -7,16 +8,16 @@ const connectToDB = () => {
     user: process.env.REACT_APP_MYSQL_USER,
     password: process.env.REACT_APP_MYSQL_PWD,
     database: process.env.REACT_APP_MYSQL_NAME,
-    port: process.env.REACT_APP_MYSQL_PORT
+    port: process.env.REACT_APP_MYSQL_PORT,
   });
 
   connection.connect();
-  return connection;
+  return util.promisify(connection.query).bind(connection);
 };
 
 module.exports.instance = () => {
   if (connection) {
-    return connection;
+    return util.promisify(connection.query).bind(connection);
   }
 
   return connectToDB();
