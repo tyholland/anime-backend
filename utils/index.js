@@ -73,6 +73,10 @@ module.exports.createNewTeam = (userId, leagueId, res) => {
 };
 
 module.exports.getAffinitiesTypes = (character) => {
+  if (!character) {
+    return [];
+  }
+
   const {
     fire,
     water,
