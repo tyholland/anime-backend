@@ -23,53 +23,36 @@ module.exports.authenticateToken = (req, res, next) => {
   });
 };
 
-module.exports.createNewTeam = (userId, leagueId, res) => {
-  mysql.query(
-    'SELECT u.email, l.week FROM users u, league l WHERE u.id = ? AND l.id = ?',
-    [userId, leagueId],
-    (error, user) => {
-      if (error) {
-        return res.status(500).json({
-          ...error,
-          action: 'get user email',
-        });
-      }
+module.exports.createNewTeam = async (userId, leagueId, res) => {
+  try {
+    const user = await mysql(
+      'SELECT u.email, l.week FROM users u, league l WHERE u.id = ? AND l.id = ?',
+      [userId, leagueId]
+    );
 
-      const defaultTeam = `Team ${user[0].email.split('@')[0]}`;
-      const defaultPoints = 9000;
+    const defaultTeam = `Team ${user[0].email.split('@')[0]}`;
+    const defaultPoints = 9000;
 
-      mysql.query(
-        'INSERT INTO `league_members` (`user_id`, `league_id`, `team_name`, `points`) VALUES (?, ?, ?, ?)',
-        [userId, leagueId, defaultTeam, defaultPoints],
-        (error, members) => {
-          if (error) {
-            return res.status(500).json({
-              ...error,
-              action: 'create league member',
-            });
-          }
+    const members = await mysql(
+      'INSERT INTO `league_members` (`user_id`, `league_id`, `team_name`, `points`) VALUES (?, ?, ?, ?)',
+      [userId, leagueId, defaultTeam, defaultPoints]
+    );
 
-          mysql.query(
-            'INSERT INTO `team` (`league_member_id`, `week`) VALUES (?, ?)',
-            [members.insertId, user[0].week],
-            (error, team) => {
-              if (error) {
-                return res.status(500).json({
-                  ...error,
-                  action: 'add new team',
-                });
-              }
+    const team = await mysql(
+      'INSERT INTO `team` (`league_member_id`, `week`) VALUES (?, ?)',
+      [members.insertId, user[0].week]
+    );
 
-              return res.status(200).json({
-                teamId: team.insertId,
-                leagueId,
-              });
-            }
-          );
-        }
-      );
-    }
-  );
+    return res.status(200).json({
+      teamId: team.insertId,
+      leagueId,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'can not create a new team',
+    });
+  }
 };
 
 module.exports.getAffinitiesTypes = (character) => {
@@ -439,7 +422,7 @@ const characterAttr = (players, char, rank, details) => {
   };
 };
 
-module.exports.formatTeam = (data, member, res) => {
+module.exports.formatTeam = async (data, member, res) => {
   const {
     captain,
     brawler_a,
@@ -463,132 +446,101 @@ module.exports.formatTeam = (data, member, res) => {
     awayTeam = 'team_a';
   }
 
-  mysql.query(
-    `SELECT t.villain, t.battlefield FROM matchup m, team t WHERE m.league_id = ? AND m.week = ? AND m.${homeTeam} = ? AND t.id = m.${awayTeam}`,
-    [member.league_id, week, id],
-    (error, matchup) => {
-      if (error) {
-        return res.status(500).json({
-          ...error,
-          action: 'get week matchup',
-        });
-      }
+  try {
+    const matchup = await mysql(
+      `SELECT t.villain, t.battlefield FROM matchup m, team t WHERE m.league_id = ? AND m.week = ? AND m.${homeTeam} = ? AND t.id = m.${awayTeam}`,
+      [member.league_id, week, id]
+    );
 
-      const characterArr = [
-        captain,
-        brawler_a,
-        brawler_b,
-        bs_brawler,
-        bs_support,
-        support,
-        villain,
-        battlefield,
-        matchup[0].villain,
-        matchup[0].battlefield,
-      ];
+    const characterArr = [
+      captain,
+      brawler_a,
+      brawler_b,
+      bs_brawler,
+      bs_support,
+      support,
+      villain,
+      battlefield,
+      matchup[0].villain,
+      matchup[0].battlefield,
+    ];
+    const characterIds = characterArr.filter((item) => !!item);
 
-      const characterIds = characterArr.filter((item) => !!item);
-
-      if (!characterIds.length) {
-        return res.status(200).json({
-          teamName: member.team_name,
-          leagueName: member.name,
-          userPoints: member.userPoints,
-          team: {
-            captain: {
-              id: null,
-            },
-            brawler_a: {
-              id: null,
-            },
-            brawler_b: {
-              id: null,
-            },
-            bs_brawler: {
-              id: null,
-            },
-            bs_support: {
-              id: null,
-            },
-            support: {
-              id: null,
-            },
-            villain: {
-              id: null,
-            },
-            battlefield: {
-              id: null,
-            },
-            week,
-            points,
+    if (!characterIds.length) {
+      return res.status(200).json({
+        teamName: member.team_name,
+        leagueName: member.name,
+        userPoints: member.userPoints,
+        team: {
+          captain: {
+            id: null,
           },
-        });
-      }
-
-      mysql.query(
-        'SELECT * FROM players WHERE id in (?)',
-        [characterIds],
-        (error, players) => {
-          if (error) {
-            return res.status(500).json({
-              ...error,
-              action: 'get players in team',
-            });
-          }
-
-          const details = {
-            week,
-            support,
-            bs_support,
-            battlefield,
-            opponentVillain: matchup[0].villain,
-            opponentBattlefield: matchup[0].battlefield,
-          };
-
-          return res.status(200).json({
-            teamName: member.team_name,
-            memberId: member.id,
-            userPoints: member.userPoints,
-            team: {
-              captain: characterAttr(players, captain, 'captain', details),
-              brawler_a: characterAttr(
-                players,
-                brawler_a,
-                'brawler_a',
-                details
-              ),
-              brawler_b: characterAttr(
-                players,
-                brawler_b,
-                'brawler_b',
-                details
-              ),
-              bs_brawler: characterAttr(
-                players,
-                bs_brawler,
-                'bs_brawler',
-                details
-              ),
-              bs_support: characterAttr(
-                players,
-                bs_support,
-                'bs_support',
-                details
-              ),
-              support: characterAttr(players, support, 'support', details),
-              villain: characterAttr(players, villain, 'villain', details),
-              battlefield: characterAttr(
-                players,
-                battlefield,
-                'battlefield',
-                details
-              ),
-              week,
-              points,
-            },
-          });
-        }
-      );
+          brawler_a: {
+            id: null,
+          },
+          brawler_b: {
+            id: null,
+          },
+          bs_brawler: {
+            id: null,
+          },
+          bs_support: {
+            id: null,
+          },
+          support: {
+            id: null,
+          },
+          villain: {
+            id: null,
+          },
+          battlefield: {
+            id: null,
+          },
+          week,
+          points,
+        },
+      });
     }
-  );
+
+    const players = await mysql('SELECT * FROM players WHERE id in (?)', [
+      characterIds,
+    ]);
+
+    const details = {
+      week,
+      support,
+      bs_support,
+      battlefield,
+      opponentVillain: matchup[0].villain,
+      opponentBattlefield: matchup[0].battlefield,
+    };
+
+    return res.status(200).json({
+      teamName: member.team_name,
+      memberId: member.id,
+      userPoints: member.userPoints,
+      team: {
+        captain: characterAttr(players, captain, 'captain', details),
+        brawler_a: characterAttr(players, brawler_a, 'brawler_a', details),
+        brawler_b: characterAttr(players, brawler_b, 'brawler_b', details),
+        bs_brawler: characterAttr(players, bs_brawler, 'bs_brawler', details),
+        bs_support: characterAttr(players, bs_support, 'bs_support', details),
+        support: characterAttr(players, support, 'support', details),
+        villain: characterAttr(players, villain, 'villain', details),
+        battlefield: characterAttr(
+          players,
+          battlefield,
+          'battlefield',
+          details
+        ),
+        week,
+        points,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'can not format team',
+    });
+  }
 };
