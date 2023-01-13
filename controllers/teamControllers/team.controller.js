@@ -15,7 +15,7 @@ module.exports.getTeam = async (req, res) => {
     );
 
     if (!member.length) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: 'There is no member available',
       });
     }
@@ -115,7 +115,7 @@ module.exports.updateTeam = async (req, res) => {
     const userPoints = defaultPoints - totalPoints;
 
     if (userPoints < 0) {
-      return res.status(404).json({
+      return res.status(400).json({
         message:
           'The Scouter says your power level is OVER 9000! Please readjust your roster',
       });
@@ -146,7 +146,7 @@ module.exports.updateTeam = async (req, res) => {
       teamPoints += item.power_level + boost.total;
     });
 
-    await mysql.query(
+    await mysql(
       'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, points = ? WHERE id = ?',
       [
         captain.id,
@@ -162,7 +162,7 @@ module.exports.updateTeam = async (req, res) => {
       ]
     );
 
-    await mysql.query('UPDATE league_members SET points = ? WHERE id = ?', [
+    await mysql('UPDATE league_members SET points = ? WHERE id = ?', [
       userPoints,
       team[0].league_member_id,
     ]);
