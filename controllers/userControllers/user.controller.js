@@ -1,5 +1,6 @@
 ﻿const mysql = require('../../utils/mysql').instance();
 const jwt = require('jsonwebtoken');
+const { validateEmail } = require('../../utils');
 const secret = process.env.REACT_APP_SECRET;
 
 module.exports.getAccount = async (req, res) => {
@@ -23,11 +24,23 @@ module.exports.getAccount = async (req, res) => {
 module.exports.loginUser = async (req, res) => {
   const { firebaseUID, email } = req.body;
 
+  if (!validateEmail(email)) {
+    return res.status(400).json({
+      message: 'Please enter a valid email address',
+    });
+  }
+
   try {
     const account = await mysql(
       'SELECT u.email, a.user_id, u.active, a.username FROM accounts a, users u WHERE u.id = a.user_id AND u.firebase_uid = ? AND u.email = ?',
       [firebaseUID, email]
     );
+
+    if (!account.length) {
+      return res.status(400).json({
+        message: 'User does not exists',
+      });
+    }
 
     const user = {
       email,
@@ -50,6 +63,12 @@ module.exports.loginUser = async (req, res) => {
 module.exports.createUser = async (req, res) => {
   const { userEmail, firebaseId } = req.body;
   const date = new Date().toISOString();
+
+  if (!validateEmail(userEmail)) {
+    return res.status(400).json({
+      message: 'Please enter a valid email address',
+    });
+  }
 
   try {
     const user = await mysql('SELECT * FROM users WHERE email = ?', [

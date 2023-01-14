@@ -11,6 +11,18 @@ module.exports.formatDate = () => {
   return formattedDate;
 };
 
+module.exports.validateEmail = (email) => {
+  if (!email.length) {
+    return false;
+  }
+
+  return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
+
 module.exports.authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
 
