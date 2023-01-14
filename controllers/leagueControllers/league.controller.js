@@ -3,11 +3,14 @@ const { createNewTeam } = require('../../utils/index');
 
 module.exports.getLeague = async (req, res) => {
   const { id } = req.params;
+  const { email } = req.user;
 
   try {
+    const user = await mysql('SELECT id FROM users WHERE email = ?', [email]);
+
     const leagueData = await mysql(
-      'SELECT l.name, l.num_teams, t.id as teamId, m.id as matchupId FROM league l, league_members lm, team t, matchup m WHERE l.id = ? AND l.id = lm.league_id AND lm.id = t.league_member_id AND lm.id = m.league_id AND t.week = m.week AND (t.id = m.team_a OR t.id = m.team_b)',
-      [id]
+      'SELECT l.name, l.num_teams, t.id as teamId FROM league l, league_members lm, team t WHERE lm.league_id = ? AND lm.user_id = ? AND lm.id = t.league_member_id',
+      [id, user[0].id]
     );
 
     return res.status(200).json(leagueData);
@@ -24,7 +27,7 @@ module.exports.getAllLeagues = async (req, res) => {
 
   try {
     const leagueData = await mysql(
-      'SELECT l.name, l.id as leagueId, lm.team_name, t.id as teamId, m.id as matchupId FROM league_members lm, league l, team t, matchup m WHERE lm.user_id = ? AND lm.league_id = l.id AND lm.id = t.league_member_id AND lm.league_id = m.league_id AND t.week = m.week AND (t.id = m.team_a OR t.id = m.team_b)',
+      'SELECT l.name, l.id as leagueId, lm.team_name, t.id as teamId FROM league_members lm, league l, team t WHERE lm.user_id = ? AND lm.league_id = l.id AND lm.id = t.league_member_id',
       [userId]
     );
 
@@ -58,7 +61,7 @@ module.exports.createLeague = async (req, res) => {
 
 module.exports.joinLeague = async (req, res) => {
   const { user_id } = req.body;
-  const { id } = req.param;
+  const { id } = req.params;
 
   try {
     const leagueMember = await mysql(
@@ -66,7 +69,11 @@ module.exports.joinLeague = async (req, res) => {
       [user_id]
     );
 
-    if (leagueMember.user_id === user_id && leagueMember.league_id === id) {
+    if (
+      !!leagueMember.length &&
+      leagueMember[0].user_id === user_id &&
+      leagueMember[0].league_id === id
+    ) {
       return res.status(400).json({
         message: `User already exists in the league id: ${id}`,
       });

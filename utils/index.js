@@ -463,8 +463,7 @@ module.exports.formatTeam = async (data, member, res) => {
       `SELECT t.villain, t.battlefield FROM matchup m, team t WHERE m.league_id = ? AND m.week = ? AND m.${homeTeam} = ? AND t.id = m.${awayTeam}`,
       [member.league_id, week, id]
     );
-
-    const characterArr = [
+    let characterArr = [
       captain,
       brawler_a,
       brawler_b,
@@ -473,15 +472,29 @@ module.exports.formatTeam = async (data, member, res) => {
       support,
       villain,
       battlefield,
-      matchup[0].villain,
-      matchup[0].battlefield,
     ];
+
+    if (matchup.length) {
+      characterArr = [
+        captain,
+        brawler_a,
+        brawler_b,
+        bs_brawler,
+        bs_support,
+        support,
+        villain,
+        battlefield,
+        matchup[0].villain,
+        matchup[0].battlefield,
+      ];
+    }
+
     const characterIds = characterArr.filter((item) => !!item);
 
     if (!characterIds.length) {
       return res.status(200).json({
         teamName: member.team_name,
-        leagueName: member.name,
+        memberId: member.id,
         userPoints: member.userPoints,
         team: {
           captain: {
@@ -518,14 +531,23 @@ module.exports.formatTeam = async (data, member, res) => {
       characterIds,
     ]);
 
-    const details = {
+    let details = {
       week,
       support,
       bs_support,
       battlefield,
-      opponentVillain: matchup[0].villain,
-      opponentBattlefield: matchup[0].battlefield,
     };
+
+    if (matchup.length) {
+      details = {
+        week,
+        support,
+        bs_support,
+        battlefield,
+        opponentVillain: matchup[0].villain,
+        opponentBattlefield: matchup[0].battlefield,
+      };
+    }
 
     return res.status(200).json({
       teamName: member.team_name,

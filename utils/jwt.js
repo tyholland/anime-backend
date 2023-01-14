@@ -23,13 +23,6 @@ module.exports.middleware = () => {
       '/',
       '/error',
       '/doc',
-
-      // public routes that will need authentication
-      /^\/league\/.*/,
-      /^\/league\/view\/.*/,
-      '/league/create',
-      /^\/users\/.*/,
-      /^\/matchup\/.*/,
     ],
   });
 };
