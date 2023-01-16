@@ -1,5 +1,5 @@
 const mysql = require('../../utils/mysql').instance();
-const { createNewTeam } = require('../../utils/index');
+const { createNewTeam } = require('../../utils/query');
 
 module.exports.getLeague = async (req, res) => {
   const { id } = req.params;

@@ -1,9 +1,6 @@
 const mysql = require('../../utils/mysql').instance();
-const {
-  formatTeam,
-  getAffinitiesTypes,
-  getBoostPoints,
-} = require('../../utils/index');
+const { getAffinitiesTypes, getBoostPoints } = require('../../utils/index');
+const { formatTeam } = require('../../utils/query');
 
 module.exports.getTeam = async (req, res) => {
   const { user_id, league_id } = req.params;
