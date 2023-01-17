@@ -23,12 +23,13 @@ module.exports.getLeague = async (req, res) => {
 };
 
 module.exports.getAllLeagues = async (req, res) => {
-  const { userId } = req.params;
+  const { email } = req.user;
 
   try {
+    const user = await mysql('SELECT id FROM users WHERE email = ?', [email]);
     const leagueData = await mysql(
       'SELECT l.name, l.id as leagueId, lm.team_name, t.id as teamId FROM league_members lm, league l, team t WHERE lm.user_id = ? AND lm.league_id = l.id AND lm.id = t.league_member_id',
-      [userId]
+      [user[0].id]
     );
 
     return res.status(200).json(leagueData);

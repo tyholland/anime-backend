@@ -9,7 +9,7 @@ const {
 const { authenticateToken } = require('../../utils');
 
 module.exports = (app) => {
-  app.get('/league/view/:userId', authenticateToken, getAllLeagues);
+  app.get('/league/view', authenticateToken, getAllLeagues);
   app.get('/league/:id', authenticateToken, getLeague);
   app.post('/league/create', authenticateToken, createLeague);
   app.post('/league/join/:id', authenticateToken, joinLeague);
