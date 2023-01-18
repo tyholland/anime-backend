@@ -7,17 +7,22 @@ module.exports.middleware = () => {
     secret,
     algorithms: ['HS256'],
     getToken: function getTokenFromAuth(req) {
-      if (!req.headers.authorization) {
+      const token =
+        req.cookies.token || getAuthToken(req.headers.authorization);
+
+      if (!token) {
         return null;
       }
 
-      return getAuthToken(req.headers.authorization);
+      return token;
     },
   }).unless({
     path: [
       // public routes that don't require authentication
       '/users/create',
       '/users/login',
+      '/users/logout',
+      '/league/view',
       '/player',
       /^\/player\/.*/,
 

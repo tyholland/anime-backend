@@ -47,12 +47,18 @@ module.exports.loginUser = async (req, res) => {
       userId: account[0].user_id,
       firebaseUID,
     };
-    const accessToken = jwt.sign(user, secret, { expiresIn: '7d' });
+    const accessToken = jwt.sign(user, secret);
 
-    return res.status(200).json({
-      ...account[0],
-      accessToken,
-    });
+    return res
+      .cookie('token', accessToken, {
+        httpOnly: true,
+        secure: true,
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      })
+      .status(200)
+      .json({
+        ...account[0],
+      });
   } catch (error) {
     return res.status(500).json({
       ...error,
@@ -101,14 +107,18 @@ module.exports.createUser = async (req, res) => {
       userId: account[0].user_id,
       firebaseUID: account[0].firebase_uid,
     };
-    const accessToken = jwt.sign(accessObj, secret, {
-      expiresIn: '7d',
-    });
+    const accessToken = jwt.sign(accessObj, secret);
 
-    return res.status(200).json({
-      ...account[0],
-      accessToken,
-    });
+    return res
+      .cookie('token', accessToken, {
+        httpOnly: true,
+        secure: true,
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      })
+      .status(200)
+      .json({
+        ...account[0],
+      });
   } catch (error) {
     return res.status(500).json({
       ...error,
@@ -153,4 +163,8 @@ module.exports.updateAccount = async (req, res) => {
       action: 'Update Account',
     });
   }
+};
+
+module.exports.logoutUser = (req, res) => {
+  return res.clearCookie('token').status(200).json({ success: true });
 };
