@@ -10,9 +10,9 @@ const { authenticateToken } = require('../../utils');
 
 module.exports = (app) => {
   app.get('/league/view', authenticateToken, getAllLeagues);
-  app.get('/league/:id', authenticateToken, getLeague);
+  app.get('/league/:league_id', authenticateToken, getLeague);
   app.post('/league/create', authenticateToken, createLeague);
-  app.post('/league/join/:id', authenticateToken, joinLeague);
-  app.put('/league/:id', authenticateToken, updateLeague);
-  app.delete('/league/:id', authenticateToken, deleteLeague);
+  app.put('/league/join/:league_id', authenticateToken, joinLeague);
+  app.put('/league/:league_id', authenticateToken, updateLeague);
+  app.delete('/league/:league_id', authenticateToken, deleteLeague);
 };

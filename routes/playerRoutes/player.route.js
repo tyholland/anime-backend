@@ -5,6 +5,5 @@ const {
 
 module.exports = (app) => {
   app.get('/player', getAllPlayers);
-  app.get('/player/:id', getPlayer);
+  app.get('/player/:player_id', getPlayer);
 };
-

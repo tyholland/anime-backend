@@ -4,12 +4,12 @@ const { validateEmail } = require('../../utils');
 const secret = process.env.REACT_APP_SECRET;
 
 module.exports.getAccount = async (req, res) => {
-  const { firebaseUID } = req.body;
+  const { userId } = req.user;
 
   try {
     const account = await mysql(
-      'SELECT * FROM accounts a, users u WHERE u.id = a.user_id AND u.firebase_uid = ?',
-      [firebaseUID]
+      'SELECT * FROM accounts a, users u WHERE u.id = ? AND u.id = a.user_id',
+      [userId]
     );
 
     return res.status(200).json(account);
@@ -44,6 +44,7 @@ module.exports.loginUser = async (req, res) => {
 
     const user = {
       email,
+      userId: account[0].user_id,
       firebaseUID,
     };
     const accessToken = jwt.sign(user, secret, { expiresIn: '7d' });
@@ -97,6 +98,7 @@ module.exports.createUser = async (req, res) => {
 
     const accessObj = {
       email: account[0].email,
+      userId: account[0].user_id,
       firebaseUID: account[0].firebase_uid,
     };
     const accessToken = jwt.sign(accessObj, secret, {
@@ -116,10 +118,10 @@ module.exports.createUser = async (req, res) => {
 };
 
 module.exports.deleteAccount = async (req, res) => {
-  const { id } = req.params;
+  const { userId } = req.user;
 
   try {
-    await mysql('UPDATE users SET active = ? WHERE id = ?', [1, id]);
+    await mysql('UPDATE users SET active = ? WHERE id = ?', [1, userId]);
 
     return res.status(200).json({
       success: true,
@@ -133,10 +135,14 @@ module.exports.deleteAccount = async (req, res) => {
 };
 
 module.exports.updateAccount = async (req, res) => {
-  const { id } = req.params;
+  const { userId } = req.user;
+  const { userName } = req.body;
 
   try {
-    await mysql('UPDATE accounts SET username = ? WHERE user_id = ?', [1, id]);
+    await mysql('UPDATE accounts SET username = ? WHERE user_id = ?', [
+      userName,
+      userId,
+    ]);
 
     return res.status(200).json({
       success: true,

@@ -28,7 +28,7 @@ module.exports.createNewTeam = async (userId, leagueId, res) => {
   } catch (error) {
     return res.status(500).json({
       ...error,
-      action: 'can not create a new team',
+      action: 'Can not create a new team',
     });
   }
 };
@@ -173,7 +173,7 @@ module.exports.formatTeam = async (data, member, res) => {
   } catch (error) {
     return res.status(500).json({
       ...error,
-      action: 'can not format team',
+      action: 'Can not format team',
     });
   }
 };

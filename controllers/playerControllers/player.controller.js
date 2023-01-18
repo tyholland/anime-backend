@@ -8,22 +8,24 @@ module.exports.getAllPlayers = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       ...error,
-      action: 'get all players',
+      action: 'Get all players',
     });
   }
 };
 
 module.exports.getPlayer = async (req, res) => {
-  const { id } = req.params;
+  const { player_id } = req.params;
 
   try {
-    const player = await mysql('SELECT * FROM players WHERE id = ?', [id]);
+    const player = await mysql('SELECT * FROM players WHERE id = ?', [
+      player_id,
+    ]);
 
     return res.status(200).json(player);
   } catch (error) {
     return res.status(500).json({
       ...error,
-      action: 'get specific player',
+      action: 'Get specific player',
     });
   }
 };

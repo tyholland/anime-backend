@@ -3,12 +3,15 @@ const { getAffinitiesTypes, getBoostPoints } = require('../../utils/index');
 const { formatTeam } = require('../../utils/query');
 
 module.exports.getTeam = async (req, res) => {
-  const { user_id, league_id } = req.params;
+  const { team_id } = req.params;
+  const { userId } = req.user;
 
   try {
+    const team = await mysql('SELECT * FROM team WHERE id = ?', [team_id]);
+
     const member = await mysql(
-      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members lm, league l WHERE lm.user_id = ? AND lm.league_id = ? AND lm.league_id = l.id',
-      [user_id, league_id]
+      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members lm, league l, team t WHERE lm.user_id = ? AND t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
+      [userId, team_id]
     );
 
     if (!member.length) {
@@ -17,15 +20,11 @@ module.exports.getTeam = async (req, res) => {
       });
     }
 
-    const team = await mysql('SELECT * FROM team WHERE league_member_id = ?', [
-      member[0].id,
-    ]);
-
     return await formatTeam(team[0], member[0], res);
   } catch (error) {
     return res.status(500).json({
       ...error,
-      action: 'get team',
+      action: 'Get team',
     });
   }
 };
@@ -43,7 +42,7 @@ module.exports.getTeamInfo = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       ...error,
-      action: 'get team info',
+      action: 'Get team info',
     });
   }
 };
@@ -64,13 +63,13 @@ module.exports.updateTeamName = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       ...error,
-      action: 'update team name',
+      action: 'Update team name',
     });
   }
 };
 
 module.exports.updateTeam = async (req, res) => {
-  const { id } = req.params;
+  const { team_id } = req.params;
   const {
     captain,
     brawlerA,
@@ -85,7 +84,7 @@ module.exports.updateTeam = async (req, res) => {
   try {
     const team = await mysql(
       'SELECT t.league_member_id, l.week FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.league_id AND lm.league_id = l.id',
-      [id]
+      [team_id]
     );
 
     const characterArr = [
@@ -155,7 +154,7 @@ module.exports.updateTeam = async (req, res) => {
         villain.id,
         battlefield.id,
         teamPoints,
-        id,
+        team_id,
       ]
     );
 
@@ -170,7 +169,7 @@ module.exports.updateTeam = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       ...error,
-      action: 'update team',
+      action: 'Update team',
     });
   }
 };

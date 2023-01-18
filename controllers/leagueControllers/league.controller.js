@@ -2,15 +2,13 @@ const mysql = require('../../utils/mysql').instance();
 const { createNewTeam } = require('../../utils/query');
 
 module.exports.getLeague = async (req, res) => {
-  const { id } = req.params;
-  const { email } = req.user;
+  const { league_id } = req.params;
+  const { userId } = req.user;
 
   try {
-    const user = await mysql('SELECT id FROM users WHERE email = ?', [email]);
-
     const leagueData = await mysql(
       'SELECT l.name, l.num_teams, t.id as teamId FROM league l, league_members lm, team t WHERE lm.league_id = ? AND lm.user_id = ? AND lm.id = t.league_member_id',
-      [id, user[0].id]
+      [league_id, userId]
     );
 
     return res.status(200).json(leagueData);
@@ -23,13 +21,12 @@ module.exports.getLeague = async (req, res) => {
 };
 
 module.exports.getAllLeagues = async (req, res) => {
-  const { email } = req.user;
+  const { userId } = req.user;
 
   try {
-    const user = await mysql('SELECT id FROM users WHERE email = ?', [email]);
     const leagueData = await mysql(
       'SELECT l.name, l.id as leagueId, lm.team_name, t.id as teamId FROM league_members lm, league l, team t WHERE lm.user_id = ? AND lm.league_id = l.id AND lm.id = t.league_member_id',
-      [user[0].id]
+      [userId]
     );
 
     return res.status(200).json(leagueData);
@@ -42,7 +39,8 @@ module.exports.getAllLeagues = async (req, res) => {
 };
 
 module.exports.createLeague = async (req, res) => {
-  const { name, userId, numTeams } = req.body;
+  const { name, numTeams } = req.body;
+  const { userId } = req.user;
   const date = new Date().toISOString();
 
   try {
@@ -61,26 +59,42 @@ module.exports.createLeague = async (req, res) => {
 };
 
 module.exports.joinLeague = async (req, res) => {
-  const { user_id } = req.body;
-  const { id } = req.params;
+  const { userId } = req.user;
+  const { league_id } = req.params;
 
   try {
     const leagueMember = await mysql(
-      'SELECT * FROM league_members WHERE user_id = ?',
-      [user_id]
+      'SELECT lm.user_id, l.active, l.num_teams FROM league_members lm, league l WHERE lm.user_id = ? AND lm.league_id = ? AND lm.league_id = l.id',
+      [userId, league_id]
     );
 
-    if (
-      !!leagueMember.length &&
-      leagueMember[0].user_id === user_id &&
-      leagueMember[0].league_id === id
-    ) {
+    if (!leagueMember.length) {
       return res.status(400).json({
-        message: `User already exists in the league id: ${id}`,
+        message: 'The league you are trying to join does not exist.',
       });
     }
 
-    return await createNewTeam(user_id, id, res);
+    const { user_id, active, num_teams } = leagueMember[0];
+
+    if (active === 0) {
+      return res.status(400).json({
+        message: 'This league is no longer active.',
+      });
+    }
+
+    if (num_teams === 10) {
+      return res.status(400).json({
+        message: 'This league has already reached full capacity.',
+      });
+    }
+
+    if (userId === user_id) {
+      return res.status(400).json({
+        message: `User already exists in the league id: ${league_id}`,
+      });
+    }
+
+    return await createNewTeam(userId, league_id, res);
   } catch (error) {
     return res.status(500).json({
       ...error,
@@ -90,12 +104,13 @@ module.exports.joinLeague = async (req, res) => {
 };
 
 module.exports.updateLeague = async (req, res) => {
-  const { name, teams, isActive, hasEnded, teamId, userId } = req.body;
+  const { name, teams, isActive, hasEnded } = req.body;
+  const { league_id } = req.params;
 
   try {
     const updatedLeague = await mysql(
-      'UPDATE league SET name = ?, num_teams = ?, active = ?, has_ended = ? WHERE id = ? and user_id = ?',
-      [name, teams, isActive, hasEnded, teamId, userId]
+      'UPDATE league SET name = ?, num_teams = ?, active = ?, has_ended = ? WHERE id = ?',
+      [name, teams, isActive, hasEnded, league_id]
     );
 
     return res.status(200).json(updatedLeague);
@@ -108,12 +123,12 @@ module.exports.updateLeague = async (req, res) => {
 };
 
 module.exports.deleteLeague = async (req, res) => {
-  const { id } = req.params;
+  const { league_id } = req.params;
 
   try {
-    await mysql('DELETE FROM league WHERE id = ?', [id]);
+    await mysql('DELETE FROM league WHERE id = ?', [league_id]);
 
-    await mysql('DELETE FROM league_members WHERE league_id = ?', [id]);
+    await mysql('DELETE FROM league_members WHERE league_id = ?', [league_id]);
 
     return res.status(200).json({
       success: true,
