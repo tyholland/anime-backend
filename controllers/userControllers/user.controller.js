@@ -154,11 +154,3 @@ module.exports.updateAccount = async (req, res) => {
     });
   }
 };
-
-module.exports.logoutUser = (req, res) => {
-  jwt.sign({}, secret, { expiresIn: '1' });
-
-  return res.status(200).json({
-    success: true,
-  });
-};

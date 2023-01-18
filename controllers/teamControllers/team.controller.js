@@ -29,6 +29,32 @@ module.exports.getTeam = async (req, res) => {
   }
 };
 
+module.exports.getMatchupTeam = async (req, res) => {
+  const { team_id } = req.params;
+
+  try {
+    const team = await mysql('SELECT * FROM team WHERE id = ?', [team_id]);
+
+    const member = await mysql(
+      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members lm, league l, team t WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
+      [team_id]
+    );
+
+    if (!member.length) {
+      return res.status(400).json({
+        message: 'There is no member available',
+      });
+    }
+
+    return await formatTeam(team[0], member[0], res);
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Get team',
+    });
+  }
+};
+
 module.exports.getTeamInfo = async (req, res) => {
   const { member_id } = req.params;
 
