@@ -8,7 +8,7 @@ module.exports.getAccount = async (req, res) => {
 
   try {
     const account = await mysql(
-      'SELECT * FROM accounts a, users u WHERE u.id = ? AND u.id = a.user_id',
+      'SELECT a.username, u.email FROM accounts a, users u WHERE u.id = ? AND u.id = a.user_id',
       [userId]
     );
 
