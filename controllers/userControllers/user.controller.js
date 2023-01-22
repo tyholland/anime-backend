@@ -131,6 +131,17 @@ module.exports.deleteAccount = async (req, res) => {
   const { userId } = req.user;
 
   try {
+    const userLeagues = await mysql(
+      'SELECT * FROM league_members lm, league l WHERE lm.user_id = ? AND lm.league_id = l.id AND l.active = ?',
+      [userId, 1]
+    );
+
+    if (userLeagues.length) {
+      return res.status(400).json({
+        message: 'You can not delete an account that is in an active league',
+      });
+    }
+
     await mysql('UPDATE users SET active = ? WHERE id = ?', [1, userId]);
 
     return res.status(200).json({
