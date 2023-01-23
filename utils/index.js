@@ -391,6 +391,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
   return {
     id,
     name,
+    rank,
     teamPoints,
     matchPoints,
     affinity: affinities,

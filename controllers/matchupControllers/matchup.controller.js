@@ -54,7 +54,77 @@ module.exports.getMatchupFromTeam = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       ...error,
-      action: 'Get League',
+      action: 'Get matchup from team',
+    });
+  }
+};
+
+module.exports.createMatchupVotes = async (req, res) => {
+  const { matchup_id } = req.params;
+  const { rank } = req.body;
+  const { userId } = req.user;
+  const date = new Date().toISOString();
+
+  try {
+    const matchup = await mysql(
+      'SELECT m.team_a, m.team_b FROM matchup m, league_members lm, team t WHERE m.id = ? AND (m.team_a = t.id OR m.team_b = t.id) AND t.league_member_id = lm.id AND lm.user_id = ?',
+      [matchup_id, userId]
+    );
+
+    if (!matchup.length) {
+      return res.status(400).json({
+        message: 'There is no matchup available.',
+      });
+    }
+
+    const { team_a, team_b } = matchup[0];
+
+    const teams = await mysql('SELECT * FROM team WHERE id in (?)', [
+      [team_a, team_b],
+    ]);
+
+    await mysql(
+      'INSERT INTO `votes` (`initiator_id`, `matchup_id`, `player_a_id`, `player_b_id`, `player_a_count`, `player_b_count`, `rank`, `active`, `create_date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [userId, matchup_id, teams[0][rank], teams[1][rank], 0, 0, rank, 1, date]
+    );
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Create matchup voting',
+    });
+  }
+};
+
+module.exports.getMatchupVotes = async (req, res) => {
+  const { vote_id } = req.params;
+
+  try {
+    const votes = await mysql(
+      'SELECT v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.id = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+      [vote_id]
+    );
+
+    if (!votes.length) {
+      return res.status(400).json({
+        message: 'There is no matchup available to vote on',
+      });
+    }
+
+    if (votes[0].active === 0) {
+      return res.status(400).json({
+        message: 'Theis matchup is no longer active',
+      });
+    }
+
+    return res.status(200).json(votes[0]);
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Get Matchup votes',
     });
   }
 };

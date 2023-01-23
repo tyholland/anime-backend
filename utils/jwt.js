@@ -22,9 +22,9 @@ module.exports.middleware = () => {
       '/users/create',
       '/users/login',
       '/users/logout',
-      '/league/view',
       '/player',
       /^\/player\/.*/,
+      /^\/matchup\/votes\/.*/,
 
       '/',
       '/error',
