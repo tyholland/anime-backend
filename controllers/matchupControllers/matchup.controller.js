@@ -137,7 +137,7 @@ module.exports.getMatchupVotes = async (req, res) => {
 module.exports.getAllMatchupVotes = async (req, res) => {
   try {
     const votes = await mysql(
-      'SELECT v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+      'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
       [1]
     );
 
