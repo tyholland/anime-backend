@@ -94,13 +94,13 @@ module.exports.createMatchupVotes = async (req, res) => {
       [team_a, team_b],
     ]);
 
-    await mysql(
+    const newVote = await mysql(
       'INSERT INTO `votes` (`initiator_id`, `matchup_id`, `player_a_id`, `player_b_id`, `player_a_count`, `player_b_count`, `rank`, `active`, `create_date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [userId, matchup_id, teams[0][rank], teams[1][rank], 0, 0, rank, 1, date]
     );
 
     return res.status(200).json({
-      success: true,
+      matchupVoteId: newVote.insertId,
     });
   } catch (error) {
     return res.status(500).json({
