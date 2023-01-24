@@ -66,6 +66,17 @@ module.exports.createMatchupVotes = async (req, res) => {
   const date = new Date().toISOString();
 
   try {
+    const existingMatchup = await mysql(
+      'SELECT * FROM votes WHERE matchup_id = ? AND rank = ? AND active = ?',
+      [matchup_id, rank, 1]
+    );
+
+    if (existingMatchup.length) {
+      return res.status(400).json({
+        message: 'This matchup already exists.',
+      });
+    }
+
     const matchup = await mysql(
       'SELECT m.team_a, m.team_b FROM matchup m, league_members lm, team t WHERE m.id = ? AND (m.team_a = t.id OR m.team_b = t.id) AND t.league_member_id = lm.id AND lm.user_id = ?',
       [matchup_id, userId]
@@ -104,8 +115,8 @@ module.exports.getMatchupVotes = async (req, res) => {
 
   try {
     const votes = await mysql(
-      'SELECT v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.id = ? AND v.matchup_id = m.id AND m.league_id = l.id',
-      [vote_id]
+      'SELECT v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.id = ? AND v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+      [vote_id, 1]
     );
 
     if (!votes.length) {
@@ -114,17 +125,33 @@ module.exports.getMatchupVotes = async (req, res) => {
       });
     }
 
-    if (votes[0].active === 0) {
-      return res.status(400).json({
-        message: 'Theis matchup is no longer active',
-      });
-    }
-
     return res.status(200).json(votes[0]);
   } catch (error) {
     return res.status(500).json({
       ...error,
       action: 'Get Matchup votes',
+    });
+  }
+};
+
+module.exports.getAllMatchupVotes = async (req, res) => {
+  try {
+    const votes = await mysql(
+      'SELECT v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+      [1]
+    );
+
+    if (!votes.length) {
+      return res.status(400).json({
+        message: 'There are no matchups available to vote on',
+      });
+    }
+
+    return res.status(200).json(votes);
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Get all matchup votes',
     });
   }
 };

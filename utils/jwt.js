@@ -22,6 +22,7 @@ module.exports.middleware = () => {
       '/users/create',
       '/users/login',
       '/users/logout',
+      '/matchup/all/votes',
       '/player',
       /^\/player\/.*/,
       /^\/matchup\/votes\/.*/,
