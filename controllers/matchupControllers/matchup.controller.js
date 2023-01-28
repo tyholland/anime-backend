@@ -1,3 +1,5 @@
+const { getFullTeamMatchupPoints } = require('../../utils/query');
+
 const mysql = require('../../utils/mysql').instance();
 
 module.exports.getMatchup = async (req, res) => {
@@ -20,7 +22,28 @@ module.exports.getMatchup = async (req, res) => {
       });
     }
 
-    return res.status(200).json(matchup);
+    const scoreA = await getFullTeamMatchupPoints(
+      matchup[0].team_a,
+      'team_b',
+      matchup_id
+    );
+    const scoreB = await getFullTeamMatchupPoints(
+      matchup[0].team_b,
+      'team_a',
+      matchup_id
+    );
+
+    await mysql('UPDATE matchup SET score_a = ?, score_b = ? WHERE id = ?', [
+      scoreA,
+      scoreB,
+      matchup_id,
+    ]);
+
+    const newMatchupData = await mysql('SELECT * FROM matchup WHERE id = ?', [
+      matchup_id,
+    ]);
+
+    return res.status(200).json(newMatchupData);
   } catch (error) {
     return res.status(500).json({
       ...error,

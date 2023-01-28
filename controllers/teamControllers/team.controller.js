@@ -109,7 +109,7 @@ module.exports.updateTeam = async (req, res) => {
 
   try {
     const team = await mysql(
-      'SELECT t.league_member_id, l.week FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.league_id AND lm.league_id = l.id',
+      'SELECT t.league_member_id, l.week FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [team_id]
     );
 

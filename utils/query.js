@@ -177,3 +177,227 @@ module.exports.formatTeam = async (data, member, res) => {
     });
   }
 };
+
+module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
+  try {
+    const matchup = await mysql(
+      `SELECT t.villain, t.battlefield FROM matchup m, team t WHERE m.id = ? AND m.${team} = t.id`,
+      [matchupId]
+    );
+
+    const specificTeam = await mysql('SELECT * FROM team WHERE id = ?', [
+      teamId,
+    ]);
+
+    const {
+      captain,
+      brawler_a,
+      brawler_b,
+      bs_brawler,
+      bs_support,
+      support,
+      villain,
+      battlefield,
+      week,
+    } = specificTeam[0];
+
+    const characterArr = [
+      captain,
+      brawler_a,
+      brawler_b,
+      bs_brawler,
+      bs_support,
+      support,
+      villain,
+      battlefield,
+      matchup[0].villain,
+      matchup[0].battlefield,
+    ];
+
+    const characterIds = characterArr.filter((item) => !!item);
+
+    const players = await mysql('SELECT * FROM players WHERE id in (?)', [
+      characterIds,
+    ]);
+
+    const details = {
+      week,
+      support,
+      bs_support,
+      battlefield,
+      opponentVillain: matchup[0].villain,
+      opponentBattlefield: matchup[0].battlefield,
+    };
+
+    const captainData = characterAttr(players, captain, 'captain', details);
+    const brawlerAData = characterAttr(
+      players,
+      brawler_a,
+      'brawler_a',
+      details
+    );
+    const brawlerBData = characterAttr(
+      players,
+      brawler_b,
+      'brawler_b',
+      details
+    );
+    const bsBrawlerData = characterAttr(
+      players,
+      bs_brawler,
+      'bs_brawler',
+      details
+    );
+    const bsSupportData = characterAttr(
+      players,
+      bs_support,
+      'bs_support',
+      details
+    );
+    const supportData = characterAttr(players, support, 'support', details);
+    const villainData = characterAttr(players, villain, 'villain', details);
+    const battlefieldData = characterAttr(
+      players,
+      battlefield,
+      'battlefield',
+      details
+    );
+
+    const totalTeamPoints =
+      captainData.matchPoints +
+      brawlerAData.matchPoints +
+      brawlerBData.matchPoints +
+      bsBrawlerData.matchPoints +
+      bsSupportData.matchPoints +
+      supportData.matchPoints +
+      villainData.matchPoints +
+      battlefieldData.matchPoints;
+
+    return totalTeamPoints;
+  } catch (err) {
+    throw new Error('Can not get full team matchup points');
+  }
+};
+
+module.exports.insertNewMatchup = async (leagueId, teamA, teamB, week) => {
+  if (week === 1) {
+    try {
+      await mysql(
+        'INSERT INTO `matchup` (`league_id`, `team_a`, `team_b`, `score_a`, `score_b`, `week`, `active`) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [leagueId, teamA, teamB, 0, 0, week, 1]
+      );
+
+      await mysql('UPDATE team SET week = ?, status = ? WHERE id = ?', [
+        week,
+        'home',
+        teamA,
+      ]);
+      await mysql('UPDATE team SET week = ?, status = ? WHERE id = ?', [
+        week,
+        'away',
+        teamB,
+      ]);
+
+      return;
+    } catch (err) {
+      throw new Error(`Can not insert new matchup for week: ${week}`);
+    }
+  }
+
+  try {
+    await mysql(
+      'INSERT INTO `matchup` (`league_id`, `team_a`, `team_b`, `score_a`, `score_b`, `week`, `active`) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [leagueId, teamA, teamB, 0, 0, week, 0]
+    );
+
+    const newTeamA = await mysql(
+      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE id = ?',
+      [teamA]
+    );
+
+    await mysql('UPDATE team SET week = ?, status = ? WHERE id = ?', [
+      week,
+      'home',
+      newTeamA.insertId,
+    ]);
+
+    const newTeamB = await mysql(
+      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE id = ?',
+      [teamB]
+    );
+
+    await mysql('UPDATE team SET week = ?, status = ? WHERE id = ?', [
+      week,
+      'away',
+      newTeamB.insertId,
+    ]);
+
+    return;
+  } catch (err) {
+    throw new Error(`Can not insert new matchup for week: ${week}`);
+  }
+};
+
+module.exports.createSixTeamSchedule = async () => {
+  try {
+    const teams = await mysql(
+      'SELECT t.id, l.id as league_id FROM league l, league_members lm, team t WHERE l.active = ? AND l.week = ? AND l.num_teams = ? AND l.id = lm.league_id AND lm.id = t.league_member_id',
+      [1, 0, 6]
+    );
+
+    const team1 = teams[0].id;
+    const team2 = teams[1].id;
+    const team3 = teams[2].id;
+    const team4 = teams[3].id;
+    const team5 = teams[4].id;
+    const team6 = teams[5].id;
+    const leagueId = teams[0].league_id;
+
+    // Week 1
+    await this.insertNewMatchup(leagueId, team1, team2, 1);
+    await this.insertNewMatchup(leagueId, team3, team4, 1);
+    await this.insertNewMatchup(leagueId, team5, team6, 1);
+
+    // Week 2
+    await this.insertNewMatchup(leagueId, team5, team4, 2);
+    await this.insertNewMatchup(leagueId, team1, team6, 2);
+    await this.insertNewMatchup(leagueId, team2, team3, 2);
+
+    // Week 3
+    await this.insertNewMatchup(leagueId, team3, team1, 3);
+    await this.insertNewMatchup(leagueId, team2, team5, 3);
+    await this.insertNewMatchup(leagueId, team6, team4, 3);
+
+    // Week 4
+    await this.insertNewMatchup(leagueId, team2, team6, 4);
+    await this.insertNewMatchup(leagueId, team4, team1, 4);
+    await this.insertNewMatchup(leagueId, team3, team5, 4);
+
+    // Week 5
+    await this.insertNewMatchup(leagueId, team1, team5, 5);
+    await this.insertNewMatchup(leagueId, team6, team3, 5);
+    await this.insertNewMatchup(leagueId, team4, team2, 5);
+
+    // Week 6
+    await this.insertNewMatchup(leagueId, team3, team2, 6);
+    await this.insertNewMatchup(leagueId, team4, team5, 6);
+    await this.insertNewMatchup(leagueId, team1, team6, 6);
+
+    // Week 7
+    await this.insertNewMatchup(leagueId, team5, team6, 7);
+    await this.insertNewMatchup(leagueId, team1, team2, 7);
+    await this.insertNewMatchup(leagueId, team3, team4, 7);
+
+    // Week 8
+    await this.insertNewMatchup(leagueId, team1, team4, 8);
+    await this.insertNewMatchup(leagueId, team5, team3, 8);
+    await this.insertNewMatchup(leagueId, team6, team2, 8);
+
+    // Week 9
+    await this.insertNewMatchup(leagueId, team6, team3, 9);
+    await this.insertNewMatchup(leagueId, team2, team4, 9);
+    await this.insertNewMatchup(leagueId, team5, team1, 9);
+  } catch (err) {
+    throw new Error('Can not create six team scedule');
+  }
+};
