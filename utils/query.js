@@ -401,3 +401,152 @@ module.exports.createSixTeamSchedule = async () => {
     throw new Error('Can not create six team scedule');
   }
 };
+
+module.exports.createSevenTeamSchedule = async () => {
+  try {
+    const teams = await mysql(
+      'SELECT t.id, l.id as league_id FROM league l, league_members lm, team t WHERE l.active = ? AND l.week = ? AND l.num_teams = ? AND l.id = lm.league_id AND lm.id = t.league_member_id',
+      [1, 0, 7]
+    );
+
+    const team1 = teams[0].id;
+    const team2 = teams[1].id;
+    const team3 = teams[2].id;
+    const team4 = teams[3].id;
+    const team5 = teams[4].id;
+    const team6 = teams[5].id;
+    const team7 = teams[6].id;
+    const leagueId = teams[0].league_id;
+
+    // Week 1
+    await this.insertNewMatchup(leagueId, team2, team1, 1);
+    await this.insertNewMatchup(leagueId, team3, 0, 1);
+    await this.insertNewMatchup(leagueId, team4, team7, 1);
+    await this.insertNewMatchup(leagueId, team5, team6, 1);
+
+    // Week 2
+    await this.insertNewMatchup(leagueId, team3, team4, 2);
+    await this.insertNewMatchup(leagueId, team1, team7, 2);
+    await this.insertNewMatchup(leagueId, 0, team6, 2);
+    await this.insertNewMatchup(leagueId, team2, team5, 2);
+
+    // Week 3
+    await this.insertNewMatchup(leagueId, team6, team2, 3);
+    await this.insertNewMatchup(leagueId, team7, 0, 3);
+    await this.insertNewMatchup(leagueId, team4, team1, 3);
+    await this.insertNewMatchup(leagueId, team5, team3, 3);
+
+    // Week 4
+    await this.insertNewMatchup(leagueId, team7, team5, 4);
+    await this.insertNewMatchup(leagueId, 0, team4, 4);
+    await this.insertNewMatchup(leagueId, team2, team3, 4);
+    await this.insertNewMatchup(leagueId, team6, team1, 4);
+
+    // Week 5
+    await this.insertNewMatchup(leagueId, team1, team3, 5);
+    await this.insertNewMatchup(leagueId, team4, team2, 5);
+    await this.insertNewMatchup(leagueId, team5, 0, 5);
+    await this.insertNewMatchup(leagueId, team6, team7, 5);
+
+    // Week 6
+    await this.insertNewMatchup(leagueId, team4, team5, 6);
+    await this.insertNewMatchup(leagueId, 0, team1, 6);
+    await this.insertNewMatchup(leagueId, team2, team7, 6);
+    await this.insertNewMatchup(leagueId, team3, team6, 6);
+
+    // Week 7
+    await this.insertNewMatchup(leagueId, team7, team3, 7);
+    await this.insertNewMatchup(leagueId, 0, team2, 7);
+    await this.insertNewMatchup(leagueId, team1, team5, 7);
+    await this.insertNewMatchup(leagueId, team6, team4, 7);
+
+    // Week 8
+    await this.insertNewMatchup(leagueId, team2, team1, 8);
+    await this.insertNewMatchup(leagueId, team3, 0, 8);
+    await this.insertNewMatchup(leagueId, team4, team7, 8);
+    await this.insertNewMatchup(leagueId, team5, team6, 8);
+
+    // Week 9
+    await this.insertNewMatchup(leagueId, team3, team4, 9);
+    await this.insertNewMatchup(leagueId, team1, team7, 9);
+    await this.insertNewMatchup(leagueId, 0, team6, 9);
+    await this.insertNewMatchup(leagueId, team2, team5, 9);
+  } catch (err) {
+    throw new Error('Can not create seven team scedule');
+  }
+};
+
+module.exports.createEightTeamSchedule = async () => {
+  try {
+    const teams = await mysql(
+      'SELECT t.id, l.id as league_id FROM league l, league_members lm, team t WHERE l.active = ? AND l.week = ? AND l.num_teams = ? AND l.id = lm.league_id AND lm.id = t.league_member_id',
+      [1, 0, 8]
+    );
+
+    const team1 = teams[0].id;
+    const team2 = teams[1].id;
+    const team3 = teams[2].id;
+    const team4 = teams[3].id;
+    const team5 = teams[4].id;
+    const team6 = teams[5].id;
+    const team7 = teams[6].id;
+    const team8 = teams[7].id;
+    const leagueId = teams[0].league_id;
+
+    // Week 1
+    await this.insertNewMatchup(leagueId, team1, team2, 1);
+    await this.insertNewMatchup(leagueId, team3, team4, 1);
+    await this.insertNewMatchup(leagueId, team5, team6, 1);
+    await this.insertNewMatchup(leagueId, team7, team8, 1);
+
+    // Week 2
+    await this.insertNewMatchup(leagueId, team6, team8, 2);
+    await this.insertNewMatchup(leagueId, team5, team7, 2);
+    await this.insertNewMatchup(leagueId, team2, team4, 2);
+    await this.insertNewMatchup(leagueId, team1, team3, 2);
+
+    // Week 4
+    await this.insertNewMatchup(leagueId, team5, team4, 3);
+    await this.insertNewMatchup(leagueId, team1, team8, 3);
+    await this.insertNewMatchup(leagueId, team7, team3, 3);
+    await this.insertNewMatchup(leagueId, team2, team6, 3);
+
+    // Week 4
+    await this.insertNewMatchup(leagueId, team3, team6, 4);
+    await this.insertNewMatchup(leagueId, team7, team2, 4);
+    await this.insertNewMatchup(leagueId, team1, team5, 4);
+    await this.insertNewMatchup(leagueId, team8, team4, 4);
+
+    // Week 5
+    await this.insertNewMatchup(leagueId, team7, team1, 5);
+    await this.insertNewMatchup(leagueId, team4, team6, 5);
+    await this.insertNewMatchup(leagueId, team3, team8, 5);
+    await this.insertNewMatchup(leagueId, team5, team2, 5);
+
+    // Week 6
+    await this.insertNewMatchup(leagueId, team2, team3, 6);
+    await this.insertNewMatchup(leagueId, team8, team5, 6);
+    await this.insertNewMatchup(leagueId, team4, team1, 6);
+    await this.insertNewMatchup(leagueId, team6, team7, 6);
+
+    // Week 7
+    await this.insertNewMatchup(leagueId, team4, team7, 7);
+    await this.insertNewMatchup(leagueId, team6, team1, 7);
+    await this.insertNewMatchup(leagueId, team8, team2, 7);
+    await this.insertNewMatchup(leagueId, team3, team5, 7);
+
+    // Week 8
+    await this.insertNewMatchup(leagueId, team5, team6, 8);
+    await this.insertNewMatchup(leagueId, team7, team8, 8);
+    await this.insertNewMatchup(leagueId, team3, team4, 8);
+    await this.insertNewMatchup(leagueId, team1, team2, 8);
+
+    // Week 9
+    await this.insertNewMatchup(leagueId, team2, team4, 9);
+    await this.insertNewMatchup(leagueId, team1, team3, 9);
+    await this.insertNewMatchup(leagueId, team5, team7, 9);
+    await this.insertNewMatchup(leagueId, team6, team8, 9);
+  } catch (err) {
+    throw new Error('Can not create eight team scedule');
+  }
+};

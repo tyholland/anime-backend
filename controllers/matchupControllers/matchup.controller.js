@@ -7,9 +7,16 @@ module.exports.getMatchup = async (req, res) => {
   const { userId } = req.user;
 
   try {
-    const matchup = await mysql('SELECT * FROM matchup WHERE id = ?', [
-      matchup_id,
-    ]);
+    const matchup = await mysql(
+      'SELECT * FROM matchup WHERE id = ? AND (team_a != ? OR team_b != ?',
+      [matchup_id, 0, 0]
+    );
+
+    if (!matchup.length) {
+      return res.status(400).json({
+        message: 'This is a bye week matchup',
+      });
+    }
 
     const user = await mysql(
       'SELECT * from league_members lm, matchup m WHERE m.id = ? AND m.league_id = lm.league_id AND lm.user_id = ?',
