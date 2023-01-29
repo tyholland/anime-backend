@@ -25,7 +25,7 @@ module.exports.getAllLeagues = async (req, res) => {
 
   try {
     const leagueData = await mysql(
-      'SELECT l.name, l.id as leagueId, lm.team_name, t.id as teamId FROM league_members lm, league l, team t WHERE lm.user_id = ? AND lm.league_id = l.id AND lm.id = t.league_member_id',
+      'SELECT l.name, l.id as leagueId, lm.team_name, t.id as teamId FROM league_members lm, league l, team t WHERE lm.user_id = ? AND lm.league_id = l.id AND lm.id = t.league_member_id AND l.week = t.week',
       [userId]
     );
 
@@ -63,18 +63,17 @@ module.exports.joinLeague = async (req, res) => {
   const { league_id } = req.params;
 
   try {
-    const leagueMember = await mysql(
-      'SELECT lm.user_id, l.active, l.num_teams FROM league_members lm, league l WHERE lm.user_id = ? AND lm.league_id = ? AND lm.league_id = l.id',
-      [userId, league_id]
-    );
+    const league = await mysql('SELECT * FROM league WHERE id = ?', [
+      league_id,
+    ]);
 
-    if (!leagueMember.length) {
+    if (!league.length) {
       return res.status(400).json({
         message: 'The league you are trying to join does not exist.',
       });
     }
 
-    const { user_id, active, num_teams } = leagueMember[0];
+    const { active, num_teams } = league[0];
 
     if (active === 0) {
       return res.status(400).json({
@@ -82,13 +81,20 @@ module.exports.joinLeague = async (req, res) => {
       });
     }
 
-    if (num_teams === 10) {
+    const leagueMembers = await mysql(
+      'SELECT * FROM league_members WHERE league_id = ?',
+      [league_id]
+    );
+
+    if (leagueMembers.length === num_teams) {
       return res.status(400).json({
         message: 'This league has already reached full capacity.',
       });
     }
 
-    if (userId === user_id) {
+    const userExists = leagueMembers.filter((item) => item.user_id === userId);
+
+    if (userExists.length) {
       return res.status(400).json({
         message: `User already exists in the league id: ${league_id}`,
       });

@@ -8,7 +8,7 @@ module.exports.getMatchup = async (req, res) => {
 
   try {
     const matchup = await mysql(
-      'SELECT * FROM matchup WHERE id = ? AND (team_a != ? OR team_b != ?',
+      'SELECT * FROM matchup WHERE id = ? AND (team_a != ? OR team_b != ?)',
       [matchup_id, 0, 0]
     );
 

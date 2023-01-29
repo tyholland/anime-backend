@@ -98,7 +98,7 @@ module.exports.createUser = async (req, res) => {
     ]);
 
     const account = await mysql(
-      'SELECT u.email, acct.user_id, u.active, acct.username FROM accounts acct, users u WHERE u.id = acct.user_id ORDER BY u.id = ?',
+      'SELECT u.email, acct.user_id, u.active, acct.username FROM accounts acct, users u WHERE u.id = ? AND u.id = acct.user_id',
       [newUser.insertId]
     );
 
