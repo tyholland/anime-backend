@@ -69,6 +69,10 @@ module.exports.getMatchupFromTeam = async (req, res) => {
       [team_id]
     );
 
+    if (!matchupData.length) {
+      return res.status(204).json([]);
+    }
+
     const user = await mysql(
       'SELECT * from league_members lm, matchup m WHERE m.id = ? AND m.league_id = lm.league_id AND lm.user_id = ?',
       [matchupData[0].matchupId, userId]
