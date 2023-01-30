@@ -46,7 +46,7 @@ module.exports.createLeague = async (req, res) => {
   try {
     const newLeague = await mysql(
       'INSERT INTO `league` (`name`, `num_teams`, `active`, `creator_id`, `has_ended`, `create_date`, week) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [name, numTeams, 1, userId, 0, date, 0]
+      [name, numTeams, 1, userId, 0, date, -1]
     );
 
     return await createNewTeam(userId, newLeague.insertId, res);

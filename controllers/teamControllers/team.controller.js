@@ -199,3 +199,52 @@ module.exports.updateTeam = async (req, res) => {
     });
   }
 };
+
+module.exports.getSchedule = async (req, res) => {
+  const { userId } = req.user;
+  const { league_id } = req.params;
+
+  try {
+    const games = await mysql(
+      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b FROM league_members lm, team t, matchup m WHERE lm.user_id = ? AND lm.league_id = ? AND lm.id = t.league_member_id AND (m.team_a = t.id OR m.team_b = t.id)',
+      [userId, league_id]
+    );
+
+    const teamA = [];
+    const teamB = [];
+
+    games.forEach((item) => {
+      teamA.push(item.team_a);
+      teamB.push(item.team_b);
+    });
+
+    const scheduleA = await mysql(
+      'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
+      [teamA]
+    );
+
+    const scheduleB = await mysql(
+      'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
+      [teamB]
+    );
+
+    const mainSchedule = [];
+
+    for (let index = 0; index < games.length; index++) {
+      mainSchedule.push({
+        teamA: scheduleA[index].team_name,
+        teamB: scheduleB[index].team_name,
+        scoreA: games[index].score_a,
+        scoreB: games[index].score_b,
+        week: index + 1,
+      });
+    }
+
+    return res.status(200).json(mainSchedule);
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Get schedule',
+    });
+  }
+};

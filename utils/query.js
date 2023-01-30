@@ -305,11 +305,6 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
   }
 
   try {
-    await mysql(
-      'INSERT INTO `matchup` (`league_id`, `team_a`, `team_b`, `score_a`, `score_b`, `week`, `active`) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [leagueId, teamA, teamB, 0, 0, week, 0]
-    );
-
     const newTeamA = await mysql(
       'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE id = ?',
       [teamA]
@@ -331,6 +326,11 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
       'away',
       newTeamB.insertId,
     ]);
+
+    await mysql(
+      'INSERT INTO `matchup` (`league_id`, `team_a`, `team_b`, `score_a`, `score_b`, `week`, `active`) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [leagueId, newTeamA.insertId, newTeamB.insertId, 0, 0, week, 0]
+    );
 
     return;
   } catch (err) {
