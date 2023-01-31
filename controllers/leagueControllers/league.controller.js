@@ -342,3 +342,25 @@ module.exports.getStandings = async (req, res) => {
     });
   }
 };
+
+module.exports.startLeague = async (req, res) => {
+  const { userId } = req.user;
+  const { leagueId } = req.body;
+
+  try {
+    await mysql('UPDATE league SET week = ? WHERE creator_id = ? AND id = ?', [
+      0,
+      userId,
+      leagueId,
+    ]);
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Start league',
+    });
+  }
+};
