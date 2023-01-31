@@ -44,7 +44,6 @@ module.exports.formatTeam = async (data, member, res) => {
     villain,
     battlefield,
     week,
-    points,
     id,
     status,
   } = data;
@@ -121,7 +120,6 @@ module.exports.formatTeam = async (data, member, res) => {
             id: null,
           },
           week,
-          points,
         },
       });
     }
@@ -167,7 +165,6 @@ module.exports.formatTeam = async (data, member, res) => {
           details
         ),
         week,
-        points,
       },
     });
   } catch (error) {
