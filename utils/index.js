@@ -410,3 +410,9 @@ module.exports.characterAttr = (players, char, rank, details) => {
     },
   };
 };
+
+module.exports.sortRankings = (arr) => {
+  return arr.sort((a, b) => {
+    return a.win < b.win ? -1 : a.win > b.win ? 1 : 0;
+  });
+};

@@ -401,7 +401,7 @@ module.exports.createSixTeamSchedule = async () => {
 
     await mysql('UPDATE league SET week = ? WHERE id = ?', [1, leagueId]);
   } catch (err) {
-    throw new Error('Can not create six team scedule');
+    throw new Error('Can not create six team schedule');
   }
 };
 
@@ -481,7 +481,7 @@ module.exports.createSevenTeamSchedule = async () => {
 
     await mysql('UPDATE league SET week = ? WHERE id = ?', [1, leagueId]);
   } catch (err) {
-    throw new Error('Can not create seven team scedule');
+    throw new Error('Can not create seven team schedule');
   }
 };
 
@@ -562,7 +562,7 @@ module.exports.createEightTeamSchedule = async () => {
 
     await mysql('UPDATE league SET week = ? WHERE id = ?', [1, leagueId]);
   } catch (err) {
-    throw new Error('Can not create eight team scedule');
+    throw new Error('Can not create eight team schedule');
   }
 };
 
@@ -653,7 +653,7 @@ module.exports.createNineTeamSchedule = async () => {
 
     await mysql('UPDATE league SET week = ? WHERE id = ?', [1, leagueId]);
   } catch (err) {
-    throw new Error('Can not create nine team scedule');
+    throw new Error('Can not create nine team schedule');
   }
 };
 
@@ -745,6 +745,6 @@ module.exports.createTenTeamSchedule = async () => {
 
     await mysql('UPDATE league SET week = ? WHERE id = ?', [1, leagueId]);
   } catch (err) {
-    throw new Error('Can not create ten team scedule');
+    throw new Error('Can not create ten team schedule');
   }
 };

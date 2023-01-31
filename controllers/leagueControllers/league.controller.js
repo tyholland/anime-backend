@@ -1,4 +1,5 @@
 const mysql = require('../../utils/mysql').instance();
+const { sortRankings } = require('../../utils');
 const { createNewTeam } = require('../../utils/query');
 
 module.exports.getLeague = async (req, res) => {
@@ -203,6 +204,141 @@ module.exports.getScoreboard = async (req, res) => {
     return res.status(500).json({
       ...error,
       action: 'Get scoreboard',
+    });
+  }
+};
+
+module.exports.getStandings = async (req, res) => {
+  const { userId } = req.user;
+  const { league_id } = req.params;
+  let isFirstWeek = false;
+
+  try {
+    const validUser = await mysql(
+      'SELECT * FROM league_members WHERE league_id = ? AND user_id = ?',
+      [league_id, userId]
+    );
+
+    if (!validUser.length) {
+      return res.status(400).json({
+        message:
+          'You are not a user in this league and can not view the scoreboard.',
+      });
+    }
+
+    let games = await mysql(
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND m.week < l.week',
+      [league_id]
+    );
+
+    const teamA = [];
+    const teamB = [];
+
+    if (!games.length) {
+      isFirstWeek = true;
+
+      games = await mysql(
+        'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b FROM matchup m, league l WHERE m.league_id = ? AND m.week = l.week',
+        [league_id]
+      );
+    }
+
+    games.forEach((item) => {
+      teamA.push(item.team_a);
+      teamB.push(item.team_b);
+    });
+
+    const rankingsA = await mysql(
+      'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
+      [teamA]
+    );
+
+    const rankingsB = await mysql(
+      'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
+      [teamB]
+    );
+
+    const mainRankings = [];
+
+    if (isFirstWeek) {
+      for (let index = 0; index < games.length; index++) {
+        mainRankings.find((rank) => {
+          if (rank.team === rankingsA[index].team_name) {
+            return;
+          }
+        });
+
+        mainRankings.push({
+          team: rankingsA[index].team_name,
+          teamId: rankingsA[index].id,
+          win: 0,
+          loss: 0,
+        });
+
+        mainRankings.find((rank) => {
+          if (rank.team === rankingsB[index].team_name) {
+            return;
+          }
+        });
+
+        mainRankings.push({
+          team: rankingsB[index].team_name,
+          teamId: rankingsB[index].id,
+          win: 0,
+          loss: 0,
+        });
+      }
+
+      return res.status(200).json(sortRankings(mainRankings));
+    }
+
+    for (let index = 0; index < games.length; index++) {
+      mainRankings.find((rank) => {
+        if (rank.team === rankingsA[index].team_name) {
+          rank.win =
+            games[index].score_a > games[index].score_b
+              ? rank.win + 1
+              : rank.win;
+          rank.loss =
+            games[index].score_a < games[index].score_b
+              ? rank.loss + 1
+              : rank.loss;
+        }
+      });
+
+      mainRankings.push({
+        team: rankingsA[index].team_name,
+        teamId: rankingsA[index].id,
+        win: games[index].score_a > games[index].score_b ? 1 : 0,
+        loss: games[index].score_a < games[index].score_b ? 1 : 0,
+      });
+
+      mainRankings.find((rank) => {
+        if (rank.team === rankingsB[index].team_name) {
+          rank.win =
+            games[index].score_a > games[index].score_b
+              ? rank.win + 1
+              : rank.win;
+          rank.loss =
+            games[index].score_a < games[index].score_b
+              ? rank.loss + 1
+              : rank.loss;
+        }
+      });
+
+      mainRankings.push({
+        team: rankingsB[index].team_name,
+        teamId: rankingsB[index].id,
+        win: games[index].score_a > games[index].score_b ? 1 : 0,
+        loss: games[index].score_a < games[index].score_b ? 1 : 0,
+      });
+    }
+
+    return res.status(200).json(sortRankings(mainRankings));
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Get standings',
     });
   }
 };

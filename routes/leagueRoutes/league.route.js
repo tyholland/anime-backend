@@ -6,6 +6,7 @@ const {
   getAllLeagues,
   joinLeague,
   getScoreboard,
+  getStandings,
 } = require('../../controllers/leagueControllers/league.controller');
 const { authenticateToken } = require('../../utils');
 
@@ -17,4 +18,5 @@ module.exports = (app) => {
   app.put('/league/:league_id', authenticateToken, updateLeague);
   app.delete('/league/:league_id', authenticateToken, deleteLeague);
   app.get('/league/scoreboard/:league_id', authenticateToken, getScoreboard);
+  app.get('/league/standings/:league_id', authenticateToken, getStandings);
 };
