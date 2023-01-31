@@ -748,3 +748,29 @@ module.exports.createTenTeamSchedule = async () => {
     throw new Error('Can not create ten team schedule');
   }
 };
+
+module.exports.startNewWeek = async () => {
+  try {
+    const leagues = await mysql(
+      'SELECT id, week FROM league WHERE active = ? AND has_ended = ?',
+      [1, 0]
+    );
+
+    for (let index = 0; index < leagues.length; index++) {
+      const { week, id } = leagues[index];
+      const newWeek = week + 1;
+
+      if (week === 12) {
+        await mysql(
+          'UPDATE league SET active = ?, has_ended = ? WHERE id = ?',
+          [0, 1, id]
+        );
+        return;
+      }
+
+      await mysql('UPDATE league SET week = ? WHERE id = ?', [newWeek, id]);
+    }
+  } catch (err) {
+    throw new Error('Can not start new week');
+  }
+};

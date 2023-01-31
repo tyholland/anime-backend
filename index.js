@@ -11,6 +11,15 @@ const session = require('express-session');
 const errorhandler = require('errorhandler');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const cron = require('node-cron');
+const {
+  createSixTeamSchedule,
+  createSevenTeamSchedule,
+  createEightTeamSchedule,
+  createNineTeamSchedule,
+  createTenTeamSchedule,
+  startNewWeek,
+} = require('./utils/query');
 
 /**
  * App Variables
@@ -75,6 +84,39 @@ app.get('/doc', (req, res) => {
  */
 
 require('./routes/routes')(app);
+
+cron.schedule(
+  '0 8 * * Sunday',
+  async () => {
+    // Create team schedule and matchups
+    await createSixTeamSchedule();
+    await createSevenTeamSchedule();
+    await createEightTeamSchedule();
+    await createNineTeamSchedule();
+    await createTenTeamSchedule();
+
+    // Start new week or end league
+    await startNewWeek();
+
+    console.log('Stop users from matchup voting');
+  },
+  {
+    scheduled: true,
+    timezone: 'America/New_York',
+  }
+);
+
+cron.schedule(
+  '0 8 * * Wednesday',
+  async () => {
+    console.log('Stop users from changing their roster');
+    console.log('Allow users to start matchup voting');
+  },
+  {
+    scheduled: true,
+    timezone: 'America/New_York',
+  }
+);
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
