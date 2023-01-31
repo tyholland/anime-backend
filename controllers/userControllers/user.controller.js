@@ -3,24 +3,6 @@ const jwt = require('jsonwebtoken');
 const { validateEmail } = require('../../utils');
 const secret = process.env.REACT_APP_SECRET;
 
-module.exports.getAccount = async (req, res) => {
-  const { userId } = req.user;
-
-  try {
-    const account = await mysql(
-      'SELECT a.username, u.email FROM accounts a, users u WHERE u.id = ? AND u.id = a.user_id',
-      [userId]
-    );
-
-    return res.status(200).json(account);
-  } catch (error) {
-    return res.status(500).json({
-      ...error,
-      action: 'Get Account',
-    });
-  }
-};
-
 module.exports.loginUser = async (req, res) => {
   const { firebaseUID, email } = req.body;
 
@@ -32,7 +14,7 @@ module.exports.loginUser = async (req, res) => {
 
   try {
     const account = await mysql(
-      'SELECT u.email, a.user_id, u.active, a.username FROM accounts a, users u WHERE u.id = a.user_id AND u.firebase_uid = ? AND u.email = ?',
+      'SELECT email, id as user_id, active FROM users WHERE firebase_uid = ? AND email = ?',
       [firebaseUID, email]
     );
 
@@ -93,12 +75,8 @@ module.exports.createUser = async (req, res) => {
       [userEmail, firebaseId, date]
     );
 
-    await mysql('INSERT INTO `accounts` (`user_id`) VALUES (?)', [
-      newUser.insertId,
-    ]);
-
     const account = await mysql(
-      'SELECT u.email, acct.user_id, u.active, acct.username FROM accounts acct, users u WHERE u.id = ? AND u.id = acct.user_id',
+      'SELECT email, id as user_id, active FROM users WHERE id = ?',
       [newUser.insertId]
     );
 
@@ -151,27 +129,6 @@ module.exports.deleteAccount = async (req, res) => {
     return res.status(500).json({
       ...error,
       action: 'Delete Account',
-    });
-  }
-};
-
-module.exports.updateAccount = async (req, res) => {
-  const { userId } = req.user;
-  const { userName } = req.body;
-
-  try {
-    await mysql('UPDATE accounts SET username = ? WHERE user_id = ?', [
-      userName,
-      userId,
-    ]);
-
-    return res.status(200).json({
-      success: true,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      ...error,
-      action: 'Update Account',
     });
   }
 };

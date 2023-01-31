@@ -1,8 +1,6 @@
 const {
-  getAccount,
   createUser,
   deleteAccount,
-  updateAccount,
   loginUser,
   logoutUser,
 } = require('./../../controllers/userControllers/user.controller');
@@ -12,7 +10,5 @@ module.exports = (app) => {
   app.post('/users/create', createUser);
   app.post('/users/login', loginUser);
   app.post('/users/logout', logoutUser);
-  app.get('/users', authenticateToken, getAccount);
   app.delete('/users', authenticateToken, deleteAccount);
-  app.put('/users', authenticateToken, updateAccount);
 };
