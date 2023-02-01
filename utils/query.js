@@ -765,7 +765,10 @@ module.exports.startNewWeek = async () => {
         return;
       }
 
-      await mysql('UPDATE league SET week = ? WHERE id = ?', [newWeek, id]);
+      await mysql(
+        'UPDATE league SET week = ?, is_roster_active = ? WHERE id = ?',
+        [newWeek, 1, id]
+      );
     }
   } catch (err) {
     throw new Error('Can not start new week');
