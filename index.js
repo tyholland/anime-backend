@@ -19,6 +19,8 @@ const {
   createNineTeamSchedule,
   createTenTeamSchedule,
   startNewWeek,
+  stopRosterStartVoting,
+  stopUserVoting,
 } = require('./utils/query');
 
 /**
@@ -86,19 +88,17 @@ app.get('/doc', (req, res) => {
 require('./routes/routes')(app);
 
 cron.schedule(
-  '0 8 * * Sunday',
+  '0 20 * * Sunday',
   async () => {
+    // Start new week or end league
+    await startNewWeek();
+
     // Create team schedule and matchups
     await createSixTeamSchedule();
     await createSevenTeamSchedule();
     await createEightTeamSchedule();
     await createNineTeamSchedule();
     await createTenTeamSchedule();
-
-    // Start new week or end league
-    await startNewWeek();
-
-    console.log('Stop users from matchup voting');
   },
   {
     scheduled: true,
@@ -109,8 +109,20 @@ cron.schedule(
 cron.schedule(
   '0 8 * * Wednesday',
   async () => {
-    console.log('Stop users from changing their roster');
-    console.log('Allow users to start matchup voting');
+    // Stop users from changing their roster. Start matchup voting
+    await stopRosterStartVoting();
+  },
+  {
+    scheduled: true,
+    timezone: 'America/New_York',
+  }
+);
+
+cron.schedule(
+  '0 23 * * Saturday',
+  async () => {
+    // Stop matchup voting
+    await stopUserVoting();
   },
   {
     scheduled: true,

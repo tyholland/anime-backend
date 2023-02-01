@@ -43,11 +43,13 @@ module.exports.createLeague = async (req, res) => {
   const { name, numTeams } = req.body;
   const { userId } = req.user;
   const date = new Date().toISOString();
+  const randomStr = (Math.random() + 1).toString(36).substring(5);
+  const hash = `ABZ-${randomStr}`;
 
   try {
     const newLeague = await mysql(
-      'INSERT INTO `league` (`name`, `num_teams`, `active`, `creator_id`, `has_ended`, `create_date`, week) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [name, numTeams, 1, userId, 0, date, -1]
+      'INSERT INTO `league` (`name`, `num_teams`, `active`, `creator_id`, `is_roster_active`, `is_voting_active`, `hash`, `create_date`, week) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [name, numTeams, 1, userId, 1, 0, hash, date, -1]
     );
 
     return await createNewTeam(userId, newLeague.insertId, res);
@@ -61,12 +63,10 @@ module.exports.createLeague = async (req, res) => {
 
 module.exports.joinLeague = async (req, res) => {
   const { userId } = req.user;
-  const { league_id } = req.params;
+  const { hash } = req.body;
 
   try {
-    const league = await mysql('SELECT * FROM league WHERE id = ?', [
-      league_id,
-    ]);
+    const league = await mysql('SELECT * FROM league WHERE hash = ?', [hash]);
 
     if (!league.length) {
       return res.status(400).json({
@@ -74,7 +74,7 @@ module.exports.joinLeague = async (req, res) => {
       });
     }
 
-    const { active, num_teams } = league[0];
+    const { active, num_teams, id } = league[0];
 
     if (active === 0) {
       return res.status(400).json({
@@ -84,7 +84,7 @@ module.exports.joinLeague = async (req, res) => {
 
     const leagueMembers = await mysql(
       'SELECT * FROM league_members WHERE league_id = ?',
-      [league_id]
+      [id]
     );
 
     if (leagueMembers.length === num_teams) {
@@ -97,11 +97,11 @@ module.exports.joinLeague = async (req, res) => {
 
     if (userExists.length) {
       return res.status(400).json({
-        message: `User already exists in the league id: ${league_id}`,
+        message: `User already exists in the league id: ${id}`,
       });
     }
 
-    return await createNewTeam(userId, league_id, res);
+    return await createNewTeam(userId, id, res);
   } catch (error) {
     return res.status(500).json({
       ...error,
@@ -111,13 +111,13 @@ module.exports.joinLeague = async (req, res) => {
 };
 
 module.exports.updateLeague = async (req, res) => {
-  const { name, teams, isActive, hasEnded } = req.body;
+  const { name, teams, isActive } = req.body;
   const { league_id } = req.params;
 
   try {
     const updatedLeague = await mysql(
-      'UPDATE league SET name = ?, num_teams = ?, active = ?, has_ended = ? WHERE id = ?',
-      [name, teams, isActive, hasEnded, league_id]
+      'UPDATE league SET name = ?, num_teams = ?, active = ? WHERE id = ?',
+      [name, teams, isActive, league_id]
     );
 
     return res.status(200).json(updatedLeague);

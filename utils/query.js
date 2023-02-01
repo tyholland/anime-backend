@@ -752,8 +752,8 @@ module.exports.createTenTeamSchedule = async () => {
 module.exports.startNewWeek = async () => {
   try {
     const leagues = await mysql(
-      'SELECT id, week FROM league WHERE active = ? AND has_ended = ?',
-      [1, 0]
+      'SELECT id, week FROM league WHERE active = ?',
+      [1]
     );
 
     for (let index = 0; index < leagues.length; index++) {
@@ -761,10 +761,7 @@ module.exports.startNewWeek = async () => {
       const newWeek = week + 1;
 
       if (week === 12) {
-        await mysql(
-          'UPDATE league SET active = ?, has_ended = ? WHERE id = ?',
-          [0, 1, id]
-        );
+        await mysql('UPDATE league SET active = ? WHERE id = ?', [0, id]);
         return;
       }
 
@@ -772,5 +769,39 @@ module.exports.startNewWeek = async () => {
     }
   } catch (err) {
     throw new Error('Can not start new week');
+  }
+};
+
+module.exports.stopRosterStartVoting = async () => {
+  try {
+    const leagues = await mysql('SELECT id FROM league WHERE active = ?', [1]);
+
+    for (let index = 0; index < leagues.length; index++) {
+      const { id } = leagues[index];
+
+      await mysql(
+        'UPDATE league SET is_roster_active = ?, is_voting_active = ? WHERE id = ?',
+        [0, 1, id]
+      );
+    }
+  } catch (err) {
+    throw new Error('Can not stop roster change and start voting');
+  }
+};
+
+module.exports.stopUserVoting = async () => {
+  try {
+    const leagues = await mysql('SELECT id FROM league WHERE active = ?', [1]);
+
+    for (let index = 0; index < leagues.length; index++) {
+      const { id } = leagues[index];
+
+      await mysql('UPDATE league SET is_voting_active = ? WHERE id = ?', [
+        0,
+        id,
+      ]);
+    }
+  } catch (err) {
+    throw new Error('Can not stop voting');
   }
 };
