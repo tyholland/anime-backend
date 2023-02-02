@@ -1,6 +1,6 @@
 const mysql = require('../../utils/mysql').instance();
 const { getAffinitiesTypes, getBoostPoints } = require('../../utils/index');
-const { formatTeam } = require('../../utils/query');
+const { formatTeam, getLeagueMemebrInfo } = require('../../utils/query');
 
 module.exports.getTeam = async (req, res) => {
   const { team_id } = req.params;
@@ -57,14 +57,48 @@ module.exports.getMatchupTeam = async (req, res) => {
 
 module.exports.getTeamInfo = async (req, res) => {
   const { member_id } = req.params;
+  const { userId } = req.user;
 
   try {
     const member = await mysql(
-      'SELECT lm.team_name, lm.points, lm.id, l.name FROM league_members lm, league l WHERE lm.id = ? AND lm.league_id = l.id',
+      'SELECT lm.team_name, lm.points, lm.id, l.name, lm.league_id FROM league_members lm, league l WHERE lm.id = ? AND lm.league_id = l.id',
       [member_id]
     );
 
-    return res.status(200).json(member);
+    const games = await mysql(
+      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b, t.id as teamId FROM league_members lm, team t, matchup m, league l WHERE lm.user_id = ? AND l.id = ? AND l.id = lm.league_id AND m.week < l.week AND lm.id = t.league_member_id AND (m.team_a = t.id OR m.team_b = t.id)',
+      [userId, member[0].league_id]
+    );
+
+    let rankings = {
+      win: 0,
+      loss: 0,
+    };
+
+    for (let index = 0; index < games?.length; index++) {
+      if (games[index].team_a === games[index].teamId) {
+        const isWin = games[index].score_a > games[index].score_b;
+
+        rankings = {
+          win: isWin ? rankings.win + 1 : rankings.win,
+          loss: !isWin ? rankings.loss + 1 : rankings.loss,
+        };
+      }
+
+      if (games[index].team_b === games[index].teamId) {
+        const isWin = games[index].score_b > games[index].score_a;
+
+        rankings = {
+          win: isWin ? rankings.win + 1 : rankings.win,
+          loss: !isWin ? rankings.loss + 1 : rankings.loss,
+        };
+      }
+    }
+
+    return res.status(200).json({
+      ...member[0],
+      rank: rankings,
+    });
   } catch (error) {
     return res.status(500).json({
       ...error,
@@ -218,15 +252,8 @@ module.exports.getSchedule = async (req, res) => {
       teamB.push(item.team_b);
     });
 
-    const scheduleA = await mysql(
-      'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
-      [teamA]
-    );
-
-    const scheduleB = await mysql(
-      'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
-      [teamB]
-    );
+    const scheduleA = await getLeagueMemebrInfo(teamA);
+    const scheduleB = await getLeagueMemebrInfo(teamB);
 
     const mainSchedule = [];
 

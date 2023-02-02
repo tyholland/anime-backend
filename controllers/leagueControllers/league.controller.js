@@ -1,6 +1,6 @@
 const mysql = require('../../utils/mysql').instance();
 const { sortRankings } = require('../../utils');
-const { createNewTeam } = require('../../utils/query');
+const { createNewTeam, getLeagueMemebrInfo } = require('../../utils/query');
 
 module.exports.getLeague = async (req, res) => {
   const { league_id } = req.params;
@@ -178,15 +178,8 @@ module.exports.getScoreboard = async (req, res) => {
       teamB.push(item.team_b);
     });
 
-    const scoreboardA = await mysql(
-      'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
-      [teamA]
-    );
-
-    const scoreboardB = await mysql(
-      'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
-      [teamB]
-    );
+    const scoreboardA = await getLeagueMemebrInfo(teamA);
+    const scoreboardB = await getLeagueMemebrInfo(teamB);
 
     const mainScoreboard = [];
 
@@ -248,15 +241,8 @@ module.exports.getStandings = async (req, res) => {
       teamB.push(item.team_b);
     });
 
-    const rankingsA = await mysql(
-      'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
-      [teamA]
-    );
-
-    const rankingsB = await mysql(
-      'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
-      [teamB]
-    );
+    const rankingsA = await getLeagueMemebrInfo(teamA);
+    const rankingsB = await getLeagueMemebrInfo(teamB);
 
     const mainRankings = [];
 

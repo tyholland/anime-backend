@@ -808,3 +808,10 @@ module.exports.stopUserVoting = async () => {
     throw new Error('Can not stop voting');
   }
 };
+
+module.exports.getLeagueMemebrInfo = async (arrayOfIds) => {
+  return await mysql(
+    'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
+    [arrayOfIds]
+  );
+};
