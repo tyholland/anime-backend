@@ -133,7 +133,21 @@ module.exports.deleteLeague = async (req, res) => {
   const { league_id } = req.params;
 
   try {
-    await mysql('DELETE FROM league WHERE id = ?', [league_id]);
+    const league = await mysql(
+      'SELECT * FROM league WHERE id = ? AND week = ?',
+      [league_id, -1]
+    );
+
+    if (!league.length) {
+      return res.status(400).json({
+        message: 'This league is active and can not be deleted',
+      });
+    }
+
+    await mysql('DELETE FROM league WHERE id = ? AND week = ?', [
+      league_id,
+      -1,
+    ]);
 
     await mysql('DELETE FROM league_members WHERE league_id = ?', [league_id]);
 
