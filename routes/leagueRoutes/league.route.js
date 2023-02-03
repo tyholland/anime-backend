@@ -8,6 +8,7 @@ const {
   getScoreboard,
   getStandings,
   startLeague,
+  getLeagueAdminData,
 } = require('../../controllers/leagueControllers/league.controller');
 const { authenticateToken } = require('../../utils');
 
@@ -21,4 +22,5 @@ module.exports = (app) => {
   app.get('/league/scoreboard/:league_id', authenticateToken, getScoreboard);
   app.get('/league/standings/:league_id', authenticateToken, getStandings);
   app.post('/league/start', authenticateToken, startLeague);
+  app.get('/league/admin/settings', authenticateToken, getLeagueAdminData);
 };

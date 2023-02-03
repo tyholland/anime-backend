@@ -364,3 +364,29 @@ module.exports.startLeague = async (req, res) => {
     });
   }
 };
+
+module.exports.getLeagueAdminData = async (req, res) => {
+  const { userId } = req.user;
+
+  try {
+    const leagueData = await mysql(
+      'SELECT * FROM league WHERE creator_id = ?',
+      [userId]
+    );
+
+    const teams = await mysql(
+      'SELECT * FROM league_members WHERE league_id = ?',
+      [leagueData[0].id]
+    );
+
+    return res.status(200).json({
+      league: leagueData[0],
+      teams: teams,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Get League',
+    });
+  }
+};
