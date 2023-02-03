@@ -189,3 +189,45 @@ module.exports.getAllMatchupVotes = async (req, res) => {
     });
   }
 };
+
+module.exports.addVotes = async (req, res) => {
+  const { userId } = req.user;
+  const { voteId, votedFor, playerCount } = req.body;
+
+  try {
+    const isExistingVoter = await mysql(
+      'SELECT * FROM votes_user WHERE user_id = ? AND votes_id = ?',
+      [userId, voteId]
+    );
+
+    if (isExistingVoter.length) {
+      return res.status(400).json({
+        message: 'You already voted on this matchup',
+      });
+    }
+
+    await mysql(
+      'INSERT INTO `votes_user` (`votes_id`, `user_id`, `vote_for_id`) VALUES (?, ?, ?)',
+      [voteId, userId, votedFor]
+    );
+
+    const voteTotal = await mysql(
+      'SELECT * FROM votes_user WHERE votes_id = ? AND vote_for_id = ?',
+      [voteId, votedFor]
+    );
+
+    await mysql(`UPDATE votes SET ${playerCount} = ? WHERE id = ?`, [
+      voteTotal.length,
+      voteId,
+    ]);
+
+    return res.status(200).json({
+      votes: voteTotal.length,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Add votes',
+    });
+  }
+};
