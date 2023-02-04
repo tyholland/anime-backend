@@ -1,18 +1,10 @@
 {
-  "name": "ABS Api",
-  "version": "2.0.0",
-  "description": "Documentation for the enpoints provided by ABS",
-  "title": "ABS API Doc",
-  "url" : "https://api.freedomrains.com",
-  "order": [
-    "User",
-    "Gamers",
-    "Products",
-    "Customer Service",
-    "Uninstalled Reasons",
-    "Scrap Data",
-    "Google Authentication"
-  ],
+  "name": "ABZ API",
+  "version": "1.0.0",
+  "description": "Documentation for the enpoints provided by Anime Brothaz",
+  "title": "ABZ API Doc",
+  "url": "https://api.animebrothaz.com",
+  "order": ["User", "Player", "Team", "Matchup", "League"],
   "template": {
     "showRequiredLabels": false,
     "withCompare": true,
