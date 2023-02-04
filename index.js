@@ -3,7 +3,7 @@
  */
 
 const fs = require('fs');
-const express = require('serverless-express/express');
+const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { middleware } = require('./utils/jwt');
