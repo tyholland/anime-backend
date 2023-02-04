@@ -111,6 +111,12 @@ module.exports.updateTeamName = async (req, res) => {
   const { name } = req.body;
   const { member_id } = req.params;
 
+  if (!name.length) {
+    return res.status(400).json({
+      message: 'Please enter a league name',
+    });
+  }
+
   try {
     await mysql('UPDATE league_members SET team_name = ? WHERE id = ?', [
       name,
