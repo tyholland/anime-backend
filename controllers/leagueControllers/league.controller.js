@@ -1,6 +1,10 @@
 const mysql = require('../../utils/mysql').instance();
 const { sortRankings } = require('../../utils');
-const { createNewTeam, getLeagueMemebrInfo } = require('../../utils/query');
+const {
+  createNewTeam,
+  getLeagueMemebrInfo,
+  checkValidUserInLeague,
+} = require('../../utils/query');
 
 module.exports.getLeague = async (req, res) => {
   const { league_id } = req.params;
@@ -115,12 +119,14 @@ module.exports.updateLeague = async (req, res) => {
   const { league_id } = req.params;
 
   try {
-    const updatedLeague = await mysql(
+    await mysql(
       'UPDATE league SET name = ?, num_teams = ?, active = ? WHERE id = ?',
       [name, teams, isActive, league_id]
     );
 
-    return res.status(200).json(updatedLeague);
+    return res.status(200).json({
+      success: true,
+    });
   } catch (error) {
     return res.status(500).json({
       ...error,
@@ -167,17 +173,7 @@ module.exports.getScoreboard = async (req, res) => {
   const { league_id } = req.params;
 
   try {
-    const validUser = await mysql(
-      'SELECT * FROM league_members WHERE league_id = ? AND user_id = ?',
-      [league_id, userId]
-    );
-
-    if (!validUser.length) {
-      return res.status(400).json({
-        message:
-          'You are not a user in this league and can not view the scoreboard.',
-      });
-    }
+    await checkValidUserInLeague(userId, league_id, res);
 
     const games = await mysql(
       'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b FROM matchup m, league l WHERE m.league_id = ? AND m.week = l.week',
@@ -221,17 +217,7 @@ module.exports.getStandings = async (req, res) => {
   let isFirstWeek = false;
 
   try {
-    const validUser = await mysql(
-      'SELECT * FROM league_members WHERE league_id = ? AND user_id = ?',
-      [league_id, userId]
-    );
-
-    if (!validUser.length) {
-      return res.status(400).json({
-        message:
-          'You are not a user in this league and can not view the scoreboard.',
-      });
-    }
+    await checkValidUserInLeague(userId, league_id, res);
 
     let games = await mysql(
       'SELECT m.team_a, m.team_b, m.score_a, m.score_b FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND m.week < l.week',

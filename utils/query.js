@@ -830,3 +830,16 @@ module.exports.checkMatchupUserExists = async (userId, matchupId, res) => {
 module.exports.getTeamQuery = async (teamId) => {
   return await mysql('SELECT * FROM team WHERE id = ?', [teamId]);
 };
+
+module.exports.checkValidUserInLeague = async (userId, leagueId, res) => {
+  const validUser = await mysql(
+    'SELECT * FROM league_members WHERE league_id = ? AND user_id = ?',
+    [leagueId, userId]
+  );
+
+  if (!validUser.length) {
+    return res.status(400).json({
+      message: 'You are not a user in this league and can not view this page.',
+    });
+  }
+};

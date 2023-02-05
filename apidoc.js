@@ -549,10 +549,10 @@
  * @apiName     Get Matchup From Team
  * @apiGroup    Matchup
  *
- * @apiParam    {team_id}        id                        team ID
+ * @apiParam    {int}             team_id                  team ID
  *
  * @apiSuccess  {object[]}       matchupData               matchup data object
- * @apiSuccess  {int}        matchupData.matchupId     matchup ID
+ * @apiSuccess  {int}            matchupData.matchupId     matchup ID
  *
  * @apiError    (Error 5xx)      500                       Error get matchup data from team
  */
@@ -563,7 +563,7 @@
  * @apiName     Create Matchup Votes
  * @apiGroup    Matchup
  *
- * @apiSuccess  {int}         matchupVoteId                 List of Leads
+ * @apiSuccess  {int}         matchupVoteId                 matchup vote ID
  *
  * @apiError    (Error 5xx)   500                           Error creating matchup votes
  */
@@ -620,313 +620,164 @@
  */
 
 /**
- * @api {get} /leads/update/:id Update a lead
- * @apiVersion 1.0.0
- * @apiName Update Lead
- * @apiGroup Customer Service
+ * @api           {get}         /league/:league_id    Get league
+ * @apiVersion    1.0.0
+ * @apiName       Get League
+ * @apiGroup      League
  *
- * @apiParam {int} id Lead ID
+ * @apiParam      {int}         league_id             league ID
  *
- * @apiBody {varchar} first_name    Lead first name
- * @apiBody {varchar} last_name     Lead last name
- * @apiBody {varchar} email         Lead email
- * @apiBody {varchar} soure         Lead source
- * @apiBody {varchar} affiliate     Person that referred lead
- * @apiBody {varchar} prime         Lead has prime
- * @apiBody {varchar} zip           Lead zip code
+ * @apiSuccess    {varchar}     name                  league name
+ * @apiSuccess    {int}         num_teams             number of teams
+ * @apiSuccess    {int}         creator_id            league creator
+ * @apiSuccess    {int}         teamId                creator team ID
  *
- * @apiSuccess {Object}     Lead            Lead
- * @apiSuccess {int}        Lead.lead_id    ID number
- * @apiSuccess {varchar}    Lead.first_name first name
- * @apiSuccess {varchar}    Lead.last_name  last name
- * @apiSuccess {varchar}    Lead.email      email
- * @apiSuccess {timestamp}  Lead.created_on Date lead submitted from
- * @apiSuccess {varchar}    Lead.source     Application lead submitted from
- * @apiSuccess {varchar}    Lead.affiliate  Person that referred lead
- * @apiSuccess {varchar}    Lead.prime      Lead has prime
- * @apiSuccess {varchar}    Lead.zip        zip code
- *
- * @apiError   (Error 5xx)  500  Internal Server Error
+ * @apiError      (Error 5xx)   500                   Error getting league
  */
 
 /**
- * @api {delete} /leads/delete/:id Delete a Lead
- * @apiVersion 1.0.0
- * @apiName Delete Lead
- * @apiGroup Customer Service
+ * @api           {get}         /league/view         Get all leagues
+ * @apiVersion    1.0.0
+ * @apiName       Get All Leagues
+ * @apiGroup      League
  *
- * @apiParam {int} id Lead ID
+ * @apiSuccess    {varchar}     name                 league name
+ * @apiSuccess    {int}         leagueId             league ID
+ * @apiSuccess    {varchar}     team_name            team name
+ * @apiSuccess    {int}         teamId               team ID
  *
- * @apiSuccess {Object}     Lead            Lead
- * @apiSuccess {int}        Lead.lead_id    ID number
- * @apiSuccess {varchar}    Lead.first_name first name
- * @apiSuccess {varchar}    Lead.last_name  last name
- * @apiSuccess {varchar}    Lead.email      email
- * @apiSuccess {timestamp}  Lead.created_on Date lead submitted from
- * @apiSuccess {varchar}    Lead.source     Application lead submitted from
- * @apiSuccess {varchar}    Lead.affiliate  Person that referred lead
- * @apiSuccess {varchar}    Lead.prime      Lead has prime
- * @apiSuccess {varchar}    Lead.zip        zip code
- *
- * @apiError   (Error 5xx)  500  Internal Server Error
+ * @apiError      (Error 5xx)   500                  Error getting all leagues
  */
 
 /**
- * @api         {get} /products Get all available products
- * @apiVersion  1.0.0
- * @apiName     Get All Products
- * @apiGroup    Products
+ * @api           {post}        /league/create    Create league
+ * @apiVersion    1.0.0
+ * @apiName       Create League
+ * @apiGroup      League
  *
- * @apiSuccess {String[]} Products             List of products
- * @apiSuccess {String}   Product.id           Product identification number
- * @apiSuccess {String}   Product.description  Product description
- * @apiSuccess {String}   Product.image        Product image
- * @apiSuccess {String}   Product.name         Product name
- * @apiSuccess {String}   Product.category     Category the product fits into
- * @apiSuccess {String}   Product.platform     Platform that the product is apart of
- * @apiSuccess {String}   Product.priority     Order the product shows up in the list of products
- * @apiSuccess {String}   Product.size         Product size(s)
- * @apiSuccess {String}   Product.color        Product color(s)
- * @apiSuccess {String}   Product.link         Product link to the store that it comes from
- * @apiSuccess {String}   Product.store        Name of store that the product is from
+ * @apiBody       {varchar}     name              league name
+ * @apiBody       {int}         numTeams          number of teams
  *
- * @apiError   (Error 5xx)  500  Internal Server Error
+ * @apiSuccess    {int}         teamId            team ID
+ * @apiSuccess    {int}         leagueId          league ID
+ *
+ * @apiError      (Error 5xx)   500               Error creating league
  */
 
 /**
- * @api         {get} /products/:id Get a product
- * @apiVersion  1.0.0
- * @apiName     Get Product
- * @apiGroup    Products
+ * @api           {put}         /league/join       Join league
+ * @apiVersion    1.0.0
+ * @apiName       Join League
+ * @apiGroup      League
  *
- * @apiParam   {String}   id Price id of product
+ * @apiBody       {varchar}     hash              league hash
  *
- * @apiSuccess {String}   Product              Product
- * @apiSuccess {String}   Product.id           Product identification number
- * @apiSuccess {String}   Product.description  Product description
- * @apiSuccess {String}   Product.image        Product image
- * @apiSuccess {String}   Product.name         Product name
- * @apiSuccess {String}   Product.category     Category the product fits into
- * @apiSuccess {String}   Product.platform     Platform that the product is apart of
- * @apiSuccess {String}   Product.priority     Order the product shows up in the list of products
- * @apiSuccess {String}   Product.size         Product size(s)
- * @apiSuccess {String}   Product.color        Product color(s)
- * @apiSuccess {String}   Product.link         Product link to the store that it comes from
- * @apiSuccess {String}   Product.store        Name of store that the product is from
+ * @apiSuccess    {int}         teamId            team ID
+ * @apiSuccess    {int}         leagueId          league ID
  *
- * @apiError   (Error 5xx)  500  Internal Server Error
+ * @apiError      (Error 5xx)   500               Error joining league
  */
 
 /**
- * @api         {get} /products/extra/:id Get all available products filtered by price
- * @apiVersion  1.0.0
- * @apiName     Get Extra Products
- * @apiGroup    Products
+ * @api           {put}         /league/:league_id    Update league
+ * @apiVersion    1.0.0
+ * @apiName       Update League
+ * @apiGroup      League
  *
- * @apiParam   {String} id Price id of product
+ * @apiParam      {int}         league_id             league hash
  *
- * @apiSuccess {String[]}  Products            List of extra products
- * @apiSuccess {String}   Product.id           Product identification number
- * @apiSuccess {String}   Product.description  Product description
- * @apiSuccess {String}   Product.image        Product image
- * @apiSuccess {String}   Product.name         Product name
- * @apiSuccess {String}   Product.category     Category the product fits into
- * @apiSuccess {String}   Product.platform     Platform that the product is apart of
- * @apiSuccess {String}   Product.priority     Order the product shows up in the list of products
- * @apiSuccess {String}   Product.size         Product size(s)
- * @apiSuccess {String}   Product.color        Product color(s)
- * @apiSuccess {String}   Product.link         Product link to the store that it comes from
- * @apiSuccess {String}   Product.store        Name of store that the product is from
+ * @apiBody       {varchar}     name                  league name
+ * @apiBody       {int}         teams                 number of teams
+ * @apiBody       {int}         isActive              league availability
  *
- * @apiError   (Error 5xx)  500  Internal Server Error
+ * @apiSuccess    {boolean}     success               request completed
+ *
+ * @apiError      (Error 5xx)   500                   Error updating league
  */
 
 /**
- * @api         {get} /scrap/coupon/:site Get list of coupons for a given site
- * @apiVersion  1.0.0
- * @apiName     Coupon Scrap
- * @apiGroup    Scrap Data
+ * @api           {delete}      /league/:league_id    Delete league
+ * @apiVersion    1.0.0
+ * @apiName       Delete League
+ * @apiGroup      League
  *
- * @apiParam   {string}     site             Store url to scrap
+ * @apiParam      {int}         league_id             league ID
  *
- * @apiSuccess {object}     codes            Coupon code info
- * @apiSuccess {int}        couponCount      Amount of coupons available
- * @apiSuccess {boolen}     notRecommended   Website does not has any coupons
+ * @apiSuccess    {boolean}     success               request completed
  *
- * @apiError (Error 5xx) 500 Fetch Items Error
+ * @apiError      (Error 5xx)   500                   Error deleting league
  */
 
 /**
- * @api         {post} /scrap/product Check Product Page Details
- * @apiVersion  1.0.0
- * @apiName     Discount Scrap
- * @apiGroup    Scrap Data
+ * @api           {get}          /league/scoreboard/:league_id    Get scoreboard
+ * @apiVersion    1.0.0
+ * @apiName       Get Scoreboard
+ * @apiGroup      League
  *
- * @apiBody {varchar} desired Desired amount for product
- * @apiBody {varchar} dayAmount Amount of days to extend past wishdate
- * @apiBody {varchar} wishDate Wish date for product to reach desired amount
- * @apiBody {varchar} name Product name
+ * @apiParam      {int}          league_id                        league ID
  *
- * @apiSuccess {string} message Successful text
- * @apiSuccess {boolean} hasDrop Coupon is available to grab
- * @apiSuccess {string} prod Product name
+ * @apiSuccess    {object[]}     mainScoreboard                   scoreboard object
+ * @apiSuccess    {varchar}      mainScoreboard.teamA             team A name
+ * @apiSuccess    {varchar}      mainScoreboard.teamB             team B name
+ * @apiSuccess    {int}          mainScoreboard.scoreA            team A score
+ * @apiSuccess    {int}          mainScoreboard.scoreB            team B score
+ *
+ * @apiError      (Error 5xx)    500                              Error getting league scoreboard
  */
 
 /**
- * @api        {post} /scrap/price Get product price change
- * @apiVersion 1.0.0
- * @apiName    Product Scrap
- * @apiGroup   Scrap Data
+ * @api           {get}          /league/standings/:league_id    Get standings
+ * @apiVersion    1.0.0
+ * @apiName       Get Standings
+ * @apiGroup      League
  *
- * @apiBody    {varchar} url Site link
+ * @apiParam      {int}          league_id                       league ID
  *
- * @apiSuccess {string} price       Product price
- * @apiSuccess {string} price2      Product price
- * @apiSuccess {string} price3      Product price
- * @apiSuccess {string} sale        Product sale price
- * @apiSuccess {string} url         Product class page
- * @apiSuccess {int}    dayAmount   Amount of days to extend past wishdate
- * @apiSuccess {int}    desired     Desired amount for product
- * @apiSuccess {string} percentage  Percent savings
- * @apiSuccess {string} wishDate    Wish date for product to reach desired amount
+ * @apiSuccess    {object[]}     mainRankings                    rankings object
+ * @apiSuccess    {varchar}      mainRankings.team               team name
+ * @apiSuccess    {int}          mainRankings.teamId             team ID
+ * @apiSuccess    {int}          mainRankings.win                games won
+ * @apiSuccess    {int}          mainRankings.loss               games lost
+ *
+ * @apiError      (Error 5xx)    500                             Error getting league standings
  */
 
 /**
- * @api         {get} /gaming/user Get all gamers
- * @apiVersion  1.0.0
- * @apiName     Get Gamers
- * @apiGroup    Gamers
+ * @api           {post}          /league/start    Start league
+ * @apiVersion    1.0.0
+ * @apiName       Start League
+ * @apiGroup      League
  *
- * @apiSuccess {Object[]}  Gamers                     List of gamers
- * @apiSuccess {varchar}   Gamer.acct_username        Gamer username
- * @apiSuccess {int}       Gamer.gaming_id            Gaming id
- * @apiSuccess {int}       Gamer.users_highest_score  Gamer highest score
- * @apiSuccess {int}       Gamer.curr_level           Gamer level in game
- * @apiSuccess {double}    Gamer.time_played          time spent playing game
- * @apiSuccess {int}       Gamer.bubbleshot           bubbleshot results
- * @apiSuccess {varchar}   Gamer.curr_tokens          Gamer current tokens
- * @apiSuccess {boolean}   Gamer.x_levels_completed   Gamer levels completed in game
- * @apiSuccess {int}       Gamer.number_comm_tokens   Gamer levels completed in game
- * @apiSuccess {int}       Gamer.event_id             Event id
+ * @apiBody       {int}           leagueId         league ID
+ *
+ * @apiSuccess    {boolean}       success          request completed
+ *
+ * @apiError      (Error 5xx)     500              Error starting league
  */
 
 /**
- * @api         {post} /gaming/create Create a gamer
- * @apiVersion  1.0.0
- * @apiName     Create a gamer
- * @apiGroup    Gamers
+ * @api           {get}         /league/admin/settings      Get league admin data
+ * @apiVersion    1.0.0
+ * @apiName       Get League Admin Data
+ * @apiGroup      League
  *
- * @apiBody {varchar}   acct_username        Gamer username
- * @apiBody {int}       gaming_id            Gaming id
- * @apiBody {int}       users_highest_score  Gamer's highest score
- * @apiBody {int}       curr_level           Gamer's level in game
- * @apiBody {double}    time_played          time spent playing game
- * @apiBody {int}       bubbleshot           bubbleshot results
- * @apiBody {varchar}   curr_tokens          Gamer's current tokens
- * @apiBody {boolean}   x_levels_completed   Gamer's levels completed in game
- * @apiBody {int}       number_comm_tokens   Gamer's levels completed in game
- * @apiBody {int}       event_id             Event id
- * @apiBody {int}       user_id              Gamer User id number
+ * @apiSuccess    {Object}      league                      league object
+ * @apiSuccess    {int}         league.id                   league ID
+ * @apiSuccess    {varchar}     league.name                 league name
+ * @apiSuccess    {int}         league.num_teams            number of teams
+ * @apiSuccess    {tinyint}     league.active               league availability
+ * @apiSuccess    {int}         league.creator_id           league creator
+ * @apiSuccess    {tinyint}     league.is_roster_active     roster is/isn't editiable
+ * @apiSuccess    {tinyint}     league.is_voting_active     voting is/isn't editiable
+ * @apiSuccess    {varchar}     league.hash                 league hash
+ * @apiSuccess    {varchar}     league.create_date          date league created
+ * @apiSuccess    {int}         league.week                 league week
+ * @apiSuccess    {Object[]}    teams                       teams object
+ * @apiSuccess    {int}         teams.id                    team ID
+ * @apiSuccess    {int}         teams.user_id               team user ID
+ * @apiSuccess    {int}         teams.league_id             league ID
+ * @apiSuccess    {varchar}     teams.team_name             team name
+ * @apiSuccess    {int}         teams.points                team points
  *
- * @apiSuccess {Object}    Gamer                Gamer
- * @apiSuccess {varchar}   Gamer.acct_username        Gamer username
- * @apiSuccess {int}       Gamer.gaming_id            Gaming id
- * @apiSuccess {int}       Gamer.users_highest_score  Gamer highest score
- * @apiSuccess {int}       Gamer.curr_level           Gamer level in game
- * @apiSuccess {double}    Gamer.time_played          time spent playing game
- * @apiSuccess {int}       Gamer.bubbleshot           bubbleshot results
- * @apiSuccess {varchar}   Gamer.curr_tokens          Gamer current tokens
- * @apiSuccess {boolean}   Gamer.x_levels_completed   Gamer levels completed in game
- * @apiSuccess {int}       Gamer.number_comm_tokens   Gamer levels completed in game
- * @apiSuccess {int}       Gamer.event_id             Event id
- * @apiBody    {int}       Gamer.user_id              Gamer user id number
- *
- * @apiError   (Error 5xx)  500  Internal Server Error
- */
-
-/**
- * @api         {put} /gaming/update/:id Update a gamer
- * @apiVersion  1.0.0
- * @apiName     Update a gamer
- * @apiGroup    Gamers
- *
- * @apiParam {int} id Gamer ID
- *
- * @apiBody {varchar}   acct_username        Gamer username
- * @apiBody {int}       gaming_id            Gaming id
- * @apiBody {int}       users_highest_score  Gamer's highest score
- * @apiBody {int}       curr_level           Gamer's level in game
- * @apiBody {double}    time_played          time spent playing game
- * @apiBody {int}       bubbleshot           bubbleshot results
- * @apiBody {varchar}   curr_tokens          Gamer's current tokens
- * @apiBody {boolean}   x_levels_completed   Gamer's levels completed in game
- * @apiBody {int}       number_comm_tokens   Gamer's levels completed in game
- * @apiBody {int}       event_id             Event id
- * @apiBody {int}       user_id              Gamer User id number
- *
- * @apiSuccess {Object}    Gamer                Gamer
- * @apiSuccess {varchar}   Gamer.acct_username        Gamer username
- * @apiSuccess {int}       Gamer.gaming_id            Gaming id
- * @apiSuccess {int}       Gamer.users_highest_score  Gamer highest score
- * @apiSuccess {int}       Gamer.curr_level           Gamer level in game
- * @apiSuccess {double}    Gamer.time_played          time spent playing game
- * @apiSuccess {int}       Gamer.bubbleshot           bubbleshot results
- * @apiSuccess {varchar}   Gamer.curr_tokens          Gamer current tokens
- * @apiSuccess {boolean}   Gamer.x_levels_completed   Gamer levels completed in game
- * @apiSuccess {int}       Gamer.number_comm_tokens   Gamer levels completed in game
- * @apiSuccess {int}       Gamer.event_id             Event id
- * @apiBody    {int}       Gamer.user_id              Gamer user id number
- *
- * @apiError   (Error 5xx)  500  Internal Server Error
- */
-
-/**
- * @api         {delete} /gaming/delete/:id Delete a gamer
- * @apiVersion  1.0.0
- * @apiName     Update a gamer
- * @apiGroup    Gamers
- *
- * @apiParam {int} id gamer id
- *
- * @apiSuccess {Object}    Gamer                      Deleted Gamer
- * @apiSuccess {varchar}   Gamer.acct_username        Gamer username
- * @apiSuccess {int}       Gamer.gaming_id            Gaming id
- * @apiSuccess {int}       Gamer.users_highest_score  Gamer highest score
- * @apiSuccess {int}       Gamer.curr_level           Gamer level in game
- * @apiSuccess {double}    Gamer.time_played          time spent playing game
- * @apiSuccess {int}       Gamer.bubbleshot           bubbleshot results
- * @apiSuccess {varchar}   Gamer.curr_tokens          Gamer current tokens
- * @apiSuccess {boolean}   Gamer.x_levels_completed   Gamer levels completed in game
- * @apiSuccess {int}       Gamer.number_comm_tokens   Gamer levels completed in game
- * @apiSuccess {int}       Gamer.event_id             Event id
- * @apiBody    {int}       Gamer.user_id              Gamer user id number
- *
- * @apiError   (Error 5xx)  500  Internal Server Error
- */
-
-/**
- * @api         {get} /auth/google Authorize a user
- * @apiVersion  1.0.0
- * @apiName     Update a gamer
- * @apiGroup    Google Authentication
- *
- * @apiError (Error 4xx) 401 User not authenticated
- */
-
-/**
- * @api         {get} /auth/google/callback Google Callback
- * @apiVersion  1.0.0
- * @apiName     Googke Callback
- * @apiGroup    Google Authentication
- *
- * @apiError (Error 4xx) 401 User not authentcated
- */
-
-/**
- * @api         {get} /error Authentication errror
- * @apiVersion  1.0.0
- * @apiName     Authentication error
- * @apiGroup    Google Authentication
- *
- * @apiError (Error 4xx) 401 User not authenticated
+ * @apiError      (Error 5xx)   500                         Error gettin league admin data
  */
