@@ -1,13 +1,17 @@
 const mysql = require('../../utils/mysql').instance();
 const { getAffinitiesTypes, getBoostPoints } = require('../../utils/index');
-const { formatTeam, getLeagueMemebrInfo } = require('../../utils/query');
+const {
+  formatTeam,
+  getLeagueMemebrInfo,
+  getTeamQuery,
+} = require('../../utils/query');
 
 module.exports.getTeam = async (req, res) => {
   const { team_id } = req.params;
   const { userId } = req.user;
 
   try {
-    const team = await mysql('SELECT * FROM team WHERE id = ?', [team_id]);
+    const team = await getTeamQuery(team_id);
 
     const member = await mysql(
       'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members lm, league l, team t WHERE lm.user_id = ? AND t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
@@ -33,7 +37,7 @@ module.exports.getMatchupTeam = async (req, res) => {
   const { team_id } = req.params;
 
   try {
-    const team = await mysql('SELECT * FROM team WHERE id = ?', [team_id]);
+    const team = await getTeamQuery(team_id);
 
     const member = await mysql(
       'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members lm, league l, team t WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',

@@ -505,141 +505,118 @@
  * @apiSuccess  {Object[]}    mainSchedule                  schedule array
  * @apiSuccess  {varchar}     mainSchedule.teamA            team one
  * @apiSuccess  {varchar}     mainSchedule.teamB            team two
- * @apiSuccess  {varchar}     mainSchedule.scoreA           team one score
- * @apiSuccess  {varchar}     mainSchedule.scoreB           team two score
- * @apiSuccess  {varchar}     mainSchedule.week             league week
+ * @apiSuccess  {int}         mainSchedule.scoreA           team one score
+ * @apiSuccess  {int}         mainSchedule.scoreB           team two score
+ * @apiSuccess  {int}         mainSchedule.week             league week
  *
  * @apiError    (Error 5xx)   500                           Error getting league schedule
  */
 
 /**
- * @api         {put} /uninstalled/update/:id Update an uninstalled reason
+ * @api         {get}         /matchup/:matchup_id    Get matchup
  * @apiVersion  1.0.0
- * @apiName     Update Uninstalled Reason
- * @apiGroup    Uninstalled Reasons
+ * @apiName     Get Matchup
+ * @apiGroup    Matchup
  *
- * @apiParam {int}       id              User ID
+ * @apiParam    {int}         matchup_id              matchup ID
  *
- * @apiBody {varchar}    annoyed         Uninstall reason is annoyed
- * @apiBody {varchar}    canada          Uninstall reason is lives in Canada
- * @apiBody {varchar}    cashback        Uninstall reason is cashback
- * @apiBody {varchar}    shop            Uninstall reason is doesn't shop
- * @apiBody {varchar}    technical       Uninstall reason is due to technical issues
- * @apiBody {varchar}    useful          Uninstall reason is not useful
- * @apiBody {varchar}    work            Uninstall reason is on work computer
- * @apiBody {timestamp}  created_on      When uninstall reason was created
- * @apiBody {varchar}    other           Uninstall reason is other
- * @apiBody {varchar}    other_response  Uninstall reason is user entered response
- * @apiBody {varchar}    sizing          Uninstall reason is not the right sizing
+ * @apiSuccess  {Object}      matchup                 matchup object
+ * @apiSuccess  {int}         matchup.id              matchup ID
+ * @apiSuccess  {int}         matchup.league_id       league ID
+ * @apiSuccess  {int}         matchup.team_a          team A
+ * @apiSuccess  {int}         matchup.team_b          team B
+ * @apiSuccess  {int}         matchup.score_a         score A
+ * @apiSuccess  {int}         matchup.score_b         score B
+ * @apiSuccess  {int}         matchup.week            matchup week
+ * @apiSuccess  {tinyint}     matchup.active          matchup availability
+ * @apiSuccess  {Object[]}    votes                   votes object
+ * @apiSuccess  {int}         votes.initiator_id      vote initiator
+ * @apiSuccess  {int}         votes.matchup_id        matchup ID
+ * @apiSuccess  {int}         votes.player_a_id       player A ID
+ * @apiSuccess  {int}         votes.player_b_id       player B ID
+ * @apiSuccess  {int}         votes.player_a_count    votes for player A
+ * @apiSuccess  {int}         votes.player_b_count    votes for player B
+ * @apiSuccess  {int}         votes.rank              player rank
+ * @apiSuccess  {int}         votes.active            vote avilability
+ * @apiSuccess  {timestamp}   votes.create_date       vote date created
  *
- * @apiSuccess {Object}     Reason                 Reason
- * @apiSuccess {int}        Reason.uninstall_id    Reason ID number
- * @apiSuccess {varchar}    Reason.annoyed         Uninstall reason is annoyed
- * @apiSuccess {varchar}    Reason.canada          Uninstall reason is lives in Canada
- * @apiSuccess {varchar}    Reason.cashback        Uninstall reason is cashback
- * @apiSuccess {varchar}    Reason.shop            Uninstall reason is doesn't shop
- * @apiSuccess {varchar}    Reason.technical       Uninstall reason is due to technical issues
- * @apiSuccess {varchar}    Reason.useful          Uninstall reason is not useful
- * @apiSuccess {varchar}    Reason.work            Uninstall reason is on work computer
- * @apiSuccess {timestamp}  Reason.created_on      When uninstall reason was created
- * @apiSuccess {varchar}    Reason.other           Uninstall reason is other
- * @apiSuccess {varchar}    Reason.other_response  Uninstall reason is user entered response
- * @apiSuccess {varchar}    Reason.sizing          Uninstall reason is not the right sizing
- *
- * @apiError   (Error 5xx)  500  Internal Server Error
+ * @apiError    (Error 5xx)   500                     Error getting matchup
  */
 
 /**
- * @api         {delete} /uninstalled/delete/:id Delete an uninstalled reason
+ * @api         {get}            /matchup/team/:team_id    Get matchup from team
  * @apiVersion  1.0.0
- * @apiName     Delete Uninstalled Reason
- * @apiGroup    Uninstalled Reasons
+ * @apiName     Get Matchup From Team
+ * @apiGroup    Matchup
  *
- * @apiParam    {int}       id                  reason ID number
+ * @apiParam    {team_id}        id                        team ID
  *
- * @apiSuccess {int}        uninstall_id    Reason ID number
- * @apiSuccess {varchar}    annoyed         Uninstall reason is annoyed
- * @apiSuccess {varchar}    canada          Uninstall reason is lives in Canada
- * @apiSuccess {varchar}    cashback        Uninstall reason is cashback
- * @apiSuccess {varchar}    shop            Uninstall reason is doesn't shop
- * @apiSuccess {varchar}    technical       Uninstall reason is due to technical issues
- * @apiSuccess {varchar}    useful          Uninstall reason is not useful
- * @apiSuccess {varchar}    work            Uninstall reason is on work computer
- * @apiSuccess {timestamp}  created_on      When uninstall reason was created
- * @apiSuccess {varchar}    other           Uninstall reason is other
- * @apiSuccess {varchar}    other_response  Uninstall reason is user entered response
- * @apiSuccess {varchar}    sizing          Uninstall reason is not the right sizing
+ * @apiSuccess  {object[]}       matchupData               matchup data object
+ * @apiSuccess  {int}        matchupData.matchupId     matchup ID
  *
- * @apiError   (Error 5xx)  500  Internal Server Error
- */
-
-//"Lead" is a placeholder for entities in Leads[]
-/**
- * @api         {get} /leads Get all Leads
- * @apiVersion  1.0.0
- * @apiName     Get Leads
- * @apiGroup    Customer Service
- *
- * @apiSuccess {Object[]}   Leads           List of Leads
- * @apiSuccess {int}        Lead.lead_id    Lead ID number
- * @apiSuccess {varchar}    Lead.first_name Lead first name
- * @apiSuccess {varchar}    Lead.last_name  Lead ast name
- * @apiSuccess {varchar}    Lead.email      Lead email
- * @apiSuccess {timestamp}  Lead.created_on Lead Date lead submitted form
- * @apiSuccess {varchar}    Lead.source     Lead Application lead submitted from
- * @apiSuccess {varchar}    Lead.affiliate  Lead Person that referred lead
- * @apiSuccess {varchar}    Lead.prime      Lead Lead has prime
- * @apiSuccess {varchar}    Lead.zip        Lead zip code
+ * @apiError    (Error 5xx)      500                       Error get matchup data from team
  */
 
 /**
- * @api         {post} /leads/create Add a new lead
+ * @api         {post}        /matchup/vote/:matchup_id     Create matchup votes
  * @apiVersion  1.0.0
- * @apiName     New Leads
- * @apiGroup    Customer Service
+ * @apiName     Create Matchup Votes
+ * @apiGroup    Matchup
  *
- * @apiBody {varchar} first_name    Lead first name
- * @apiBody {varchar} last_name     Lead last name
- * @apiBody {varchar} email         Lead email
- * @apiBody {varchar} soure         Lead source
- * @apiBody {varchar} affiliate     Person that referred lead
- * @apiBody {varchar} prime         Lead has prime
- * @apiBody {varchar} zip           Lead zip code
+ * @apiSuccess  {int}         matchupVoteId                 List of Leads
  *
- * @apiSuccess {int}       lead_id      Lead ID number
- * @apiSuccess {varchar}   first_name   Lead first name
- * @apiSuccess {varchar}   last_name    Lead last name
- * @apiSuccess {varchar}   email        Lead email
- * @apiSuccess {timestamp} created_on   Date lead submitted form
- * @apiSuccess {varchar}   source       Application lead submitted from
- * @apiSuccess {varchar}   affiliate    Person that referred lead
- * @apiSuccess {varchar}   prime        Lead has prime
- * @apiSuccess {varchar}   zip          Lead zip code
- *
- * @apiError (Error 4xx) 400  Invalid email or zipcode
- * @apiError (Error 5xx) 500  Internal Server Error
+ * @apiError    (Error 5xx)   500                           Error creating matchup votes
  */
 
 /**
- * @api {get} /leads/:id Get a lead
- * @apiVersion 1.0.0
- * @apiName Get Lead
- * @apiGroup Customer Service
+ * @api         {get}         /matchup/votes/:vote_id     Get matchup votes
+ * @apiVersion  1.0.0
+ * @apiName     Get Matchup Votes
+ * @apiGroup    Matchup
  *
- * @apiParam {int} id Lead ID
+ * @apiParam    {int}         vote_id                     vote ID
  *
- * @apiSuccess {Object}     Lead            Lead
- * @apiSuccess {int}        Lead.lead_id    ID number
- * @apiSuccess {varchar}    Lead.first_name first name
- * @apiSuccess {varchar}    Lead.last_name  last name
- * @apiSuccess {varchar}    Lead.email      email
- * @apiSuccess {timestamp}  Lead.created_on Date lead submitted form
- * @apiSuccess {varchar}    Lead.source     Application lead submitted from
- * @apiSuccess {varchar}    Lead.affiliate  Person that referred lead
- * @apiSuccess {varchar}    Lead.prime      Lead has prime
- * @apiSuccess {varchar}    Lead.zip        zip code
+ * @apiSuccess  {int}         active                      vote availability
+ * @apiSuccess  {int}         player_a_id                 player A ID
+ * @apiSuccess  {int}         player_b_id                 player B ID
+ * @apiSuccess  {int}         player_a_count              votes for player A
+ * @apiSuccess  {int}         player_b_count              votes for player B
+ * @apiSuccess  {varchar}     leagueName                  league name
  *
- * @apiError   (Error 5xx)  500  Internal Server Error
+ * @apiError    (Error 5xx)   500                         Error getting matchup votes
+ */
+
+/**
+ * @api         {get}         /matchup/all/votes          Get all matchup votes
+ * @apiVersion  1.0.0
+ * @apiName     Get All Matchup Votes
+ * @apiGroup    Matchup
+ *
+ * @apiParam    {int}         vote_id                     vote ID
+ *
+ * @apiSuccess  {int}         active                      vote availability
+ * @apiSuccess  {int}         player_a_id                 player A ID
+ * @apiSuccess  {int}         player_b_id                 player B ID
+ * @apiSuccess  {int}         player_a_count              votes for player A
+ * @apiSuccess  {int}         player_b_count              votes for player B
+ * @apiSuccess  {varchar}     leagueName                  league name
+ *
+ * @apiError    (Error 5xx)   500                         Error getting matchup votes
+ */
+
+/**
+ * @api             {put}         /matchup/add    Add votes
+ * @apiVersion      1.0.0
+ * @apiName         Add Votes
+ * @apiGroup        Matchup
+ *
+ * @apiBody         {int}         voteId          vote ID
+ * @apiBody         {int}         votedFor        voted for ID
+ * @apiBody         {varchar}     playerCount     specific player string
+ *
+ * @apiSuccess      {int}         votes           number of votes
+ *
+ * @apiError        (Error 5xx)   500             Error adding votes
  */
 
 /**

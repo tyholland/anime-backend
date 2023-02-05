@@ -182,9 +182,7 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       [matchupId]
     );
 
-    const specificTeam = await mysql('SELECT * FROM team WHERE id = ?', [
-      teamId,
-    ]);
+    const specificTeam = await this.getTeamQuery(teamId);
 
     const {
       captain,
@@ -814,4 +812,21 @@ module.exports.getLeagueMemebrInfo = async (arrayOfIds) => {
     'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
     [arrayOfIds]
   );
+};
+
+module.exports.checkMatchupUserExists = async (userId, matchupId, res) => {
+  const user = await mysql(
+    'SELECT * from league_members lm, matchup m WHERE m.id = ? AND m.league_id = lm.league_id AND lm.user_id = ?',
+    [matchupId, userId]
+  );
+
+  if (!user.length) {
+    return res.status(400).json({
+      message: 'You are not a user in the league for this matchup.',
+    });
+  }
+};
+
+module.exports.getTeamQuery = async (teamId) => {
+  return await mysql('SELECT * FROM team WHERE id = ?', [teamId]);
 };

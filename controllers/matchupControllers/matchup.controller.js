@@ -1,4 +1,7 @@
-const { getFullTeamMatchupPoints } = require('../../utils/query');
+const {
+  getFullTeamMatchupPoints,
+  checkMatchupUserExists,
+} = require('../../utils/query');
 
 const mysql = require('../../utils/mysql').instance();
 
@@ -18,16 +21,7 @@ module.exports.getMatchup = async (req, res) => {
       });
     }
 
-    const user = await mysql(
-      'SELECT * from league_members lm, matchup m WHERE m.id = ? AND m.league_id = lm.league_id AND lm.user_id = ?',
-      [matchup_id, userId]
-    );
-
-    if (!user.length) {
-      return res.status(400).json({
-        message: 'You are not a user in the league for this matchup.',
-      });
-    }
+    await checkMatchupUserExists(userId, matchup_id, res);
 
     const scoreA = await getFullTeamMatchupPoints(
       matchup[0].team_a,
@@ -80,16 +74,7 @@ module.exports.getMatchupFromTeam = async (req, res) => {
       return res.status(204).json([]);
     }
 
-    const user = await mysql(
-      'SELECT * from league_members lm, matchup m WHERE m.id = ? AND m.league_id = lm.league_id AND lm.user_id = ?',
-      [matchupData[0].matchupId, userId]
-    );
-
-    if (!user.length) {
-      return res.status(400).json({
-        message: 'You are not a user in the league for this matchup.',
-      });
-    }
+    await checkMatchupUserExists(userId, matchupData[0].matchupId, res);
 
     return res.status(200).json(matchupData);
   } catch (error) {
