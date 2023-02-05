@@ -259,32 +259,88 @@ const getBattlefieldDamage = (players, weakness, field) => {
   return hasMatch.length ? hasMatch[0].value / 100 : 0;
 };
 
+const getVotingBoost = (votes, character) => {
+  const { category, id } = character;
+  const defaultBoost = 250;
+  let voteBoost = defaultBoost / 100;
+  let isWinner = null;
+
+  votes.forEach((vote) => {
+    const isPlayerA =
+      vote.player_a_id === id &&
+      vote.rank.toLowerCase() === category.toLowerCase();
+    const isPlayerB =
+      vote.player_b_id === id &&
+      vote.rank.toLowerCase() === category.toLowerCase();
+
+    if (isPlayerA) {
+      isWinner = vote.player_a_count > vote.player_b_count;
+    }
+
+    if (isPlayerB) {
+      isWinner = vote.player_b_count > vote.player_a_count;
+    }
+  });
+
+  return isWinner ? voteBoost : 0;
+};
+
+const getVotingDamage = (votes, character) => {
+  const { category, id } = character;
+  const defaultDamage = 150;
+  let voteDamage = defaultDamage / 100;
+  let isLoser = null;
+
+  votes.forEach((vote) => {
+    const isPlayerA =
+      vote.player_a_id === id &&
+      vote.rank.toLowerCase() === category.toLowerCase();
+    const isPlayerB =
+      vote.player_b_id === id &&
+      vote.rank.toLowerCase() === category.toLowerCase();
+
+    if (isPlayerA) {
+      isLoser = vote.player_a_count < vote.player_b_count;
+    }
+
+    if (isPlayerB) {
+      isLoser = vote.player_b_count < vote.player_a_count;
+    }
+  });
+
+  return isLoser ? voteDamage : 0;
+};
+
 module.exports.getBoostPoints = (
   isBattlefield,
   isSupportInvalid,
   specificSupport,
   battlefield,
   affinities,
-  powerLevel,
   week,
-  players
+  players,
+  votes,
+  character
 ) => {
-  const weekBoost = getWeeklyBoost(affinities, week) * powerLevel;
+  const { power_level } = character;
+  const weekBoost = getWeeklyBoost(affinities, week) * power_level;
   const boostSupport =
-    getSupportBoost(players, affinities, specificSupport) * powerLevel;
+    getSupportBoost(players, affinities, specificSupport) * power_level;
   const battlefieldSupport =
-    getBattlefieldBoost(players, affinities, battlefield) * powerLevel;
+    getBattlefieldBoost(players, affinities, battlefield) * power_level;
+  const votingBoost = getVotingBoost(votes, character) * power_level;
 
   const supportPoints = isSupportInvalid ? 0 : Math.floor(boostSupport);
   const fieldPoints = isBattlefield ? 0 : Math.floor(battlefieldSupport);
   const weekPoints = Math.floor(weekBoost);
-  const totalPoints = supportPoints + fieldPoints + weekPoints;
+  const votingPoints = Math.floor(votingBoost);
+  const totalPoints = supportPoints + fieldPoints + weekPoints + votingPoints;
 
   return {
     week: weekPoints,
     support: supportPoints,
     battlefield: fieldPoints,
-    voting: 0,
+    voting: votingPoints,
     total: totalPoints,
   };
 };
@@ -292,11 +348,13 @@ module.exports.getBoostPoints = (
 module.exports.getDamagePoints = (
   villain,
   battlefield,
-  powerLevel,
   weakness,
   week,
-  players
+  players,
+  votes,
+  character
 ) => {
+  const { power_level } = character;
   const weekDamage = getWeeklyDamage(weakness, week);
   const villainDamage = getVillainDamage(players, weakness, villain);
   const battlefieldDamage = getBattlefieldDamage(
@@ -304,19 +362,23 @@ module.exports.getDamagePoints = (
     weakness,
     battlefield
   );
+  const votingDamage = getVotingDamage(votes, character);
 
   const villainPoints =
-    villainDamage === 0 ? 0 : Math.floor(powerLevel / villainDamage);
+    villainDamage === 0 ? 0 : Math.floor(power_level / villainDamage);
   const fieldPoints =
-    battlefieldDamage === 0 ? 0 : Math.floor(powerLevel / battlefieldDamage);
-  const weekPoints = weekDamage === 0 ? 0 : Math.floor(powerLevel / weekDamage);
-  const totalPoints = villainPoints + fieldPoints + weekPoints;
+    battlefieldDamage === 0 ? 0 : Math.floor(power_level / battlefieldDamage);
+  const weekPoints =
+    weekDamage === 0 ? 0 : Math.floor(power_level / weekDamage);
+  const votingPoints =
+    votingDamage === 0 ? 0 : Math.floor(power_level / votingDamage);
+  const totalPoints = villainPoints + fieldPoints + weekPoints + votingPoints;
 
   return {
     week: weekPoints,
     villain: villainPoints,
     battlefield: fieldPoints,
-    voting: 0,
+    voting: votingPoints,
     total: totalPoints,
   };
 };
@@ -330,6 +392,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
     bs_support,
     opponentVillain,
     opponentBattlefield,
+    votes,
   } = details;
 
   if (!main.length) {
@@ -371,18 +434,20 @@ module.exports.characterAttr = (players, char, rank, details) => {
     specificSupport,
     battlefield,
     affinities,
-    power_level,
     week,
-    players
+    players,
+    votes,
+    main[0]
   );
 
   const damage = this.getDamagePoints(
     opponentVillain,
     opponentBattlefield,
-    power_level,
     weakness,
     week,
-    players
+    players,
+    votes,
+    main[0]
   );
 
   const teamPoints = power_level + boost.total;

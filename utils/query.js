@@ -58,7 +58,7 @@ module.exports.formatTeam = async (data, member, res) => {
 
   try {
     const matchup = await mysql(
-      `SELECT t.villain, t.battlefield FROM matchup m, team t WHERE m.league_id = ? AND m.week = ? AND m.${homeTeam} = ? AND t.id = m.${awayTeam}`,
+      `SELECT t.villain, t.battlefield, m.id as matchupId FROM matchup m, team t WHERE m.league_id = ? AND m.week = ? AND m.${homeTeam} = ? AND t.id = m.${awayTeam}`,
       [member.league_id, week, id]
     );
     let characterArr = [
@@ -136,6 +136,11 @@ module.exports.formatTeam = async (data, member, res) => {
     };
 
     if (matchup.length) {
+      const votes = await mysql(
+        'SELECT * FROM votes WHERE matchup_id = ? AND active = ?',
+        [matchup[0].matchupId, 0]
+      );
+
       details = {
         week,
         support,
@@ -143,6 +148,7 @@ module.exports.formatTeam = async (data, member, res) => {
         battlefield,
         opponentVillain: matchup[0].villain,
         opponentBattlefield: matchup[0].battlefield,
+        votes,
       };
     }
 
@@ -215,6 +221,10 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       characterIds,
     ]);
 
+    const votes = await mysql('SELECT * FROM votes WHERE matchup_id = ?', [
+      matchupId,
+    ]);
+
     const details = {
       week,
       support,
@@ -222,6 +232,7 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       battlefield,
       opponentVillain: matchup[0].villain,
       opponentBattlefield: matchup[0].battlefield,
+      votes,
     };
 
     const captainData = characterAttr(players, captain, 'captain', details);

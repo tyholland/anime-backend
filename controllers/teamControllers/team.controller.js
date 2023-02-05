@@ -197,6 +197,7 @@ module.exports.updateTeam = async (req, res) => {
       const specificSupport =
         item.id === bsBrawler.id ? bsSupport.id : support.id;
       const isSupportInvalid = isSupport || isBsSupport || isBattlefield;
+      const votes = [];
 
       const boost = getBoostPoints(
         isBattlefield,
@@ -204,9 +205,10 @@ module.exports.updateTeam = async (req, res) => {
         specificSupport,
         battlefield.id,
         affinities,
-        item.power_level,
         team[0].week,
-        players
+        players,
+        votes,
+        item
       );
 
       teamPoints += item.power_level + boost.total;

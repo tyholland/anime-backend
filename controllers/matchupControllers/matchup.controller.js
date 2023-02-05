@@ -44,9 +44,10 @@ module.exports.getMatchup = async (req, res) => {
       matchup_id,
     ]);
 
-    const votes = await mysql('SELECT * FROM votes WHERE matchup_id = ?', [
-      matchup_id,
-    ]);
+    const votes = await mysql(
+      'SELECT * FROM votes WHERE matchup_id = ? AND active = ?',
+      [matchup_id, 0]
+    );
 
     return res.status(200).json({
       matchup: newMatchupData[0],
