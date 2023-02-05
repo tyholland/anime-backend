@@ -563,6 +563,8 @@
  * @apiName     Create Matchup Votes
  * @apiGroup    Matchup
  *
+ * @apiParam    {int}         matchup_id                    matchup ID
+ *
  * @apiSuccess  {int}         matchupVoteId                 matchup vote ID
  *
  * @apiError    (Error 5xx)   500                           Error creating matchup votes
@@ -591,8 +593,6 @@
  * @apiVersion  1.0.0
  * @apiName     Get All Matchup Votes
  * @apiGroup    Matchup
- *
- * @apiParam    {int}         vote_id                     vote ID
  *
  * @apiSuccess  {int}         active                      vote availability
  * @apiSuccess  {int}         player_a_id                 player A ID
