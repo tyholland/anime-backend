@@ -779,5 +779,5 @@
  * @apiSuccess    {varchar}     teams.team_name             team name
  * @apiSuccess    {int}         teams.points                team points
  *
- * @apiError      (Error 5xx)   500                         Error gettin league admin data
+ * @apiError      (Error 5xx)   500                         Error getting league admin data
  */
