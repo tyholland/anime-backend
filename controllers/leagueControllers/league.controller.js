@@ -367,12 +367,55 @@ module.exports.getLeagueAdminData = async (req, res) => {
 
     return res.status(200).json({
       league: leagueData[0],
-      teams: teams,
+      teams,
     });
   } catch (error) {
     return res.status(500).json({
       ...error,
       action: 'Get League',
+    });
+  }
+};
+
+module.exports.removeTeamFromLeague = async (req, res) => {
+  const { userId } = req.user;
+  const { leagueId } = req.body;
+  const { member_id } = req.params;
+
+  try {
+    const leagueData = await mysql(
+      'SELECT * FROM league WHERE creator_id = ? AND id = ?',
+      [userId, leagueId]
+    );
+
+    if (!leagueData.length) {
+      return res.status(400).json({
+        message: 'Only the creator of this league can remove a team',
+      });
+    }
+
+    if (leagueData[0].week >= 0) {
+      return res.status(400).json({
+        message: 'You can\'t remove this team beacuse the league is in session',
+      });
+    }
+
+    await mysql('DELETE FROM league_members WHERE id = ?', [member_id]);
+
+    await mysql('DELETE FROM team WHERE league_member_id = ?', [member_id]);
+
+    const teams = await mysql(
+      'SELECT * FROM league_members WHERE league_id = ?',
+      [leagueData[0].id]
+    );
+
+    return res.status(200).json({
+      teams,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Remove Team from League',
     });
   }
 };

@@ -781,3 +781,23 @@
  *
  * @apiError      (Error 5xx)   500                         Error getting league admin data
  */
+
+/**
+ * @api           {delete}      /league/remove/:member_id   Remove team from league
+ * @apiVersion    1.0.0
+ * @apiName       Remove Team From League
+ * @apiGroup      League
+ *
+ * @apiParam      {int}         member_id                   member ID
+ *
+ * @apiBody       {int}         leagueId                    league ID
+ *
+ * @apiSuccess    {Object[]}    teams                       teams object
+ * @apiSuccess    {int}         teams.id                    team ID
+ * @apiSuccess    {int}         teams.user_id               team user ID
+ * @apiSuccess    {int}         teams.league_id             league ID
+ * @apiSuccess    {varchar}     teams.team_name             team name
+ * @apiSuccess    {int}         teams.points                team points
+ *
+ * @apiError      (Error 5xx)   500                         Error removing team from league
+ */
