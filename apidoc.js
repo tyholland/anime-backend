@@ -513,6 +513,19 @@
  */
 
 /**
+ * @api           {delete}        /team/:league_id    Remove team
+ * @apiVersion    1.0.0
+ * @apiName       Remove team
+ * @apiGroup      Team
+ *
+ * @apiParams     {int}           leagueId            league ID
+ *
+ * @apiSuccess    {boolean}       success             request completed
+ *
+ * @apiError      (Error 5xx)     500                 Error removing team
+ */
+
+/**
  * @api         {get}         /matchup/:matchup_id    Get matchup
  * @apiVersion  1.0.0
  * @apiName     Get Matchup

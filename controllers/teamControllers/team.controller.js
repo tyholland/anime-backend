@@ -287,3 +287,37 @@ module.exports.getSchedule = async (req, res) => {
     });
   }
 };
+
+module.exports.removeTeam = async (req, res) => {
+  const { userId } = req.user;
+  const { league_id } = req.params;
+
+  try {
+    const league = await mysql('SELECT * FROM league WHERE id = ?', [
+      league_id,
+    ]);
+
+    if (league[0].week >= 0) {
+      return res.status(400).json({
+        message: 'You can\'t remove your team while the league is active',
+      });
+    }
+
+    const member = await mysql(
+      'SELECT id FROM league_members WHERE user_id = ? AND league_id = ?',
+      [userId, league_id]
+    );
+
+    await mysql('DELETE FROM team WHERE league_member_id = ?', [member[0].id]);
+    await mysql('DELETE FROM league_members WHERE user_id = ?', [userId]);
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Remove team',
+    });
+  }
+};
