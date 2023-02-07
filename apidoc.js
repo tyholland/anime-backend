@@ -450,6 +450,7 @@
  * @apiSuccess  {int}         id                            account ID
  * @apiSuccess  {int}         league_id                     league ID
  * @apiSuccess  {varchar}     name                          league name
+ * @apiSuccess  {int}         leagueWeek                    week the league is in
  * @apiSuccess  {Object}      rank                          team record
  * @apiSuccess  {int}         rank.win                      team wins
  * @apiSuccess  {int}         rank.loss                     team losses

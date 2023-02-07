@@ -65,7 +65,7 @@ module.exports.getTeamInfo = async (req, res) => {
 
   try {
     const member = await mysql(
-      'SELECT lm.team_name, lm.points, lm.id, l.name, lm.league_id FROM league_members lm, league l WHERE lm.id = ? AND lm.league_id = l.id',
+      'SELECT lm.team_name, lm.points, lm.id, l.name, lm.league_id, l.week as leagueWeek FROM league_members lm, league l WHERE lm.id = ? AND lm.league_id = l.id',
       [member_id]
     );
 
@@ -153,9 +153,16 @@ module.exports.updateTeam = async (req, res) => {
 
   try {
     const team = await mysql(
-      'SELECT t.league_member_id, l.week FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
+      'SELECT t.league_member_id, l.week FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id AND t.week = l.week',
       [team_id]
     );
+
+    if (!team.length) {
+      return res.status(400).json({
+        message:
+          'You can only edit your team\'s roster that is in the league\'s current week.',
+      });
+    }
 
     const characterArr = [
       captain.id,
