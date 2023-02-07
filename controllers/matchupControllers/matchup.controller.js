@@ -105,13 +105,24 @@ module.exports.createMatchupVotes = async (req, res) => {
     }
 
     const matchup = await mysql(
-      'SELECT m.team_a, m.team_b FROM matchup m, league_members lm, team t WHERE m.id = ? AND (m.team_a = t.id OR m.team_b = t.id) AND t.league_member_id = lm.id AND lm.user_id = ?',
+      'SELECT m.team_a, m.team_b, lm.league_id FROM matchup m, league_members lm, team t WHERE m.id = ? AND (m.team_a = t.id OR m.team_b = t.id) AND t.league_member_id = lm.id AND lm.user_id = ?',
       [matchup_id, userId]
     );
 
     if (!matchup.length) {
       return res.status(400).json({
         message: 'There is no matchup available.',
+      });
+    }
+
+    const league = await mysql(
+      'SELECT * FROM league WHERE id = ? AND is_voting_active = ?',
+      [matchup[0].league_id, 1]
+    );
+
+    if (!league.length) {
+      return res.status(400).json({
+        message: 'You can not create anymore votes right now.',
       });
     }
 
@@ -196,6 +207,17 @@ module.exports.addVotes = async (req, res) => {
     if (isExistingVoter.length) {
       return res.status(400).json({
         message: 'You already voted on this matchup',
+      });
+    }
+
+    const isVoteActive = await mysql(
+      'SELECT * FROM matchup m, league l WHERE m.id = ? AND m.league_id = l.id AND l.is_voting_active = ?',
+      [isExistingVoter[0].matchup_id, 1]
+    );
+
+    if (!isVoteActive.length) {
+      return res.status(400).json({
+        message: 'You can not vote on matchups right now.',
       });
     }
 

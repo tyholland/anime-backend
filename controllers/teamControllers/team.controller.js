@@ -153,14 +153,13 @@ module.exports.updateTeam = async (req, res) => {
 
   try {
     const team = await mysql(
-      'SELECT t.league_member_id, l.week FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id AND t.week = l.week',
-      [team_id]
+      'SELECT t.league_member_id, l.week FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id AND t.week = l.week AND l.is_roster_active = ?',
+      [team_id, 1]
     );
 
     if (!team.length) {
       return res.status(400).json({
-        message:
-          'You can only edit your team\'s roster that is in the league\'s current week.',
+        message: 'Editing is disabled for your team.',
       });
     }
 
