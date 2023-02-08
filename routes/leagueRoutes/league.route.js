@@ -10,6 +10,7 @@ const {
   startLeague,
   getLeagueAdminData,
   removeTeamFromLeague,
+  getPlayoffsSchedule,
 } = require('../../controllers/leagueControllers/league.controller');
 const { authenticateToken } = require('../../utils');
 
@@ -28,5 +29,10 @@ module.exports = (app) => {
     '/league/remove/:member_id',
     authenticateToken,
     removeTeamFromLeague
+  );
+  app.get(
+    '/league/playoffs/:league_id',
+    authenticateToken,
+    getPlayoffsSchedule
   );
 };

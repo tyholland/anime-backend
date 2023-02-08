@@ -1,9 +1,10 @@
 const mysql = require('../../utils/mysql').instance();
-const { sortRankings } = require('../../utils');
 const {
   createNewTeam,
   getLeagueMemebrInfo,
   checkValidUserInLeague,
+  createPlayoffsSchedule,
+  getRankings,
 } = require('../../utils/query');
 
 module.exports.getLeague = async (req, res) => {
@@ -224,9 +225,6 @@ module.exports.getStandings = async (req, res) => {
       [league_id]
     );
 
-    const teamA = [];
-    const teamB = [];
-
     if (!games.length) {
       isFirstWeek = true;
 
@@ -236,91 +234,9 @@ module.exports.getStandings = async (req, res) => {
       );
     }
 
-    games.forEach((item) => {
-      teamA.push(item.team_a);
-      teamB.push(item.team_b);
-    });
+    const rankings = await getRankings(games, isFirstWeek);
 
-    const rankingsA = await getLeagueMemebrInfo(teamA);
-    const rankingsB = await getLeagueMemebrInfo(teamB);
-
-    const mainRankings = [];
-
-    if (isFirstWeek) {
-      for (let index = 0; index < games.length; index++) {
-        mainRankings.find((rank) => {
-          if (rank.team === rankingsA[index].team_name) {
-            return;
-          }
-        });
-
-        mainRankings.push({
-          team: rankingsA[index].team_name,
-          teamId: rankingsA[index].id,
-          win: 0,
-          loss: 0,
-        });
-
-        mainRankings.find((rank) => {
-          if (rank.team === rankingsB[index].team_name) {
-            return;
-          }
-        });
-
-        mainRankings.push({
-          team: rankingsB[index].team_name,
-          teamId: rankingsB[index].id,
-          win: 0,
-          loss: 0,
-        });
-      }
-
-      return res.status(200).json(sortRankings(mainRankings));
-    }
-
-    for (let index = 0; index < games.length; index++) {
-      mainRankings.find((rank) => {
-        if (rank.team === rankingsA[index].team_name) {
-          rank.win =
-            games[index].score_a > games[index].score_b
-              ? rank.win + 1
-              : rank.win;
-          rank.loss =
-            games[index].score_a < games[index].score_b
-              ? rank.loss + 1
-              : rank.loss;
-        }
-      });
-
-      mainRankings.push({
-        team: rankingsA[index].team_name,
-        teamId: rankingsA[index].id,
-        win: games[index].score_a > games[index].score_b ? 1 : 0,
-        loss: games[index].score_a < games[index].score_b ? 1 : 0,
-      });
-
-      mainRankings.find((rank) => {
-        if (rank.team === rankingsB[index].team_name) {
-          rank.win =
-            games[index].score_a > games[index].score_b
-              ? rank.win + 1
-              : rank.win;
-          rank.loss =
-            games[index].score_a < games[index].score_b
-              ? rank.loss + 1
-              : rank.loss;
-        }
-      });
-
-      mainRankings.push({
-        team: rankingsB[index].team_name,
-        teamId: rankingsB[index].id,
-        win: games[index].score_a > games[index].score_b ? 1 : 0,
-        loss: games[index].score_a < games[index].score_b ? 1 : 0,
-      });
-    }
-
-    return res.status(200).json(sortRankings(mainRankings));
+    return res.status(200).json(rankings);
   } catch (error) {
     return res.status(500).json({
       ...error,
@@ -416,6 +332,32 @@ module.exports.removeTeamFromLeague = async (req, res) => {
     return res.status(500).json({
       ...error,
       action: 'Remove Team from League',
+    });
+  }
+};
+
+module.exports.getPlayoffsSchedule = async (req, res) => {
+  const { userId } = req.user;
+  const { league_id } = req.params;
+
+  try {
+    await checkValidUserInLeague(userId, league_id, res);
+
+    const firstRound = await createPlayoffsSchedule(league_id, 10);
+    const semis = await createPlayoffsSchedule(league_id, 11);
+    const finals = await createPlayoffsSchedule(league_id, 12);
+
+    const playoffSchedule = {
+      firstRound,
+      semis,
+      finals,
+    };
+
+    return res.status(200).json(playoffSchedule);
+  } catch (error) {
+    return res.status(500).json({
+      ...error,
+      action: 'Get playoff schedule',
     });
   }
 };

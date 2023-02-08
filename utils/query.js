@@ -1,5 +1,5 @@
 const mysql = require('./mysql').instance();
-const { characterAttr } = require('./index');
+const { characterAttr, sortRankings } = require('./index');
 
 module.exports.createNewTeam = async (userId, leagueId, res) => {
   try {
@@ -855,5 +855,170 @@ module.exports.checkValidUserInLeague = async (userId, leagueId, res) => {
     return res.status(400).json({
       message: 'You are not a user in this league and can not view this page.',
     });
+  }
+};
+
+module.exports.getRankings = async (games, isFirstWeek = false) => {
+  try {
+    const teamA = [];
+    const teamB = [];
+
+    games.forEach((item) => {
+      teamA.push(item.team_a);
+      teamB.push(item.team_b);
+    });
+
+    const rankingsA = await this.getLeagueMemebrInfo(teamA);
+    const rankingsB = await this.getLeagueMemebrInfo(teamB);
+
+    const mainRankings = [];
+
+    if (isFirstWeek) {
+      for (let index = 0; index < games.length; index++) {
+        mainRankings.find((rank) => {
+          if (rank.team === rankingsA[index].team_name) {
+            return;
+          }
+        });
+
+        mainRankings.push({
+          team: rankingsA[index].team_name,
+          teamId: rankingsA[index].id,
+          win: 0,
+          loss: 0,
+        });
+
+        mainRankings.find((rank) => {
+          if (rank.team === rankingsB[index].team_name) {
+            return;
+          }
+        });
+
+        mainRankings.push({
+          team: rankingsB[index].team_name,
+          teamId: rankingsB[index].id,
+          win: 0,
+          loss: 0,
+        });
+      }
+
+      return sortRankings(mainRankings);
+    }
+
+    for (let index = 0; index < games.length; index++) {
+      mainRankings.find((rank) => {
+        if (rank.team === rankingsA[index].team_name) {
+          rank.win =
+            games[index].score_a > games[index].score_b
+              ? rank.win + 1
+              : rank.win;
+          rank.loss =
+            games[index].score_a < games[index].score_b
+              ? rank.loss + 1
+              : rank.loss;
+        }
+      });
+
+      mainRankings.push({
+        team: rankingsA[index].team_name,
+        teamId: rankingsA[index].id,
+        win: games[index].score_a > games[index].score_b ? 1 : 0,
+        loss: games[index].score_a < games[index].score_b ? 1 : 0,
+      });
+
+      mainRankings.find((rank) => {
+        if (rank.team === rankingsB[index].team_name) {
+          rank.win =
+            games[index].score_a > games[index].score_b
+              ? rank.win + 1
+              : rank.win;
+          rank.loss =
+            games[index].score_a < games[index].score_b
+              ? rank.loss + 1
+              : rank.loss;
+        }
+      });
+
+      mainRankings.push({
+        team: rankingsB[index].team_name,
+        teamId: rankingsB[index].id,
+        win: games[index].score_a > games[index].score_b ? 1 : 0,
+        loss: games[index].score_a < games[index].score_b ? 1 : 0,
+      });
+    }
+
+    return sortRankings(mainRankings);
+  } catch (err) {
+    throw new Error('Can not get rankings');
+  }
+};
+
+module.exports.playoffsFirstRound = async () => {
+  try {
+    const games = await mysql(
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = lm.league_id AND l.week = ? AND m.week < l.week',
+      [10]
+    );
+
+    for (let index = 0; index < games.length; index++) {
+      const rankings = await this.getRankings(games[index]);
+
+      await insertNewMatchup(games[index].leagueId, rankings[0], 0, 10);
+      await insertNewMatchup(
+        games[index].leagueId,
+        rankings[2],
+        rankings[5],
+        10
+      );
+      await insertNewMatchup(
+        games[index].leagueId,
+        rankings[3],
+        rankings[4],
+        10
+      );
+      await insertNewMatchup(games[index].leagueId, rankings[1], 0, 10);
+    }
+  } catch (error) {
+    throw new Error('Can not first round of playoffs');
+  }
+};
+
+module.exports.createPlayoffsSchedule = async (leagueId, week) => {
+  try {
+    const games = await mysql(
+      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b FROM league_members lm, team t, matchup m, league l WHERE l.id = ? AND l.id = lm.league_id AND lm.id = t.league_member_id AND t.week = ? AND (m.team_a = t.id OR m.team_b = t.id)',
+      [leagueId, week]
+    );
+
+    if (!games.length) {
+      return [];
+    }
+
+    const teamA = [];
+    const teamB = [];
+
+    games.forEach((item) => {
+      teamA.push(item.team_a);
+      teamB.push(item.team_b);
+    });
+
+    const scheduleA = await this.getLeagueMemebrInfo(teamA);
+    const scheduleB = await this.getLeagueMemebrInfo(teamB);
+
+    const playoffSchedule = [];
+
+    for (let index = 0; index < games.length; index++) {
+      playoffSchedule.push({
+        teamA: scheduleA[index].team_name,
+        teamB: scheduleB[index].team_name,
+        scoreA: games[index].score_a,
+        scoreB: games[index].score_b,
+        week: index + 1,
+      });
+    }
+
+    return playoffSchedule;
+  } catch (err) {
+    throw new Error('Can not create playoffs schedule');
   }
 };

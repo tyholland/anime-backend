@@ -815,3 +815,34 @@
  *
  * @apiError      (Error 5xx)   500                         Error removing team from league
  */
+
+/**
+ * @api           {get}         /league/playoffs/:league_id     Get playoffs schedule
+ * @apiVersion    1.0.0
+ * @apiName       Get Playoffs Schedule
+ * @apiGroup      League
+ *
+ * @apiParam      {int}         league_id                       league ID
+ *
+ * @apiSuccess    {Object}      playoffs                        playoffs object
+ * @apiSuccess    {Object[]}    playoffs.firstRound             first round object
+ * @apiSuccess    {varchar}     playoffs.firstRound.teamA       team A name
+ * @apiSuccess    {varchar}     playoffs.firstRound.teamB       team B name
+ * @apiSuccess    {int}         playoffs.firstRound.scoreA      team A score
+ * @apiSuccess    {int}         playoffs.firstRound.scoreB      team B score
+ * @apiSuccess    {varchar}     playoffs.firstRound.week        week
+ * @apiSuccess    {Object[]}    playoffs.semis                  semis object
+ * @apiSuccess    {varchar}     playoffs.semis.teamA            team A name
+ * @apiSuccess    {varchar}     playoffs.semis.teamB            team B name
+ * @apiSuccess    {int}         playoffs.semis.scoreA           team A score
+ * @apiSuccess    {int}         playoffs.semis.scoreB           team B score
+ * @apiSuccess    {varchar}     playoffs.semis.week             week
+ * @apiSuccess    {Object[]}    playoffs.finals                 finals object
+ * @apiSuccess    {varchar}     playoffs.finals.teamA           team A name
+ * @apiSuccess    {varchar}     playoffs.finals.teamB           team B name
+ * @apiSuccess    {int}         playoffs.finals.scoreA          team A score
+ * @apiSuccess    {int}         playoffs.finals.scoreB          team B score
+ * @apiSuccess    {varchar}     playoffs.finals.week            week
+ *
+ * @apiError      (Error 5xx)   500                             Error getting playoffs schedule
+ */
