@@ -770,7 +770,10 @@ module.exports.startNewWeek = async () => {
       const newWeek = week + 1;
 
       if (week === 12) {
-        await mysql('UPDATE league SET active = ? WHERE id = ?', [0, id]);
+        await mysql(
+          'UPDATE league SET active = ?, is_roster_active = ?, is_voting_active = ? WHERE id = ?',
+          [0, 0, 0, id]
+        );
         return;
       }
 
