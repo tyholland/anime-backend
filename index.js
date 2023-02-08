@@ -21,6 +21,9 @@ const {
   startNewWeek,
   stopRosterStartVoting,
   stopUserVoting,
+  playoffsFirstRound,
+  playoffsSemis,
+  playoffsFinals,
 } = require('./utils/query');
 
 /**
@@ -99,6 +102,11 @@ cron.schedule(
     await createEightTeamSchedule();
     await createNineTeamSchedule();
     await createTenTeamSchedule();
+
+    // Create playoffs schedule
+    await playoffsFirstRound();
+    await playoffsSemis();
+    await playoffsFinals();
   },
   {
     scheduled: true,
