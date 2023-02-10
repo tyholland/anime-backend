@@ -519,7 +519,7 @@
  * @apiName       Remove team
  * @apiGroup      Team
  *
- * @apiParams     {int}           leagueId            league ID
+ * @apiParam      {int}           league_id           league ID
  *
  * @apiSuccess    {boolean}       success             request completed
  *
