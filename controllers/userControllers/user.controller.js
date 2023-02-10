@@ -60,14 +60,45 @@ module.exports.createUser = async (req, res) => {
   }
 
   try {
-    const user = await mysql('SELECT * FROM users WHERE email = ?', [
-      userEmail,
-    ]);
+    const user = await mysql(
+      'SELECT * FROM users WHERE email = ? AND active = ?',
+      [userEmail, 1]
+    );
 
     if (user[0]?.email === userEmail) {
       return res.status(400).json({
         message: 'User\'s email already exists',
       });
+    }
+
+    const oldUser = await mysql(
+      'SELECT email, id as user_id FROM users WHERE email = ? AND active = ?',
+      [userEmail, 0]
+    );
+
+    if (oldUser.length) {
+      await mysql(
+        'UPDATE users SET firebase_uid = ?, active = ? WHERE id = ?',
+        [firebaseId, 1, oldUser[0].user_id]
+      );
+
+      const accessObj = {
+        email: oldUser[0].email,
+        userId: oldUser[0].user_id,
+        firebaseUID: firebaseId,
+      };
+      const accessToken = jwt.sign(accessObj, secret);
+
+      return res
+        .cookie('token', accessToken, {
+          httpOnly: true,
+          secure: true,
+          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        })
+        .status(200)
+        .json({
+          ...account[0],
+        });
     }
 
     const newUser = await mysql(
@@ -76,14 +107,14 @@ module.exports.createUser = async (req, res) => {
     );
 
     const account = await mysql(
-      'SELECT email, id as user_id, active FROM users WHERE id = ?',
+      'SELECT email, id as user_id FROM users WHERE id = ?',
       [newUser.insertId]
     );
 
     const accessObj = {
       email: account[0].email,
       userId: account[0].user_id,
-      firebaseUID: account[0].firebase_uid,
+      firebaseUID: firebaseId,
     };
     const accessToken = jwt.sign(accessObj, secret);
 
@@ -120,7 +151,7 @@ module.exports.deleteAccount = async (req, res) => {
       });
     }
 
-    await mysql('UPDATE users SET active = ? WHERE id = ?', [1, userId]);
+    await mysql('UPDATE users SET active = ? WHERE id = ?', [0, userId]);
 
     return res.status(200).json({
       success: true,
