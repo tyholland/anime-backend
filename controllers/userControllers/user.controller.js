@@ -14,7 +14,7 @@ module.exports.loginUser = async (req, res) => {
 
   try {
     const account = await mysql(
-      'SELECT email, id as user_id, active FROM users WHERE firebase_uid = ? AND email = ?',
+      'SELECT email, id as user_id FROM users WHERE firebase_uid = ? AND email = ?',
       [firebaseUID, email]
     );
 

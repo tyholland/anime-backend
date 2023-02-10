@@ -9,7 +9,6 @@
  *
  * @apiSuccess  {varchar}     email           email
  * @apiSuccess  {bigint}      user_id         user ID
- * @apiSuccess  {tinyint}     active          user is active
  *
  * @apiError    (Error 5xx)   500             Error creating a new user
  */
@@ -25,7 +24,6 @@
  *
  * @apiSuccess  {varchar}     email           email
  * @apiSuccess  {bigint}      user_id         user ID
- * @apiSuccess  {tinyint}     active          user is active
  *
  * @apiError    (Error 5xx)   500             Error logging in user
  *
