@@ -20,7 +20,7 @@ module.exports.loginUser = async (req, res) => {
 
     if (!account.length) {
       return res.status(400).json({
-        message: 'User does not exists',
+        message: 'User does not exist',
       });
     }
 
