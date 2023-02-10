@@ -153,7 +153,7 @@ module.exports.getMatchupVotes = async (req, res) => {
 
   try {
     const votes = await mysql(
-      'SELECT v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.id = ? AND v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+      'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.id = ? AND v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
       [vote_id, 1]
     );
 
@@ -211,8 +211,8 @@ module.exports.addVotes = async (req, res) => {
     }
 
     const isVoteActive = await mysql(
-      'SELECT * FROM matchup m, league l WHERE m.id = ? AND m.league_id = l.id AND l.is_voting_active = ?',
-      [isExistingVoter[0].matchup_id, 1]
+      'SELECT * FROM matchup m, league l, votes v WHERE v.id = ? AND v.matchup_id = m.id AND m.league_id = l.id AND l.is_voting_active = ?',
+      [voteId, 1]
     );
 
     if (!isVoteActive.length) {
