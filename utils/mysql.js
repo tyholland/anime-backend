@@ -9,6 +9,7 @@ const connectToDB = () => {
     password: process.env.REACT_APP_MYSQL_PWD,
     database: process.env.REACT_APP_MYSQL_NAME,
     port: process.env.REACT_APP_MYSQL_PORT,
+    socketPath: process.env.INSTANCE_UNIX_SOCKET || '',
   });
 
   connection.connect();
