@@ -10,7 +10,7 @@
     "sourceType": "module"
   },
   "plugins": ["eslint-plugin-prettier"],
-  "ignorePatterns": ["doc/**/*.js"],
+  "ignorePatterns": ["doc/**/*.js", "google-cloud-sdk/*"],
   "rules": {
     "semi": ["error", "always"],
     "quotes": ["error", "single"],
