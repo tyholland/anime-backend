@@ -5,11 +5,10 @@ let connection;
 const connectToDB = () => {
   connection = mysql.createConnection({
     host: process.env.REACT_APP_MYSQL_HOST,
-    user: process.env.REACT_APP_MYSQL_USER,
-    password: process.env.REACT_APP_MYSQL_PWD,
-    database: process.env.REACT_APP_MYSQL_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
     port: process.env.REACT_APP_MYSQL_PORT,
-    socketPath: process.env.INSTANCE_UNIX_SOCKET || '',
   });
 
   connection.connect();
