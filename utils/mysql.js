@@ -9,10 +9,8 @@ const connectToDB = () => {
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     port: process.env.REACT_APP_MYSQL_PORT,
-    socketPath: process.env.INSTANCE_UNIX_SOCKET || '',
   });
 
-  // connection.connect();
   return util.promisify(connection.query).bind(connection);
 };
 
