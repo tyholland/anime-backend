@@ -3,7 +3,7 @@ const util = require('util');
 let connection;
 
 const connectToDB = () => {
-  connection = mysql.createConnection({
+  connection = mysql.createPool({
     host: process.env.REACT_APP_MYSQL_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
@@ -12,7 +12,7 @@ const connectToDB = () => {
     socketPath: process.env.INSTANCE_UNIX_SOCKET || '',
   });
 
-  connection.connect();
+  // connection.connect();
   return util.promisify(connection.query).bind(connection);
 };
 
