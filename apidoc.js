@@ -768,30 +768,32 @@
  */
 
 /**
- * @api           {get}         /league/admin/settings      Get league admin data
+ * @api           {get}         /league/admin/settings/:league_id       Get league admin data
  * @apiVersion    1.0.0
  * @apiName       Get League Admin Data
  * @apiGroup      League
  *
- * @apiSuccess    {Object}      league                      league object
- * @apiSuccess    {int}         league.id                   league ID
- * @apiSuccess    {varchar}     league.name                 league name
- * @apiSuccess    {int}         league.num_teams            number of teams
- * @apiSuccess    {tinyint}     league.active               league availability
- * @apiSuccess    {int}         league.creator_id           league creator
- * @apiSuccess    {tinyint}     league.is_roster_active     roster is/isn't editiable
- * @apiSuccess    {tinyint}     league.is_voting_active     voting is/isn't editiable
- * @apiSuccess    {varchar}     league.hash                 league hash
- * @apiSuccess    {varchar}     league.create_date          date league created
- * @apiSuccess    {int}         league.week                 league week
- * @apiSuccess    {Object[]}    teams                       teams object
- * @apiSuccess    {int}         teams.id                    team ID
- * @apiSuccess    {int}         teams.user_id               team user ID
- * @apiSuccess    {int}         teams.league_id             league ID
- * @apiSuccess    {varchar}     teams.team_name             team name
- * @apiSuccess    {int}         teams.points                team points
+ * @apiParam      {int}         league_id                               league ID
  *
- * @apiError      (Error 5xx)   500                         Error getting league admin data
+ * @apiSuccess    {Object}      league                                  league object
+ * @apiSuccess    {int}         league.id                               league ID
+ * @apiSuccess    {varchar}     league.name                             league name
+ * @apiSuccess    {int}         league.num_teams                        number of teams
+ * @apiSuccess    {tinyint}     league.active                           league availability
+ * @apiSuccess    {int}         league.creator_id                       league creator
+ * @apiSuccess    {tinyint}     league.is_roster_active                 roster is/isn't editiable
+ * @apiSuccess    {tinyint}     league.is_voting_active                 voting is/isn't editiable
+ * @apiSuccess    {varchar}     league.hash                             league hash
+ * @apiSuccess    {varchar}     league.create_date                      date league created
+ * @apiSuccess    {int}         league.week                             league week
+ * @apiSuccess    {Object[]}    teams                                   teams object
+ * @apiSuccess    {int}         teams.id                                team ID
+ * @apiSuccess    {int}         teams.user_id                           team user ID
+ * @apiSuccess    {int}         teams.league_id                         league ID
+ * @apiSuccess    {varchar}     teams.team_name                         team name
+ * @apiSuccess    {int}         teams.points                            team points
+ *
+ * @apiError      (Error 5xx)   500                                     Error getting league admin data
  */
 
 /**

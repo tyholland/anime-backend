@@ -24,7 +24,11 @@ module.exports = (app) => {
   app.get('/league/scoreboard/:league_id', authenticateToken, getScoreboard);
   app.get('/league/standings/:league_id', authenticateToken, getStandings);
   app.post('/league/start', authenticateToken, startLeague);
-  app.get('/league/admin/settings', authenticateToken, getLeagueAdminData);
+  app.get(
+    '/league/admin/settings/:league_id',
+    authenticateToken,
+    getLeagueAdminData
+  );
   app.delete(
     '/league/remove/:member_id',
     authenticateToken,

@@ -269,11 +269,12 @@ module.exports.startLeague = async (req, res) => {
 
 module.exports.getLeagueAdminData = async (req, res) => {
   const { userId } = req.user;
+  const { league_id } = req.params;
 
   try {
     const leagueData = await mysql(
-      'SELECT * FROM league WHERE creator_id = ?',
-      [userId]
+      'SELECT * FROM league WHERE creator_id = ? AND id = ?',
+      [userId, league_id]
     );
 
     const teams = await mysql(
