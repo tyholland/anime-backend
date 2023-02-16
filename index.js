@@ -32,7 +32,7 @@ const {
 
 const PORT = process.env.PORT || 3001;
 const app = express();
-const originUrl = process.env.REACT_APP_ORIGIN_URL;
+const originUrl = process.env.ORIGIN_URL;
 
 /**
  *  App Configuration

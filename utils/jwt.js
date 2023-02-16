@@ -1,6 +1,6 @@
 const { expressjwt } = require('express-jwt');
 const { getAuthToken } = require('.');
-const secret = process.env.REACT_APP_SECRET;
+const secret = process.env.SECRET;
 
 module.exports.middleware = () => {
   return expressjwt({

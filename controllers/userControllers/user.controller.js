@@ -1,7 +1,8 @@
 ﻿const mysql = require('../../utils/mysql').instance();
 const jwt = require('jsonwebtoken');
 const { validateEmail } = require('../../utils');
-const secret = process.env.REACT_APP_SECRET;
+const secret = process.env.SECRET;
+const client = require('@mailchimp/mailchimp_marketing');
 
 module.exports.loginUser = async (req, res) => {
   const { firebaseUID, email } = req.body;
@@ -110,6 +111,12 @@ module.exports.createUser = async (req, res) => {
       'SELECT email, id as user_id FROM users WHERE id = ?',
       [newUser.insertId]
     );
+
+    await client.lists.addListMember('5313', {
+      email_address: account[0].email,
+      status: 'subscribed',
+      tags: [process.env.SERVER_ENV],
+    });
 
     const accessObj = {
       email: account[0].email,

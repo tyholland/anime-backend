@@ -9,11 +9,11 @@ const connectToDB = () => {
     database: process.env.DB_NAME,
   };
 
-  if (process.env.REACT_APP_SERVER_ENV === 'prod') {
+  if (process.env.SERVER_ENV === 'prod') {
     config.socketPath = process.env.INSTANCE_UNIX_SOCKET;
   } else {
-    config.host = process.env.REACT_APP_MYSQL_HOST;
-    config.port = process.env.REACT_APP_MYSQL_PORT;
+    config.host = process.env.DB_HOST;
+    config.port = process.env.DB_PORT;
   }
 
   connection = mysql.createConnection(config);

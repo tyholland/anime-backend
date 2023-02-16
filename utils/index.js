@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-escape */
-const secret = process.env.REACT_APP_SECRET;
+const secret = process.env.SECRET;
 const jwt = require('jsonwebtoken');
 
 module.exports.formatDate = () => {
