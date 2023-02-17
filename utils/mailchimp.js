@@ -72,7 +72,7 @@ module.exports.sendLeagueDeletedEmail = async (leagueName, leagueId) => {
     const listId = await this.getLeagueList(leagueName, leagueId);
     const subject = `${leagueName} was deleted`;
     const preview = `${leagueName} deleted`;
-    const campaignId = '318345';
+    const campaignId = '318352';
 
     await updateCampaign(listId, campaignId, subject, preview);
     await mailchimp.campaigns.send(campaignId);
