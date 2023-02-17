@@ -1,5 +1,11 @@
 const mysql = require('../../utils/mysql').instance();
 const {
+  addLeagueList,
+  addMemberToList,
+  getLeagueList,
+  sendLeagueStartEmail,
+} = require('../../utils/mailchimp');
+const {
   createNewTeam,
   getLeagueMemebrInfo,
   checkValidUserInLeague,
@@ -46,7 +52,7 @@ module.exports.getAllLeagues = async (req, res) => {
 
 module.exports.createLeague = async (req, res) => {
   const { name, numTeams } = req.body;
-  const { userId } = req.user;
+  const { userId, email } = req.user;
   const date = new Date().toISOString();
   const randomStr = (Math.random() + 1).toString(36).substring(5);
   const hash = `ABZ-${randomStr}`;
@@ -56,6 +62,9 @@ module.exports.createLeague = async (req, res) => {
       'INSERT INTO `league` (`name`, `num_teams`, `active`, `creator_id`, `is_roster_active`, `is_voting_active`, `hash`, `create_date`, week) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [name, numTeams, 1, userId, 1, 0, hash, date, -1]
     );
+
+    const listId = await addLeagueList(name, newLeague.insertId);
+    await addMemberToList(listId, email);
 
     return await createNewTeam(userId, newLeague.insertId, res);
   } catch (error) {
@@ -67,7 +76,7 @@ module.exports.createLeague = async (req, res) => {
 };
 
 module.exports.joinLeague = async (req, res) => {
-  const { userId } = req.user;
+  const { userId, email } = req.user;
   const { hash } = req.body;
 
   try {
@@ -79,7 +88,7 @@ module.exports.joinLeague = async (req, res) => {
       });
     }
 
-    const { active, num_teams, id } = league[0];
+    const { active, num_teams, id, name } = league[0];
 
     if (active === 0) {
       return res.status(400).json({
@@ -105,6 +114,9 @@ module.exports.joinLeague = async (req, res) => {
         message: `User already exists in the league id: ${id}`,
       });
     }
+
+    const listId = await getLeagueList(name, id);
+    await addMemberToList(listId, email);
 
     return await createNewTeam(userId, id, res);
   } catch (error) {
@@ -255,6 +267,12 @@ module.exports.startLeague = async (req, res) => {
       userId,
       leagueId,
     ]);
+
+    const league = await mysql('SELECT name FROM league WHERE id = ?', [
+      leagueId,
+    ]);
+
+    await sendLeagueStartEmail(league[0].name, leagueId);
 
     return res.status(200).json({
       success: true,

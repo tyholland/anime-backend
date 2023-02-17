@@ -2,7 +2,7 @@
 const jwt = require('jsonwebtoken');
 const { validateEmail } = require('../../utils');
 const secret = process.env.SECRET;
-const { client } = require('@mailchimp/mailchimp_marketing');
+const { addMemberToList } = require('../../utils/mailchimp');
 
 module.exports.loginUser = async (req, res) => {
   const { firebaseUID, email } = req.body;
@@ -112,11 +112,7 @@ module.exports.createUser = async (req, res) => {
       [newUser.insertId]
     );
 
-    await client.lists.addListMember('809a3f862c', {
-      email_address: account[0].email,
-      status: 'subscribed',
-      tags: [process.env.SERVER_ENV],
-    });
+    await addMemberToList('809a3f862c', account[0].email);
 
     const accessObj = {
       email: account[0].email,
