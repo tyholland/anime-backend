@@ -4,6 +4,7 @@ const {
   addMemberToList,
   getLeagueList,
   sendLeagueStartEmail,
+  sendLeagueDeletedEmail,
 } = require('../../utils/mailchimp');
 const {
   createNewTeam,
@@ -163,10 +164,23 @@ module.exports.deleteLeague = async (req, res) => {
       });
     }
 
+    await sendLeagueDeletedEmail(league[0].name, league_id);
+
     await mysql('DELETE FROM league WHERE id = ? AND week = ?', [
       league_id,
       -1,
     ]);
+
+    const members = await mysql(
+      'SELECT id FROM league_members WHERE league_id = ?',
+      [league_id]
+    );
+
+    for (let index = 0; index < members.length; index++) {
+      await mysql('DELETE FROM team WHERE league_member_id = ?', [
+        members[index].id,
+      ]);
+    }
 
     await mysql('DELETE FROM league_members WHERE league_id = ?', [league_id]);
 

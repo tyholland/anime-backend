@@ -7,11 +7,12 @@ mailchimp.setConfig({
 
 module.exports.client = mailchimp;
 
-const updateCampaign = async (listId, campaignId, subject) => {
+const updateCampaign = async (listId, campaignId, subject, preview) => {
   try {
     await mailchimp.campaigns.update(campaignId, {
       settings: {
         subject_line: subject,
+        preview_text: preview,
       },
       recipients: {
         list_id: listId,
@@ -42,12 +43,41 @@ module.exports.sendLeagueStartEmail = async (leagueName, leagueId) => {
   try {
     const listId = await this.getLeagueList(leagueName, leagueId);
     const subject = `${leagueName} has just started`;
+    const preview = `${leagueName} started`;
     const campaignId = '318174';
 
-    await updateCampaign(listId, campaignId, subject);
+    await updateCampaign(listId, campaignId, subject, preview);
     await mailchimp.campaigns.send(campaignId);
   } catch (err) {
     throw new Error('Can not send email for league starting');
+  }
+};
+
+module.exports.sendLeagueEndedEmail = async (leagueName, leagueId) => {
+  try {
+    const listId = await this.getLeagueList(leagueName, leagueId);
+    const subject = `${leagueName} has just ended`;
+    const preview = `${leagueName} ended`;
+    const campaignId = '318345';
+
+    await updateCampaign(listId, campaignId, subject, preview);
+    await mailchimp.campaigns.send(campaignId);
+  } catch (err) {
+    throw new Error('Can not send email for league ending');
+  }
+};
+
+module.exports.sendLeagueDeletedEmail = async (leagueName, leagueId) => {
+  try {
+    const listId = await this.getLeagueList(leagueName, leagueId);
+    const subject = `${leagueName} was deleted`;
+    const preview = `${leagueName} deleted`;
+    const campaignId = '318345';
+
+    await updateCampaign(listId, campaignId, subject, preview);
+    await mailchimp.campaigns.send(campaignId);
+  } catch (err) {
+    throw new Error('Can not send email for league being deleted');
   }
 };
 

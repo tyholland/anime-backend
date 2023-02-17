@@ -1,5 +1,6 @@
 const mysql = require('./mysql').instance();
 const { characterAttr, sortRankings } = require('./index');
+const { sendLeagueEndedEmail } = require('./mailchimp');
 
 module.exports.createNewTeam = async (userId, leagueId, res) => {
   try {
@@ -761,12 +762,12 @@ module.exports.createTenTeamSchedule = async () => {
 module.exports.startNewWeek = async () => {
   try {
     const leagues = await mysql(
-      'SELECT id, week FROM league WHERE active = ?',
+      'SELECT id, week, name FROM league WHERE active = ?',
       [1]
     );
 
     for (let index = 0; index < leagues.length; index++) {
-      const { week, id } = leagues[index];
+      const { week, id, name } = leagues[index];
       const newWeek = week + 1;
 
       if (week === 12) {
@@ -774,6 +775,7 @@ module.exports.startNewWeek = async () => {
           'UPDATE league SET active = ?, is_roster_active = ?, is_voting_active = ? WHERE id = ?',
           [0, 0, 0, id]
         );
+        await sendLeagueEndedEmail(name, id);
         return;
       }
 
