@@ -19,7 +19,7 @@ module.exports.getLeague = async (req, res) => {
 
   try {
     const leagueData = await mysql(
-      'SELECT l.name, l.num_teams, l.creator_id, t.id as teamId FROM league l, league_members lm, team t WHERE lm.league_id = ? AND lm.user_id = ? AND lm.id = t.league_member_id',
+      'SELECT l.name, l.num_teams, l.creator_id, t.id as teamId FROM league l, league_members lm, team t WHERE l.id = ? AND l.id = lm.league_id AND lm.user_id = ? AND lm.id = t.league_member_id',
       [league_id, userId]
     );
 
@@ -308,7 +308,7 @@ module.exports.getLeagueAdminData = async (req, res) => {
 
     const teams = await mysql(
       'SELECT * FROM league_members WHERE league_id = ?',
-      [leagueData[0].id]
+      [league_id]
     );
 
     return res.status(200).json({
@@ -318,7 +318,7 @@ module.exports.getLeagueAdminData = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       error,
-      action: 'Get League',
+      action: 'Get League Admin',
     });
   }
 };

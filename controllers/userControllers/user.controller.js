@@ -32,16 +32,10 @@ module.exports.loginUser = async (req, res) => {
     };
     const accessToken = jwt.sign(user, secret);
 
-    return res
-      .cookie('__session', accessToken, {
-        httpOnly: true,
-        secure: true,
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      })
-      .status(200)
-      .json({
-        ...account[0],
-      });
+    return res.status(200).json({
+      ...account[0],
+      token: accessToken,
+    });
   } catch (error) {
     return res.status(500).json({
       error,
@@ -90,16 +84,10 @@ module.exports.createUser = async (req, res) => {
       };
       const accessToken = jwt.sign(accessObj, secret);
 
-      return res
-        .cookie('__session', accessToken, {
-          httpOnly: true,
-          secure: true,
-          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        })
-        .status(200)
-        .json({
-          ...oldUser[0],
-        });
+      return res.status(200).json({
+        ...oldUser[0],
+        token: accessToken,
+      });
     }
 
     const newUser = await mysql(
@@ -121,16 +109,10 @@ module.exports.createUser = async (req, res) => {
     };
     const accessToken = jwt.sign(accessObj, secret);
 
-    return res
-      .cookie('__session', accessToken, {
-        httpOnly: true,
-        secure: true,
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      })
-      .status(200)
-      .json({
-        ...account[0],
-      });
+    return res.status(200).json({
+      ...account[0],
+      token: accessToken,
+    });
   } catch (error) {
     return res.status(500).json({
       error,
