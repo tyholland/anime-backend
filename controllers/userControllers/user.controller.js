@@ -33,7 +33,7 @@ module.exports.loginUser = async (req, res) => {
     const accessToken = jwt.sign(user, secret);
 
     return res
-      .cookie('token', accessToken, {
+      .cookie('__session', accessToken, {
         httpOnly: true,
         secure: true,
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
@@ -91,7 +91,7 @@ module.exports.createUser = async (req, res) => {
       const accessToken = jwt.sign(accessObj, secret);
 
       return res
-        .cookie('token', accessToken, {
+        .cookie('__session', accessToken, {
           httpOnly: true,
           secure: true,
           expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
@@ -122,7 +122,7 @@ module.exports.createUser = async (req, res) => {
     const accessToken = jwt.sign(accessObj, secret);
 
     return res
-      .cookie('token', accessToken, {
+      .cookie('__session', accessToken, {
         httpOnly: true,
         secure: true,
         expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
@@ -168,5 +168,5 @@ module.exports.deleteAccount = async (req, res) => {
 };
 
 module.exports.logoutUser = (req, res) => {
-  return res.clearCookie('token').status(200).json({ success: true });
+  return res.clearCookie('__session').status(200).json({ success: true });
 };
