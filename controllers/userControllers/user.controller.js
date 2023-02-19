@@ -44,7 +44,7 @@ module.exports.loginUser = async (req, res) => {
       });
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Login User',
     });
   }
@@ -98,7 +98,7 @@ module.exports.createUser = async (req, res) => {
         })
         .status(200)
         .json({
-          ...account[0],
+          ...oldUser[0],
         });
     }
 
@@ -133,7 +133,7 @@ module.exports.createUser = async (req, res) => {
       });
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Create User',
     });
   }
@@ -161,7 +161,7 @@ module.exports.deleteAccount = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Delete Account',
     });
   }

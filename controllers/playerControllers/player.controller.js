@@ -7,7 +7,7 @@ module.exports.getAllPlayers = async (req, res) => {
     return res.status(200).json(players);
   } catch (error) {
     res.status(500).json({
-      ...error,
+      error,
       action: 'Get all players',
     });
   }
@@ -24,7 +24,7 @@ module.exports.getPlayer = async (req, res) => {
     return res.status(200).json(player);
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Get specific player',
     });
   }

@@ -55,7 +55,7 @@ module.exports.getMatchup = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Get Matchup',
     });
   }
@@ -80,7 +80,7 @@ module.exports.getMatchupFromTeam = async (req, res) => {
     return res.status(200).json(matchupData);
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Get matchup from team',
     });
   }
@@ -142,7 +142,7 @@ module.exports.createMatchupVotes = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Create matchup voting',
     });
   }
@@ -166,7 +166,7 @@ module.exports.getMatchupVotes = async (req, res) => {
     return res.status(200).json(votes[0]);
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Get Matchup votes',
     });
   }
@@ -188,7 +188,7 @@ module.exports.getAllMatchupVotes = async (req, res) => {
     return res.status(200).json(votes);
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Get all matchup votes',
     });
   }
@@ -241,7 +241,7 @@ module.exports.addVotes = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Add votes',
     });
   }

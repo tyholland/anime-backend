@@ -27,7 +27,7 @@ module.exports.getTeam = async (req, res) => {
     return await formatTeam(team[0], member[0], res);
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Get team',
     });
   }
@@ -53,7 +53,7 @@ module.exports.getMatchupTeam = async (req, res) => {
     return await formatTeam(team[0], member[0], res);
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Get team',
     });
   }
@@ -105,7 +105,7 @@ module.exports.getTeamInfo = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Get team info',
     });
   }
@@ -132,7 +132,7 @@ module.exports.updateTeamName = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Update team name',
     });
   }
@@ -246,7 +246,7 @@ module.exports.updateTeam = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Update team',
     });
   }
@@ -288,7 +288,7 @@ module.exports.getSchedule = async (req, res) => {
     return res.status(200).json(mainSchedule);
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Get schedule',
     });
   }
@@ -322,7 +322,7 @@ module.exports.removeTeam = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      ...error,
+      error,
       action: 'Remove team',
     });
   }
