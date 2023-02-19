@@ -265,6 +265,10 @@ const getVotingBoost = (votes, character) => {
   let voteBoost = defaultBoost / 100;
   let isWinner = null;
 
+  if (!votes) {
+    return 0;
+  }
+
   votes.forEach((vote) => {
     const isPlayerA =
       vote.player_a_id === id &&
@@ -290,6 +294,10 @@ const getVotingDamage = (votes, character) => {
   const defaultDamage = 150;
   let voteDamage = defaultDamage / 100;
   let isLoser = null;
+
+  if (!votes) {
+    return 0;
+  }
 
   votes.forEach((vote) => {
     const isPlayerA =

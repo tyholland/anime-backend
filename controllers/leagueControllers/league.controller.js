@@ -52,7 +52,7 @@ module.exports.getAllLeagues = async (req, res) => {
 
 module.exports.createLeague = async (req, res) => {
   const { name, numTeams } = req.body;
-  const { userId, email } = req.user;
+  const { userId } = req.user;
   const date = new Date().toISOString();
   const randomStr = (Math.random() + 1).toString(36).substring(5);
   const hash = `ABZ-${randomStr}`;
@@ -63,7 +63,7 @@ module.exports.createLeague = async (req, res) => {
       [name, numTeams, 1, userId, 1, 0, hash, date, -1]
     );
 
-    await addLeagueSegment(name, newLeague.insertId, email);
+    await addLeagueSegment(name, newLeague.insertId);
 
     return await createNewTeam(userId, newLeague.insertId, res);
   } catch (error) {

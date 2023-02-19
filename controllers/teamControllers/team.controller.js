@@ -175,9 +175,9 @@ module.exports.updateTeam = async (req, res) => {
     ];
     const characterIds = characterArr.filter((item) => !!item);
 
-    const players = await mysql('SELECT * FROM players WHERE id in (?)', [
-      characterIds,
-    ]);
+    const players = characterIds.length
+      ? await mysql('SELECT * FROM players WHERE id in (?)', [characterIds])
+      : [];
 
     let totalPoints = 0;
     const defaultPoints = 9000;

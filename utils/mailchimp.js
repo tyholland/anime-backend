@@ -85,19 +85,15 @@ module.exports.sendLeagueDeletedEmail = async (leagueName, leagueId) => {
   }
 };
 
-module.exports.addLeagueSegment = async (leagueName, leagueId, email) => {
+module.exports.addLeagueSegment = async (leagueName, leagueId) => {
   const segment = `${leagueName} - ${leagueId} - ${process.env.SERVER_ENV}`;
 
   try {
-    const { id } = await mailchimp.lists.createSegment(mainListId, {
+    await mailchimp.lists.createSegment(mainListId, {
       name: segment,
-    });
-
-    await mailchimp.lists.createSegmentMember(mainListId, id, {
-      email_address: email,
+      static_segment: [],
     });
   } catch (err) {
-    console.log(err);
     throw new Error('Can not add new segment for league');
   }
 };
@@ -110,7 +106,6 @@ module.exports.addMemberToList = async (email) => {
       tags: [process.env.SERVER_ENV],
     });
   } catch (err) {
-    console.log(err);
     throw new Error('Can not add member to list');
   }
 };
@@ -123,7 +118,6 @@ module.exports.addMemberToSegment = async (leagueName, leagueId, email) => {
       email_address: email,
     });
   } catch (err) {
-    console.log(err);
     throw new Error('Can not add member to segment');
   }
 };
