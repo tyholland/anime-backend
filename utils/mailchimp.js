@@ -1,4 +1,5 @@
 const mailchimp = require('@mailchimp/mailchimp_marketing');
+const mainListId = '809a3f862c';
 
 mailchimp.setConfig({
   apiKey: process.env.MAILCHIMP_API_KEY,
@@ -7,7 +8,7 @@ mailchimp.setConfig({
 
 module.exports.client = mailchimp;
 
-const updateCampaign = async (listId, campaignId, subject, preview) => {
+const updateCampaign = async (campaignId, subject, preview, segmentId) => {
   try {
     await mailchimp.campaigns.update(campaignId, {
       settings: {
@@ -15,7 +16,10 @@ const updateCampaign = async (listId, campaignId, subject, preview) => {
         preview_text: preview,
       },
       recipients: {
-        list_id: listId,
+        list_id: mainListId,
+        segment_opts: {
+          saved_segment_id: segmentId,
+        },
       },
     });
   } catch (err) {
@@ -23,30 +27,30 @@ const updateCampaign = async (listId, campaignId, subject, preview) => {
   }
 };
 
-module.exports.getLeagueList = async (leagueName, leagueId) => {
+const getLeagueSegement = async (leagueName, leagueId) => {
   try {
-    const data = await mailchimp.lists.getAllLists();
-    const { lists } = data;
+    const data = await mailchimp.lists.listSegments(mainListId);
+    const { segments } = data;
 
-    const theList = lists.filter(
+    const theList = segments.filter(
       (list) =>
         list.name === `${leagueName} - ${leagueId} - ${process.env.SERVER_ENV}`
     )[0];
 
     return theList.id;
   } catch (err) {
-    throw new Error('Can not get league list');
+    throw new Error('Can not get league segment');
   }
 };
 
 module.exports.sendLeagueStartEmail = async (leagueName, leagueId) => {
   try {
-    const listId = await this.getLeagueList(leagueName, leagueId);
+    const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName} has just started`;
     const preview = `${leagueName} started`;
     const campaignId = '318174';
 
-    await updateCampaign(listId, campaignId, subject, preview);
+    await updateCampaign(campaignId, subject, preview, segmentId);
     await mailchimp.campaigns.send(campaignId);
   } catch (err) {
     throw new Error('Can not send email for league starting');
@@ -55,12 +59,12 @@ module.exports.sendLeagueStartEmail = async (leagueName, leagueId) => {
 
 module.exports.sendLeagueEndedEmail = async (leagueName, leagueId) => {
   try {
-    const listId = await this.getLeagueList(leagueName, leagueId);
+    const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName} has just ended`;
     const preview = `${leagueName} ended`;
     const campaignId = '318345';
 
-    await updateCampaign(listId, campaignId, subject, preview);
+    await updateCampaign(campaignId, subject, preview, segmentId);
     await mailchimp.campaigns.send(campaignId);
   } catch (err) {
     throw new Error('Can not send email for league ending');
@@ -69,52 +73,57 @@ module.exports.sendLeagueEndedEmail = async (leagueName, leagueId) => {
 
 module.exports.sendLeagueDeletedEmail = async (leagueName, leagueId) => {
   try {
-    const listId = await this.getLeagueList(leagueName, leagueId);
+    const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName} was deleted`;
     const preview = `${leagueName} deleted`;
     const campaignId = '318352';
 
-    await updateCampaign(listId, campaignId, subject, preview);
+    await updateCampaign(campaignId, subject, preview, segmentId);
     await mailchimp.campaigns.send(campaignId);
   } catch (err) {
     throw new Error('Can not send email for league being deleted');
   }
 };
 
-module.exports.addLeagueList = async (leagueName, leagueId) => {
+module.exports.addLeagueSegment = async (leagueName, leagueId, email) => {
+  const segment = `${leagueName} - ${leagueId} - ${process.env.SERVER_ENV}`;
+
   try {
-    const { id } = await mailchimp.lists.createList({
-      name: `${leagueName} - ${leagueId} - ${process.env.SERVER_ENV}`,
-      permission_reminder: `You are receiving this email because you joined the Anime Fantasy League, ${leagueName}`,
-      email_type_option: true,
-      contact: {
-        company: 'ABZ',
-        address1: process.env.MAILCHIMP_STREET,
-        city: process.env.MAILCHIMP_CITY,
-        country: 'USA',
-      },
-      campaign_defaults: {
-        from_name: 'Anime Brothaz',
-        from_email: 'animebrothaz3@gmail.com',
-        subject: `Welcome to ${leagueName}`,
-        language: 'english',
-      },
+    const { id } = await mailchimp.lists.createSegment(mainListId, {
+      name: segment,
     });
 
-    return id;
+    await mailchimp.lists.createSegmentMember(mainListId, id, {
+      email_address: email,
+    });
   } catch (err) {
-    throw new Error('Can not add new list for league');
+    console.log(err);
+    throw new Error('Can not add new segment for league');
   }
 };
 
-module.exports.addMemberToList = async (listId, email) => {
+module.exports.addMemberToList = async (email) => {
   try {
-    await mailchimp.lists.addListMember(listId, {
+    await mailchimp.lists.addListMember(mainListId, {
       email_address: email,
       status: 'subscribed',
       tags: [process.env.SERVER_ENV],
     });
   } catch (err) {
+    console.log(err);
     throw new Error('Can not add member to list');
+  }
+};
+
+module.exports.addMemberToSegment = async (leagueName, leagueId, email) => {
+  try {
+    const segmentId = await getLeagueSegement(leagueName, leagueId);
+
+    await mailchimp.lists.createSegmentMember(mainListId, segmentId, {
+      email_address: email,
+    });
+  } catch (err) {
+    console.log(err);
+    throw new Error('Can not add member to segment');
   }
 };

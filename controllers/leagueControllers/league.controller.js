@@ -1,8 +1,7 @@
 const mysql = require('../../utils/mysql').instance();
 const {
-  addLeagueList,
-  addMemberToList,
-  getLeagueList,
+  addLeagueSegment,
+  addMemberToSegment,
   sendLeagueStartEmail,
   sendLeagueDeletedEmail,
 } = require('../../utils/mailchimp');
@@ -64,8 +63,7 @@ module.exports.createLeague = async (req, res) => {
       [name, numTeams, 1, userId, 1, 0, hash, date, -1]
     );
 
-    const listId = await addLeagueList(name, newLeague.insertId);
-    await addMemberToList(listId, email);
+    await addLeagueSegment(name, newLeague.insertId, email);
 
     return await createNewTeam(userId, newLeague.insertId, res);
   } catch (error) {
@@ -116,8 +114,7 @@ module.exports.joinLeague = async (req, res) => {
       });
     }
 
-    const listId = await getLeagueList(name, id);
-    await addMemberToList(listId, email);
+    await addMemberToSegment(name, id, email);
 
     return await createNewTeam(userId, id, res);
   } catch (error) {

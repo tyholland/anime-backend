@@ -112,7 +112,7 @@ module.exports.createUser = async (req, res) => {
       [newUser.insertId]
     );
 
-    await addMemberToList('809a3f862c', account[0].email);
+    await addMemberToList(account[0].email);
 
     const accessObj = {
       email: account[0].email,
