@@ -622,6 +622,8 @@
  * @apiName     Get All Matchup Votes
  * @apiGroup    Matchup
  *
+ * @apiBody     {object}      currenUser                  currentUser object
+ *
  * @apiSuccess  {int}         active                      vote availability
  * @apiSuccess  {int}         player_a_id                 player A ID
  * @apiSuccess  {int}         player_b_id                 player B ID
