@@ -4,7 +4,7 @@
  * @apiName     Create User
  * @apiGroup    User
  *
- * @apiBody     {varchar}     userEmail       email
+ * @apiBody     {varchar}     email           email
  * @apiBody     {varchar}     firebaseId      firebase user ID
  *
  * @apiSuccess  {varchar}     email           email
@@ -14,13 +14,29 @@
  */
 
 /**
+ * @api         {put}         /users/exists   Check user exists
+ * @apiVersion  1.0.0
+ * @apiName     Check User Exists
+ * @apiGroup    User
+ *
+ * @apiBody     {varchar}     email           email
+ * @apiBody     {varchar}     firebaseId      firebase user ID
+ *
+ * @apiSuccess  {varchar}     email           email
+ * @apiSuccess  {bigint}      user_id         user ID
+ *
+ * @apiError    (Error 5xx)   500             Error checking if user exists
+ *
+ */
+
+/**
  * @api         {post}        /users/login    Login user
  * @apiVersion  1.0.0
  * @apiName     Login User
  * @apiGroup    User
  *
  * @apiBody     {varchar}     email           email
- * @apiBody     {varchar}     firebaseUID     firebase user ID
+ * @apiBody     {varchar}     firebaseId      firebase user ID
  *
  * @apiSuccess  {varchar}     email           email
  * @apiSuccess  {bigint}      user_id         user ID

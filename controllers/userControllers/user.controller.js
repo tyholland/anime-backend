@@ -4,8 +4,8 @@ const { validateEmail } = require('../../utils');
 const secret = process.env.SECRET;
 const { addMemberToList } = require('../../utils/mailchimp');
 
-module.exports.loginUser = async (req, res) => {
-  const { firebaseUID, email } = req.body;
+module.exports.checkUserExists = async (req, res) => {
+  const { firebaseId, email } = req.body;
 
   if (!validateEmail(email)) {
     return res.status(400).json({
@@ -16,7 +16,33 @@ module.exports.loginUser = async (req, res) => {
   try {
     const account = await mysql(
       'SELECT email, id as user_id FROM users WHERE firebase_uid = ? AND email = ?',
-      [firebaseUID, email]
+      [firebaseId, email]
+    );
+
+    return res.status(200).json({
+      exists: !!account.length,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error,
+      action: 'Check if User exists',
+    });
+  }
+};
+
+module.exports.loginUser = async (req, res) => {
+  const { firebaseId, email } = req.body;
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({
+      message: 'Please enter a valid email address',
+    });
+  }
+
+  try {
+    const account = await mysql(
+      'SELECT email, id as user_id FROM users WHERE firebase_uid = ? AND email = ?',
+      [firebaseId, email]
     );
 
     if (!account.length) {
@@ -28,7 +54,7 @@ module.exports.loginUser = async (req, res) => {
     const user = {
       email,
       userId: account[0].user_id,
-      firebaseUID,
+      firebaseId,
     };
     const accessToken = jwt.sign(user, secret);
 
@@ -45,10 +71,10 @@ module.exports.loginUser = async (req, res) => {
 };
 
 module.exports.createUser = async (req, res) => {
-  const { userEmail, firebaseId } = req.body;
+  const { email, firebaseId } = req.body;
   const date = new Date().toISOString();
 
-  if (!validateEmail(userEmail)) {
+  if (!validateEmail(email)) {
     return res.status(400).json({
       message: 'Please enter a valid email address',
     });
@@ -57,10 +83,10 @@ module.exports.createUser = async (req, res) => {
   try {
     const user = await mysql(
       'SELECT * FROM users WHERE email = ? AND active = ?',
-      [userEmail, 1]
+      [email, 1]
     );
 
-    if (user[0]?.email === userEmail) {
+    if (user[0]?.email === email) {
       return res.status(400).json({
         message: 'User\'s email already exists',
       });
@@ -68,7 +94,7 @@ module.exports.createUser = async (req, res) => {
 
     const oldUser = await mysql(
       'SELECT email, id as user_id FROM users WHERE email = ? AND active = ?',
-      [userEmail, 0]
+      [email, 0]
     );
 
     if (oldUser.length) {
@@ -92,7 +118,7 @@ module.exports.createUser = async (req, res) => {
 
     const newUser = await mysql(
       'INSERT INTO `users` (`email`, `firebase_uid`, `create_date`) VALUES (?, ?, ?)',
-      [userEmail, firebaseId, date]
+      [email, firebaseId, date]
     );
 
     const account = await mysql(

@@ -21,6 +21,7 @@ module.exports.middleware = () => {
       // public routes that don't require authentication
       '/users/create',
       '/users/login',
+      '/users/exists',
       '/users/logout',
       '/matchup/all/votes',
       '/player',
