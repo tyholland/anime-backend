@@ -46,7 +46,7 @@ module.exports.getMatchup = async (req, res) => {
 
     const votes = await mysql(
       'SELECT * FROM votes WHERE matchup_id = ? AND active = ?',
-      [matchup_id, 0]
+      [matchup_id, 1]
     );
 
     return res.status(200).json({
@@ -173,11 +173,37 @@ module.exports.getMatchupVotes = async (req, res) => {
 };
 
 module.exports.getAllMatchupVotes = async (req, res) => {
+  const { currentUser } = req.body;
+
   try {
-    const votes = await mysql(
-      'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
-      [1]
-    );
+    let votes;
+
+    if (currentUser) {
+      const votedOn = await mysql(
+        'SELECT v.id FROM votes v, votes_user vs WHERE v.active = ? AND v.id = vs.votes_id AND vs.user_id = ?',
+        [1, currentUser.user_id]
+      );
+
+      const voteIds = [];
+      votedOn.forEach((vote) => voteIds.push(vote.id));
+
+      votes = voteIds.length
+        ? await mysql(
+          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE NOT v.id IN (?) AND v.matchup_id = m.id AND m.league_id = l.id',
+          [voteIds]
+        )
+        : await mysql(
+          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+          [1]
+        );
+    }
+
+    if (!currentUser) {
+      votes = await mysql(
+        'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+        [1]
+      );
+    }
 
     if (!votes.length) {
       return res.status(400).json({
