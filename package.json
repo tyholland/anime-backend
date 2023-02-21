@@ -32,6 +32,7 @@
     "mysql": "^2.18.1",
     "node-cron": "^3.0.2",
     "npm": "^8.17.0",
+    "profanity-js": "^0.1.4",
     "promise-mysql": "^5.2.0"
   },
   "devDependencies": {

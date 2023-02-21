@@ -12,6 +12,10 @@ const {
   createPlayoffsSchedule,
   getRankings,
 } = require('../../utils/query');
+const Profanity = require('profanity-js');
+const profanity = new Profanity('', {
+  language: 'en-us',
+});
 
 module.exports.getLeague = async (req, res) => {
   const { league_id } = req.params;
@@ -56,6 +60,12 @@ module.exports.createLeague = async (req, res) => {
   const date = new Date().toISOString();
   const randomStr = (Math.random() + 1).toString(36).substring(5);
   const hash = `ABZ-${randomStr}`;
+
+  if (profanity.isProfane(name)) {
+    return res.status(400).json({
+      message: 'You can not have profanity in your league name',
+    });
+  }
 
   try {
     const newLeague = await mysql(

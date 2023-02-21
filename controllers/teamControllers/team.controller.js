@@ -5,6 +5,10 @@ const {
   getLeagueMemebrInfo,
   getTeamQuery,
 } = require('../../utils/query');
+const Profanity = require('profanity-js');
+const profanity = new Profanity('', {
+  language: 'en-us',
+});
 
 module.exports.getTeam = async (req, res) => {
   const { team_id } = req.params;
@@ -118,6 +122,12 @@ module.exports.updateTeamName = async (req, res) => {
   if (!name.length) {
     return res.status(400).json({
       message: 'Please enter a league name',
+    });
+  }
+
+  if (profanity.isProfane(name)) {
+    return res.status(400).json({
+      message: 'You can not have profanity in your team name',
     });
   }
 
