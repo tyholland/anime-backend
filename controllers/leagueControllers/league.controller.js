@@ -61,12 +61,6 @@ module.exports.createLeague = async (req, res) => {
   const randomStr = (Math.random() + 1).toString(36).substring(5);
   const hash = `ABZ-${randomStr}`;
 
-  if (profanity.isProfane(name)) {
-    return res.status(400).json({
-      message: 'You can not have profanity in your league name',
-    });
-  }
-
   try {
     const newLeague = await mysql(
       'INSERT INTO `league` (`name`, `num_teams`, `active`, `creator_id`, `is_roster_active`, `is_voting_active`, `hash`, `create_date`, week) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -138,6 +132,12 @@ module.exports.joinLeague = async (req, res) => {
 module.exports.updateLeague = async (req, res) => {
   const { name, teams, isActive } = req.body;
   const { league_id } = req.params;
+
+  if (profanity.isProfane(name)) {
+    return res.status(400).json({
+      message: 'You can not have profanity in your league name',
+    });
+  }
 
   try {
     await mysql(
