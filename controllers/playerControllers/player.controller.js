@@ -68,7 +68,7 @@ module.exports.getPlayablePlayers = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       error,
-      action: 'Get all players',
+      action: 'Get all playable players',
     });
   }
 };

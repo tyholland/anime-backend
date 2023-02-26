@@ -126,7 +126,7 @@
  * @apiSuccess  {int}             power_loss                   player power loss
  * @apiSuccess  {varchar}         image_url                    image url of player
  *
- * @apiError    (Error 5xx)       500                          Error get all players
+ * @apiError    (Error 5xx)       500                          Error getting all playable players
  */
 
 /**
