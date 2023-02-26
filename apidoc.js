@@ -98,7 +98,7 @@
  */
 
 /**
- * @api         {get}             /player/select/team_id       Get playable players
+ * @api         {get}             /player/select/:team_id       Get playable players
  * @apiVersion  1.0.0
  * @apiName     Get Playable Players
  * @apiGroup    Player
