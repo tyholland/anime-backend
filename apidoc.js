@@ -98,6 +98,38 @@
  */
 
 /**
+ * @api         {get}             /player/select/team_id       Get playable players
+ * @apiVersion  1.0.0
+ * @apiName     Get Playable Players
+ * @apiGroup    Player
+ *
+ * @apiParam    {int}             team_id                      team ID
+ *
+ * @apiSuccess  {bigint}          id                           player ID
+ * @apiSuccess  {varchar}         full_name                    player full name
+ * @apiSuccess  {varchar}         name                         player first name
+ * @apiSuccess  {varchar}         series                       anime series
+ * @apiSuccess  {varchar}         rank                         player rank
+ * @apiSuccess  {int}             power_level                  player power level
+ * @apiSuccess  {varchar}         category                     player category
+ * @apiSuccess  {int}             fire                         affinity type
+ * @apiSuccess  {int}             water                        affinity type
+ * @apiSuccess  {int}             wind                         affinity type
+ * @apiSuccess  {int}             earth                        affinity type
+ * @apiSuccess  {int}             arcane                       affinity type
+ * @apiSuccess  {int}             electric                     affinity type
+ * @apiSuccess  {int}             celestial                    affinity type
+ * @apiSuccess  {int}             darkness                     affinity type
+ * @apiSuccess  {int}             ice                          affinity type
+ * @apiSuccess  {int}             no_affinity                  no affinity type
+ * @apiSuccess  {varchar}         weakness                     player weakness
+ * @apiSuccess  {int}             power_loss                   player power loss
+ * @apiSuccess  {varchar}         image_url                    image url of player
+ *
+ * @apiError    (Error 5xx)       500                          Error get all players
+ */
+
+/**
  * @api         {get}         /player/:player_id    Get specific player
  * @apiVersion  1.0.0
  * @apiName     Get Specific Player
