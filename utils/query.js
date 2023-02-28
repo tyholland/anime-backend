@@ -138,8 +138,8 @@ module.exports.formatTeam = async (data, member, res) => {
 
     if (matchup.length) {
       const votes = await mysql(
-        'SELECT * FROM votes WHERE matchup_id = ? AND active = ?',
-        [matchup[0].matchupId, 0]
+        'SELECT * FROM votes WHERE matchup_id = ? AND active = ? AND is_bracket = ?',
+        [matchup[0].matchupId, 0, 0]
       );
 
       details = {
@@ -222,9 +222,10 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       characterIds,
     ]);
 
-    const votes = await mysql('SELECT * FROM votes WHERE matchup_id = ?', [
-      matchupId,
-    ]);
+    const votes = await mysql(
+      'SELECT * FROM votes WHERE matchup_id = ? AND is_bracket = ?',
+      [matchupId, 0]
+    );
 
     const details = {
       week,
@@ -1135,5 +1136,480 @@ module.exports.playoffsFinals = async () => {
     }
   } catch (error) {
     throw new Error('Can not get the playoffs finals');
+  }
+};
+
+const insertNewBracketVoting = async (
+  player1,
+  player2,
+  rank,
+  bracketId,
+  userId
+) => {
+  const date = new Date().toISOString();
+
+  try {
+    await mysql(
+      'INSERT INTO `votes` (`initiator_id`, `matchup_id`, `player_a_id`, `player_b_id`, `player_a_count`, `player_b_count`, `rank`, `active`, `is_bracket`, `create_date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [userId, bracketId, player1, player2, 0, 0, rank, 1, 1, date]
+    );
+  } catch (err) {
+    throw new Error('Can not create new bracket vote');
+  }
+};
+
+module.exports.createBracketFirstRound = async () => {
+  try {
+    const bracket = await mysql(
+      'SELECT * FROM bracket WHERE active = ? AND round = ?',
+      [1, 0]
+    );
+
+    for (let index = 0; index < bracket.length; index++) {
+      await insertNewBracketVoting(
+        bracket[index].player_1,
+        bracket[index].player_2,
+        'game_1',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_3,
+        bracket[index].player_4,
+        'game_2',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_5,
+        bracket[index].player_6,
+        'game_3',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_7,
+        bracket[index].player_8,
+        'game_4',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_9,
+        bracket[index].player_10,
+        'game_5',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_11,
+        bracket[index].player_12,
+        'game_6',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_13,
+        bracket[index].player_14,
+        'game_7',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_15,
+        bracket[index].player_16,
+        'game_8',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+
+      await mysql('UPDATE bracket SET round = ? WHERE id = ?', [
+        1,
+        bracket[index].id,
+      ]);
+    }
+  } catch (err) {
+    throw new Error('Can not create bracket first round');
+  }
+};
+
+module.exports.createBracketSecondRound = async () => {
+  try {
+    const bracket = await mysql(
+      'SELECT * FROM bracket WHERE active = ? AND round = ?',
+      [1, 1]
+    );
+
+    for (let index = 0; index < bracket.length; index++) {
+      const voting = await mysql(
+        'SELECT * FROM votes WHERE matchup_id = ? AND is_bracket = ?',
+        [bracket[index].id, 1]
+      );
+
+      const game1 = voting.filter((vote) => vote.rank === 'game_1')[0];
+      const game2 = voting.filter((vote) => vote.rank === 'game_2')[0];
+      const game3 = voting.filter((vote) => vote.rank === 'game_3')[0];
+      const game4 = voting.filter((vote) => vote.rank === 'game_4')[0];
+      const game5 = voting.filter((vote) => vote.rank === 'game_5')[0];
+      const game6 = voting.filter((vote) => vote.rank === 'game_6')[0];
+      const game7 = voting.filter((vote) => vote.rank === 'game_7')[0];
+      const game8 = voting.filter((vote) => vote.rank === 'game_8')[0];
+
+      const winner1 =
+        game1.player_a_count < game1.player_b_count
+          ? game1.player_b_id
+          : game1.player_a_id;
+      const winner2 =
+        game2.player_a_count < game2.player_b_count
+          ? game2.player_b_id
+          : game2.player_a_id;
+      const winner3 =
+        game3.player_a_count < game3.player_b_count
+          ? game3.player_b_id
+          : game3.player_a_id;
+      const winner4 =
+        game4.player_a_count < game4.player_b_count
+          ? game4.player_b_id
+          : game4.player_a_id;
+      const winner5 =
+        game5.player_a_count < game5.player_b_count
+          ? game5.player_b_id
+          : game5.player_a_id;
+      const winner6 =
+        game6.player_a_count < game6.player_b_count
+          ? game6.player_b_id
+          : game6.player_a_id;
+      const winner7 =
+        game7.player_a_count < game7.player_b_count
+          ? game7.player_b_id
+          : game7.player_a_id;
+      const winner8 =
+        game8.player_a_count < game8.player_b_count
+          ? game8.player_b_id
+          : game8.player_a_id;
+
+      // Create New Voting Matchups
+      await insertNewBracketVoting(
+        bracket[index].player_17,
+        winner1,
+        'game_9',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_18,
+        winner2,
+        'game_10',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_19,
+        winner3,
+        'game_11',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_20,
+        winner4,
+        'game_12',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_21,
+        winner5,
+        'game_13',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_22,
+        winner6,
+        'game_14',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_23,
+        winner7,
+        'game_15',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_24,
+        winner8,
+        'game_16',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+
+      // Update Bracket and old Matchups
+      await mysql('UPDATE bracket SET round = ? WHERE id = ?', [
+        2,
+        bracket[index].id,
+      ]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game1.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game2.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game3.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game4.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game5.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game6.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game7.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game8.id]);
+    }
+  } catch (err) {
+    throw new Error('Can not create bracket second round');
+  }
+};
+
+module.exports.createBracketThirdRound = async () => {
+  try {
+    const bracket = await mysql(
+      'SELECT * FROM bracket WHERE active = ? AND round = ?',
+      [1, 2]
+    );
+
+    for (let index = 0; index < bracket.length; index++) {
+      const voting = await mysql(
+        'SELECT * FROM votes WHERE matchup_id = ? AND is_bracket = ?',
+        [bracket[index].id, 1]
+      );
+
+      const game9 = voting.filter((vote) => vote.rank === 'game_9')[0];
+      const game10 = voting.filter((vote) => vote.rank === 'game_10')[0];
+      const game11 = voting.filter((vote) => vote.rank === 'game_11')[0];
+      const game12 = voting.filter((vote) => vote.rank === 'game_12')[0];
+      const game13 = voting.filter((vote) => vote.rank === 'game_13')[0];
+      const game14 = voting.filter((vote) => vote.rank === 'game_14')[0];
+      const game15 = voting.filter((vote) => vote.rank === 'game_15')[0];
+      const game16 = voting.filter((vote) => vote.rank === 'game_16')[0];
+
+      const winner9 =
+        game9.player_a_count < game9.player_b_count
+          ? game9.player_b_id
+          : game9.player_a_id;
+      const winner10 =
+        game10.player_a_count < game10.player_b_count
+          ? game10.player_b_id
+          : game10.player_a_id;
+      const winner11 =
+        game11.player_a_count < game11.player_b_count
+          ? game11.player_b_id
+          : game11.player_a_id;
+      const winner12 =
+        game12.player_a_count < game12.player_b_count
+          ? game12.player_b_id
+          : game12.player_a_id;
+      const winner13 =
+        game13.player_a_count < game13.player_b_count
+          ? game13.player_b_id
+          : game13.player_a_id;
+      const winner14 =
+        game14.player_a_count < game14.player_b_count
+          ? game14.player_b_id
+          : game14.player_a_id;
+      const winner15 =
+        game15.player_a_count < game15.player_b_count
+          ? game15.player_b_id
+          : game15.player_a_id;
+      const winner16 =
+        game16.player_a_count < game16.player_b_count
+          ? game16.player_b_id
+          : game16.player_a_id;
+
+      // Create New Voting Matchups
+      await insertNewBracketVoting(
+        winner9,
+        winner10,
+        'game_17',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        winner11,
+        winner12,
+        'game_18',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        winner13,
+        winner14,
+        'game_19',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        winner15,
+        winner16,
+        'game_20',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+
+      // Update Bracket and old Matchups
+      await mysql('UPDATE bracket SET round = ? WHERE id = ?', [
+        3,
+        bracket[index].id,
+      ]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game9.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game10.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game11.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game12.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game13.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game14.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game15.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game16.id]);
+    }
+  } catch (err) {
+    throw new Error('Can not create bracket third round');
+  }
+};
+
+module.exports.createBracketFourthRound = async () => {
+  try {
+    const bracket = await mysql(
+      'SELECT * FROM bracket WHERE active = ? AND round = ?',
+      [1, 3]
+    );
+
+    for (let index = 0; index < bracket.length; index++) {
+      const voting = await mysql(
+        'SELECT * FROM votes WHERE matchup_id = ? AND is_bracket = ?',
+        [bracket[index].id, 1]
+      );
+
+      const game17 = voting.filter((vote) => vote.rank === 'game_17')[0];
+      const game18 = voting.filter((vote) => vote.rank === 'game_18')[0];
+      const game19 = voting.filter((vote) => vote.rank === 'game_19')[0];
+      const game20 = voting.filter((vote) => vote.rank === 'game_20')[0];
+
+      const winner17 =
+        game17.player_a_count < game17.player_b_count
+          ? game17.player_b_id
+          : game17.player_a_id;
+      const winner18 =
+        game18.player_a_count < game18.player_b_count
+          ? game18.player_b_id
+          : game18.player_a_id;
+      const winner19 =
+        game19.player_a_count < game19.player_b_count
+          ? game19.player_b_id
+          : game19.player_a_id;
+      const winner20 =
+        game20.player_a_count < game20.player_b_count
+          ? game20.player_b_id
+          : game20.player_a_id;
+
+      // Create New Voting Matchups
+      await insertNewBracketVoting(
+        winner17,
+        winner18,
+        'game_21',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        winner19,
+        winner20,
+        'game_22',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+
+      // Update Bracket and old Matchups
+      await mysql('UPDATE bracket SET round = ? WHERE id = ?', [
+        4,
+        bracket[index].id,
+      ]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game17.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game18.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game19.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game20.id]);
+    }
+  } catch (err) {
+    throw new Error('Can not create bracket fourth round');
+  }
+};
+
+module.exports.createBracketFinalRound = async () => {
+  try {
+    const bracket = await mysql(
+      'SELECT * FROM bracket WHERE active = ? AND round = ?',
+      [1, 4]
+    );
+
+    for (let index = 0; index < bracket.length; index++) {
+      const voting = await mysql(
+        'SELECT * FROM votes WHERE matchup_id = ? AND is_bracket = ?',
+        [bracket[index].id, 1]
+      );
+
+      const game21 = voting.filter((vote) => vote.rank === 'game_21')[0];
+      const game22 = voting.filter((vote) => vote.rank === 'game_22')[0];
+
+      const winner21 =
+        game21.player_a_count < game21.player_b_count
+          ? game21.player_b_id
+          : game21.player_a_id;
+      const winner22 =
+        game22.player_a_count < game22.player_b_count
+          ? game22.player_b_id
+          : game22.player_a_id;
+
+      // Create New Voting Matchups
+      await insertNewBracketVoting(
+        winner21,
+        winner22,
+        'game_23',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+
+      // Update Bracket and old Matchups
+      await mysql('UPDATE bracket SET round = ? WHERE id = ?', [
+        5,
+        bracket[index].id,
+      ]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game21.id]);
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game22.id]);
+    }
+  } catch (err) {
+    throw new Error('Can not create bracket final round');
+  }
+};
+
+module.exports.createBracketChamp = async () => {
+  try {
+    const bracket = await mysql(
+      'SELECT * FROM bracket WHERE active = ? AND round = ?',
+      [1, 5]
+    );
+
+    for (let index = 0; index < bracket.length; index++) {
+      const voting = await mysql(
+        'SELECT * FROM votes WHERE matchup_id = ? AND is_bracket = ?',
+        [bracket[index].id, 1]
+      );
+
+      const game23 = voting.filter((vote) => vote.rank === 'game_23')[0];
+
+      const winner23 =
+        game23.player_a_count < game23.player_b_count
+          ? game23.player_b_id
+          : game23.player_a_id;
+
+      // Update Bracket and old Matchups
+      await mysql(
+        'UPDATE bracket SET round = ?, active = ?, champ = ? WHERE id = ?',
+        [6, 0, winner23, bracket[index].id]
+      );
+      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game23.id]);
+    }
+  } catch (err) {
+    throw new Error('Can not create bracket champ');
   }
 };

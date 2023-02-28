@@ -24,6 +24,12 @@ const {
   playoffsFirstRound,
   playoffsSemis,
   playoffsFinals,
+  createBracketFirstRound,
+  createBracketSecondRound,
+  createBracketThirdRound,
+  createBracketFourthRound,
+  createBracketFinalRound,
+  createBracketChamp,
 } = require('./utils/query');
 
 /**
@@ -107,6 +113,14 @@ cron.schedule(
     await playoffsFirstRound();
     await playoffsSemis();
     await playoffsFinals();
+
+    // Start Bracket Voting
+    await createBracketFirstRound();
+    await createBracketSecondRound();
+    await createBracketThirdRound();
+    await createBracketFourthRound();
+    await createBracketFinalRound();
+    await createBracketChamp();
   },
   {
     scheduled: true,

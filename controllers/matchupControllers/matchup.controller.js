@@ -45,8 +45,8 @@ module.exports.getMatchup = async (req, res) => {
     ]);
 
     const votes = await mysql(
-      'SELECT * FROM votes WHERE matchup_id = ? AND active = ?',
-      [matchup_id, 1]
+      'SELECT * FROM votes WHERE matchup_id = ? AND active = ? AND is_bracket = ?',
+      [matchup_id, 1, 0]
     );
 
     return res.status(200).json({
@@ -94,8 +94,8 @@ module.exports.createMatchupVotes = async (req, res) => {
 
   try {
     const existingMatchup = await mysql(
-      'SELECT * FROM votes WHERE matchup_id = ? AND rank = ? AND active = ?',
-      [matchup_id, rank, 1]
+      'SELECT * FROM votes WHERE matchup_id = ? AND rank = ? AND active = ? AND is_bracket = ?',
+      [matchup_id, rank, 1, 0]
     );
 
     if (existingMatchup.length) {
@@ -133,8 +133,19 @@ module.exports.createMatchupVotes = async (req, res) => {
     ]);
 
     const newVote = await mysql(
-      'INSERT INTO `votes` (`initiator_id`, `matchup_id`, `player_a_id`, `player_b_id`, `player_a_count`, `player_b_count`, `rank`, `active`, `create_date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [userId, matchup_id, teams[0][rank], teams[1][rank], 0, 0, rank, 1, date]
+      'INSERT INTO `votes` (`initiator_id`, `matchup_id`, `player_a_id`, `player_b_id`, `player_a_count`, `player_b_count`, `rank`, `active`, `is_bracket`, `create_date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        userId,
+        matchup_id,
+        teams[0][rank],
+        teams[1][rank],
+        0,
+        0,
+        rank,
+        1,
+        0,
+        date,
+      ]
     );
 
     return res.status(200).json({
@@ -153,8 +164,8 @@ module.exports.getMatchupVotes = async (req, res) => {
 
   try {
     const votes = await mysql(
-      'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.id = ? AND v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
-      [vote_id, 1]
+      'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.id = ? AND v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+      [vote_id, 1, 0]
     );
 
     if (!votes.length) {
@@ -180,8 +191,8 @@ module.exports.getAllMatchupVotes = async (req, res) => {
 
     if (currentUser) {
       const votedOn = await mysql(
-        'SELECT v.id FROM votes v, votes_user vs WHERE v.active = ? AND v.id = vs.votes_id AND vs.user_id = ?',
-        [1, currentUser.user_id]
+        'SELECT v.id FROM votes v, votes_user vs WHERE v.active = ? AND v.is_bracket = ? AND v.id = vs.votes_id AND vs.user_id = ?',
+        [1, 0, currentUser.user_id]
       );
 
       const voteIds = [];
@@ -189,19 +200,19 @@ module.exports.getAllMatchupVotes = async (req, res) => {
 
       votes = voteIds.length
         ? await mysql(
-          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE NOT v.id IN (?) AND v.matchup_id = m.id AND m.league_id = l.id',
-          [voteIds]
+          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE NOT v.id IN (?) AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+          [voteIds, 0]
         )
         : await mysql(
-          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
-          [1]
+          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+          [1, 0]
         );
     }
 
     if (!currentUser) {
       votes = await mysql(
-        'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id',
-        [1]
+        'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+        [1, 0]
       );
     }
 
@@ -237,8 +248,8 @@ module.exports.addVotes = async (req, res) => {
     }
 
     const isVoteActive = await mysql(
-      'SELECT * FROM matchup m, league l, votes v WHERE v.id = ? AND v.matchup_id = m.id AND m.league_id = l.id AND l.is_voting_active = ?',
-      [voteId, 1]
+      'SELECT * FROM matchup m, league l, votes v WHERE v.id = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id AND l.is_voting_active = ?',
+      [voteId, 0, 1]
     );
 
     if (!isVoteActive.length) {
