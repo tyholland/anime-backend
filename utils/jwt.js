@@ -25,6 +25,7 @@ module.exports.middleware = () => {
       '/users/logout',
       '/matchup/all/votes',
       '/player',
+      '/player/anime/news',
       /^\/player\/.*/,
       /^\/matchup\/votes\/.*/,
 

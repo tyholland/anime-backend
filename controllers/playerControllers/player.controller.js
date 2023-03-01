@@ -1,4 +1,5 @@
 ﻿const mysql = require('../../utils/mysql').instance();
+const malScraper = require('mal-scraper');
 
 module.exports.getAllPlayers = async (req, res) => {
   try {
@@ -69,6 +70,23 @@ module.exports.getPlayablePlayers = async (req, res) => {
     res.status(500).json({
       error,
       action: 'Get all playable players',
+    });
+  }
+};
+
+module.exports.getAnimeNews = async (req, res) => {
+  const search = malScraper.search;
+
+  try {
+    const listings = await search.search('anime', {
+      term: 'shounen',
+    });
+
+    return res.status(200).json(listings);
+  } catch (error) {
+    return res.status(500).json({
+      error,
+      action: 'Get specific player',
     });
   }
 };
