@@ -27,6 +27,7 @@ module.exports.middleware = () => {
       '/player',
       '/player/anime/news',
       /^\/player\/.*/,
+      /^\/bracket\/.*/,
       /^\/matchup\/votes\/.*/,
 
       '/',
