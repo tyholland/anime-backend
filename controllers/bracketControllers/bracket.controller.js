@@ -76,6 +76,7 @@ module.exports.createBracket = async (req, res) => {
       bracketId: newBracket.insertId,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Create bracket',
@@ -129,6 +130,7 @@ module.exports.addVotes = async (req, res) => {
       votes: voteTotal.length,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Add votes',
@@ -491,6 +493,7 @@ module.exports.getBracket = async (req, res) => {
       allMatches,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get bracket',
@@ -508,6 +511,7 @@ module.exports.getAllBrackets = async (req, res) => {
 
     return res.status(200).json(brackets);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get all brackets',
