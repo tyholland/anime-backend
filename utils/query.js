@@ -1158,6 +1158,20 @@ const insertNewBracketVoting = async (
   }
 };
 
+const getGameWinner = async (voting, match) => {
+  try {
+    const game = voting.filter((vote) => vote.rank === match)[0];
+
+    await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game.id]);
+
+    return game.player_a_count < game.player_b_count
+      ? game.player_b_id
+      : game.player_a_id;
+  } catch (err) {
+    throw new Error('Can not get game winner and update voting status');
+  }
+};
+
 module.exports.createBracketFirstRound = async () => {
   try {
     const bracket = await mysql(
@@ -1167,58 +1181,72 @@ module.exports.createBracketFirstRound = async () => {
 
     for (let index = 0; index < bracket.length; index++) {
       await insertNewBracketVoting(
-        bracket[index].player_1,
         bracket[index].player_2,
-        'game_1',
-        bracket[index].id,
-        bracket[index].creator_id
-      );
-      await insertNewBracketVoting(
         bracket[index].player_3,
-        bracket[index].player_4,
         'game_2',
         bracket[index].id,
         bracket[index].creator_id
       );
       await insertNewBracketVoting(
+        bracket[index].player_4,
         bracket[index].player_5,
-        bracket[index].player_6,
         'game_3',
         bracket[index].id,
         bracket[index].creator_id
       );
       await insertNewBracketVoting(
+        bracket[index].player_6,
         bracket[index].player_7,
-        bracket[index].player_8,
         'game_4',
         bracket[index].id,
         bracket[index].creator_id
       );
       await insertNewBracketVoting(
+        bracket[index].player_8,
         bracket[index].player_9,
-        bracket[index].player_10,
         'game_5',
         bracket[index].id,
         bracket[index].creator_id
       );
       await insertNewBracketVoting(
+        bracket[index].player_10,
         bracket[index].player_11,
-        bracket[index].player_12,
         'game_6',
         bracket[index].id,
         bracket[index].creator_id
       );
       await insertNewBracketVoting(
-        bracket[index].player_13,
         bracket[index].player_14,
-        'game_7',
+        bracket[index].player_15,
+        'game_9',
         bracket[index].id,
         bracket[index].creator_id
       );
       await insertNewBracketVoting(
-        bracket[index].player_15,
         bracket[index].player_16,
-        'game_8',
+        bracket[index].player_17,
+        'game_10',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_18,
+        bracket[index].player_19,
+        'game_11',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_20,
+        bracket[index].player_21,
+        'game_12',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_22,
+        bracket[index].player_23,
+        'game_13',
         bracket[index].id,
         bracket[index].creator_id
       );
@@ -1247,102 +1275,57 @@ module.exports.createBracketSecondRound = async () => {
         [bracket[index].id, 1]
       );
 
-      const game1 = voting.filter((vote) => vote.rank === 'game_1')[0];
-      const game2 = voting.filter((vote) => vote.rank === 'game_2')[0];
-      const game3 = voting.filter((vote) => vote.rank === 'game_3')[0];
-      const game4 = voting.filter((vote) => vote.rank === 'game_4')[0];
-      const game5 = voting.filter((vote) => vote.rank === 'game_5')[0];
-      const game6 = voting.filter((vote) => vote.rank === 'game_6')[0];
-      const game7 = voting.filter((vote) => vote.rank === 'game_7')[0];
-      const game8 = voting.filter((vote) => vote.rank === 'game_8')[0];
-
-      const winner1 =
-        game1.player_a_count < game1.player_b_count
-          ? game1.player_b_id
-          : game1.player_a_id;
-      const winner2 =
-        game2.player_a_count < game2.player_b_count
-          ? game2.player_b_id
-          : game2.player_a_id;
-      const winner3 =
-        game3.player_a_count < game3.player_b_count
-          ? game3.player_b_id
-          : game3.player_a_id;
-      const winner4 =
-        game4.player_a_count < game4.player_b_count
-          ? game4.player_b_id
-          : game4.player_a_id;
-      const winner5 =
-        game5.player_a_count < game5.player_b_count
-          ? game5.player_b_id
-          : game5.player_a_id;
-      const winner6 =
-        game6.player_a_count < game6.player_b_count
-          ? game6.player_b_id
-          : game6.player_a_id;
-      const winner7 =
-        game7.player_a_count < game7.player_b_count
-          ? game7.player_b_id
-          : game7.player_a_id;
-      const winner8 =
-        game8.player_a_count < game8.player_b_count
-          ? game8.player_b_id
-          : game8.player_a_id;
+      const winner2 = getGameWinner(voting, 'game_2');
+      const winner3 = getGameWinner(voting, 'game_3');
+      const winner4 = getGameWinner(voting, 'game_4');
+      const winner6 = getGameWinner(voting, 'game_6');
+      const winner9 = getGameWinner(voting, 'game_9');
+      const winner10 = getGameWinner(voting, 'game_10');
+      const winner11 = getGameWinner(voting, 'game_11');
+      const winner13 = getGameWinner(voting, 'game_13');
+      getGameWinner(voting, 'game_5');
+      getGameWinner(voting, 'game_12');
 
       // Create New Voting Matchups
       await insertNewBracketVoting(
-        bracket[index].player_17,
-        winner1,
-        'game_9',
-        bracket[index].id,
-        bracket[index].creator_id
-      );
-      await insertNewBracketVoting(
-        bracket[index].player_18,
+        bracket[index].player_1,
         winner2,
-        'game_10',
-        bracket[index].id,
-        bracket[index].creator_id
-      );
-      await insertNewBracketVoting(
-        bracket[index].player_19,
-        winner3,
-        'game_11',
-        bracket[index].id,
-        bracket[index].creator_id
-      );
-      await insertNewBracketVoting(
-        bracket[index].player_20,
-        winner4,
-        'game_12',
-        bracket[index].id,
-        bracket[index].creator_id
-      );
-      await insertNewBracketVoting(
-        bracket[index].player_21,
-        winner5,
-        'game_13',
-        bracket[index].id,
-        bracket[index].creator_id
-      );
-      await insertNewBracketVoting(
-        bracket[index].player_22,
-        winner6,
-        'game_14',
-        bracket[index].id,
-        bracket[index].creator_id
-      );
-      await insertNewBracketVoting(
-        bracket[index].player_23,
-        winner7,
         'game_15',
         bracket[index].id,
         bracket[index].creator_id
       );
       await insertNewBracketVoting(
-        bracket[index].player_24,
-        winner8,
+        winner3,
+        winner4,
         'game_16',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        winner6,
+        bracket[index].player_12,
+        'game_18',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        bracket[index].player_13,
+        winner9,
+        'game_19',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        winner10,
+        winner11,
+        'game_20',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        winner13,
+        bracket[index].player_24,
+        'game_22',
         bracket[index].id,
         bracket[index].creator_id
       );
@@ -1352,14 +1335,6 @@ module.exports.createBracketSecondRound = async () => {
         2,
         bracket[index].id,
       ]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game1.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game2.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game3.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game4.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game5.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game6.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game7.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game8.id]);
     }
   } catch (err) {
     throw new Error('Can not create bracket second round');
@@ -1379,74 +1354,41 @@ module.exports.createBracketThirdRound = async () => {
         [bracket[index].id, 1]
       );
 
-      const game9 = voting.filter((vote) => vote.rank === 'game_9')[0];
-      const game10 = voting.filter((vote) => vote.rank === 'game_10')[0];
-      const game11 = voting.filter((vote) => vote.rank === 'game_11')[0];
-      const game12 = voting.filter((vote) => vote.rank === 'game_12')[0];
-      const game13 = voting.filter((vote) => vote.rank === 'game_13')[0];
-      const game14 = voting.filter((vote) => vote.rank === 'game_14')[0];
-      const game15 = voting.filter((vote) => vote.rank === 'game_15')[0];
-      const game16 = voting.filter((vote) => vote.rank === 'game_16')[0];
-
-      const winner9 =
-        game9.player_a_count < game9.player_b_count
-          ? game9.player_b_id
-          : game9.player_a_id;
-      const winner10 =
-        game10.player_a_count < game10.player_b_count
-          ? game10.player_b_id
-          : game10.player_a_id;
-      const winner11 =
-        game11.player_a_count < game11.player_b_count
-          ? game11.player_b_id
-          : game11.player_a_id;
-      const winner12 =
-        game12.player_a_count < game12.player_b_count
-          ? game12.player_b_id
-          : game12.player_a_id;
-      const winner13 =
-        game13.player_a_count < game13.player_b_count
-          ? game13.player_b_id
-          : game13.player_a_id;
-      const winner14 =
-        game14.player_a_count < game14.player_b_count
-          ? game14.player_b_id
-          : game14.player_a_id;
-      const winner15 =
-        game15.player_a_count < game15.player_b_count
-          ? game15.player_b_id
-          : game15.player_a_id;
-      const winner16 =
-        game16.player_a_count < game16.player_b_count
-          ? game16.player_b_id
-          : game16.player_a_id;
+      const winner5 = getGameWinner(voting, 'game_5');
+      const winner12 = getGameWinner(voting, 'game_12');
+      const winner15 = getGameWinner(voting, 'game_15');
+      const winner16 = getGameWinner(voting, 'game_16');
+      const winner18 = getGameWinner(voting, 'game_18');
+      const winner19 = getGameWinner(voting, 'game_19');
+      const winner20 = getGameWinner(voting, 'game_20');
+      const winner22 = getGameWinner(voting, 'game_22');
 
       // Create New Voting Matchups
       await insertNewBracketVoting(
-        winner9,
-        winner10,
-        'game_17',
-        bracket[index].id,
-        bracket[index].creator_id
-      );
-      await insertNewBracketVoting(
-        winner11,
-        winner12,
-        'game_18',
-        bracket[index].id,
-        bracket[index].creator_id
-      );
-      await insertNewBracketVoting(
-        winner13,
-        winner14,
-        'game_19',
-        bracket[index].id,
-        bracket[index].creator_id
-      );
-      await insertNewBracketVoting(
         winner15,
         winner16,
-        'game_20',
+        'game_23',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        winner5,
+        winner18,
+        'game_24',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        winner19,
+        winner20,
+        'game_25',
+        bracket[index].id,
+        bracket[index].creator_id
+      );
+      await insertNewBracketVoting(
+        winner12,
+        winner22,
+        'game_26',
         bracket[index].id,
         bracket[index].creator_id
       );
@@ -1456,14 +1398,6 @@ module.exports.createBracketThirdRound = async () => {
         3,
         bracket[index].id,
       ]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game9.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game10.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game11.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game12.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game13.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game14.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game15.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game16.id]);
     }
   } catch (err) {
     throw new Error('Can not create bracket third round');
@@ -1483,40 +1417,23 @@ module.exports.createBracketFourthRound = async () => {
         [bracket[index].id, 1]
       );
 
-      const game17 = voting.filter((vote) => vote.rank === 'game_17')[0];
-      const game18 = voting.filter((vote) => vote.rank === 'game_18')[0];
-      const game19 = voting.filter((vote) => vote.rank === 'game_19')[0];
-      const game20 = voting.filter((vote) => vote.rank === 'game_20')[0];
-
-      const winner17 =
-        game17.player_a_count < game17.player_b_count
-          ? game17.player_b_id
-          : game17.player_a_id;
-      const winner18 =
-        game18.player_a_count < game18.player_b_count
-          ? game18.player_b_id
-          : game18.player_a_id;
-      const winner19 =
-        game19.player_a_count < game19.player_b_count
-          ? game19.player_b_id
-          : game19.player_a_id;
-      const winner20 =
-        game20.player_a_count < game20.player_b_count
-          ? game20.player_b_id
-          : game20.player_a_id;
+      const winner23 = getGameWinner(voting, 'game_23');
+      const winner24 = getGameWinner(voting, 'game_24');
+      const winner25 = getGameWinner(voting, 'game_25');
+      const winner26 = getGameWinner(voting, 'game_26');
 
       // Create New Voting Matchups
       await insertNewBracketVoting(
-        winner17,
-        winner18,
-        'game_21',
+        winner23,
+        winner24,
+        'game_27',
         bracket[index].id,
         bracket[index].creator_id
       );
       await insertNewBracketVoting(
-        winner19,
-        winner20,
-        'game_22',
+        winner25,
+        winner26,
+        'game_28',
         bracket[index].id,
         bracket[index].creator_id
       );
@@ -1526,10 +1443,6 @@ module.exports.createBracketFourthRound = async () => {
         4,
         bracket[index].id,
       ]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game17.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game18.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game19.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game20.id]);
     }
   } catch (err) {
     throw new Error('Can not create bracket fourth round');
@@ -1549,23 +1462,14 @@ module.exports.createBracketFinalRound = async () => {
         [bracket[index].id, 1]
       );
 
-      const game21 = voting.filter((vote) => vote.rank === 'game_21')[0];
-      const game22 = voting.filter((vote) => vote.rank === 'game_22')[0];
-
-      const winner21 =
-        game21.player_a_count < game21.player_b_count
-          ? game21.player_b_id
-          : game21.player_a_id;
-      const winner22 =
-        game22.player_a_count < game22.player_b_count
-          ? game22.player_b_id
-          : game22.player_a_id;
+      const winner27 = getGameWinner(voting, 'game_27');
+      const winner28 = getGameWinner(voting, 'game_28');
 
       // Create New Voting Matchups
       await insertNewBracketVoting(
-        winner21,
-        winner22,
-        'game_23',
+        winner27,
+        winner28,
+        'game_29',
         bracket[index].id,
         bracket[index].creator_id
       );
@@ -1575,8 +1479,6 @@ module.exports.createBracketFinalRound = async () => {
         5,
         bracket[index].id,
       ]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game21.id]);
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game22.id]);
     }
   } catch (err) {
     throw new Error('Can not create bracket final round');
@@ -1596,19 +1498,13 @@ module.exports.createBracketChamp = async () => {
         [bracket[index].id, 1]
       );
 
-      const game23 = voting.filter((vote) => vote.rank === 'game_23')[0];
-
-      const winner23 =
-        game23.player_a_count < game23.player_b_count
-          ? game23.player_b_id
-          : game23.player_a_id;
+      const winner29 = getGameWinner(voting, 'game_20');
 
       // Update Bracket and old Matchups
       await mysql(
         'UPDATE bracket SET round = ?, active = ?, champ = ? WHERE id = ?',
-        [6, 0, winner23, bracket[index].id]
+        [6, 0, winner29, bracket[index].id]
       );
-      await mysql('UPDATE votes SET active = ? WHERE id = ?', [0, game23.id]);
     }
   } catch (err) {
     throw new Error('Can not create bracket champ');
