@@ -514,3 +514,27 @@ module.exports.bracketMatchup = (allPlayers, data, match) => {
     awayTeamId: p2,
   };
 };
+
+module.exports.filterBracketVotingStatus = (voting, game) => {
+  return voting.length
+    ? voting.filter((vote) => vote.rank === game)[0].active
+    : false;
+};
+
+module.exports.filterBracketVotingScores = (voting, game, player) => {
+  const vote = voting.length && voting.filter((vote) => vote.rank === game)[0];
+
+  return vote ? vote[player] : 0;
+};
+
+module.exports.filterBracketVotingWinner = (voting, game, match) => {
+  const vote = voting.length && voting.filter((vote) => vote.rank === game)[0];
+
+  if (vote) {
+    return vote.player_a_count < game.player_b_count
+      ? game.player_b_id
+      : game.player_a_id;
+  }
+
+  return `#${match} Winner`;
+};
