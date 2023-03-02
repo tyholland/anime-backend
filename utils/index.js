@@ -499,7 +499,7 @@ const filterPlayer = (arr, target) => {
 };
 
 module.exports.bracketMatchup = (allPlayers, data, match) => {
-  const { p1, p2, score1, score2, hasEnded, round } = data;
+  const { p1, p2, score1, score2, hasEnded, round, voteId } = data;
 
   return {
     homeTeamName: filterPlayer(allPlayers, p1),
@@ -512,13 +512,14 @@ module.exports.bracketMatchup = (allPlayers, data, match) => {
     matchComplete: true,
     homeTeamId: p1,
     awayTeamId: p2,
+    voteId,
   };
 };
 
 module.exports.filterBracketVotingStatus = (voting, game) => {
-  return voting.length
-    ? voting.filter((vote) => vote.rank === game)[0].active
-    : false;
+  const vote = voting.length && voting.filter((vote) => vote.rank === game)[0];
+
+  return vote ? vote?.active === 0 : false;
 };
 
 module.exports.filterBracketVotingScores = (voting, game, player) => {
@@ -531,9 +532,13 @@ module.exports.filterBracketVotingWinner = (voting, game, match) => {
   const vote = voting.length && voting.filter((vote) => vote.rank === game)[0];
 
   if (vote) {
-    return vote.player_a_count < game.player_b_count
-      ? game.player_b_id
-      : game.player_a_id;
+    if (vote.player_a_count === vote.player_b_count) {
+      return `#${match} Winner`;
+    }
+
+    return vote.player_a_count < vote.player_b_count
+      ? vote.player_b_id
+      : vote.player_a_id;
   }
 
   return `#${match} Winner`;
