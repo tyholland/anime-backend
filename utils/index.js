@@ -538,3 +538,9 @@ module.exports.filterBracketVotingWinner = (voting, game, match) => {
 
   return `#${match} Winner`;
 };
+
+module.exports.filterBracketVotingId = (voting, game) => {
+  const vote = voting.length && voting.filter((vote) => vote.rank === game)[0];
+
+  return vote ? vote.id : null;
+};

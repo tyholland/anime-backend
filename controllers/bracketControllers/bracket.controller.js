@@ -3,6 +3,7 @@ const {
   filterBracketVotingStatus,
   filterBracketVotingScores,
   filterBracketVotingWinner,
+  filterBracketVotingId,
 } = require('../../utils');
 
 const mysql = require('../../utils/mysql').instance();
@@ -187,6 +188,7 @@ module.exports.getBracket = async (req, res) => {
         score2: 0,
         hasEnded: true,
         round: 1,
+        voteId: null,
       },
       {
         p1: bracket[0].player_2,
@@ -195,6 +197,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_2', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_2'),
         round: 1,
+        voteId: filterBracketVotingId(voting, 'game_2'),
       },
       {
         p1: bracket[0].player_4,
@@ -203,6 +206,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_3', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_3'),
         round: 1,
+        voteId: filterBracketVotingId(voting, 'game_3'),
       },
       {
         p1: bracket[0].player_6,
@@ -211,6 +215,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_4', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_4'),
         round: 1,
+        voteId: filterBracketVotingId(voting, 'game_4'),
       },
       {
         p1: bracket[0].player_8,
@@ -219,6 +224,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_5', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_5'),
         round: 1,
+        voteId: filterBracketVotingId(voting, 'game_5'),
       },
       {
         p1: bracket[0].player_10,
@@ -227,6 +233,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_6', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_6'),
         round: 1,
+        voteId: filterBracketVotingId(voting, 'game_6'),
       },
       {
         p1: bracket[0].player_12,
@@ -235,6 +242,7 @@ module.exports.getBracket = async (req, res) => {
         score2: 0,
         hasEnded: true,
         round: 1,
+        voteId: null,
       },
       {
         p1: bracket[0].player_13,
@@ -243,6 +251,7 @@ module.exports.getBracket = async (req, res) => {
         score2: 0,
         hasEnded: true,
         round: 1,
+        voteId: null,
       },
       {
         p1: bracket[0].player_14,
@@ -251,6 +260,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_9', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_9'),
         round: 1,
+        voteId: filterBracketVotingId(voting, 'game_9'),
       },
       {
         p1: bracket[0].player_16,
@@ -259,6 +269,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_10', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_10'),
         round: 1,
+        voteId: filterBracketVotingId(voting, 'game_10'),
       },
       {
         p1: bracket[0].player_18,
@@ -267,6 +278,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_11', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_11'),
         round: 1,
+        voteId: filterBracketVotingId(voting, 'game_11'),
       },
       {
         p1: bracket[0].player_20,
@@ -275,6 +287,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_12', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_12'),
         round: 1,
+        voteId: filterBracketVotingId(voting, 'game_12'),
       },
       {
         p1: bracket[0].player_22,
@@ -283,6 +296,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_13', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_13'),
         round: 1,
+        voteId: filterBracketVotingId(voting, 'game_13'),
       },
       {
         p1: bracket[0].player_24,
@@ -291,6 +305,7 @@ module.exports.getBracket = async (req, res) => {
         score2: 0,
         hasEnded: true,
         round: 1,
+        voteId: null,
       },
     ];
     const round1 = [];
@@ -303,6 +318,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_15', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_15'),
         round: 2,
+        voteId: filterBracketVotingId(voting, 'game_15'),
       },
       {
         p1: filterBracketVotingWinner(voting, 'game_3', '3'),
@@ -311,6 +327,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_16', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_16'),
         round: 2,
+        voteId: filterBracketVotingId(voting, 'game_16'),
       },
       {
         p1: filterBracketVotingWinner(voting, 'game_5', '5'),
@@ -319,6 +336,7 @@ module.exports.getBracket = async (req, res) => {
         score2: 0,
         hasEnded: true,
         round: 2,
+        voteId: null,
       },
       {
         p1: filterBracketVotingWinner(voting, 'game_6', '6'),
@@ -327,6 +345,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_18', 'player_a_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_18'),
         round: 2,
+        voteId: filterBracketVotingId(voting, 'game_18'),
       },
       {
         p1: bracket[0].player_13,
@@ -335,6 +354,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_19', 'player_a_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_19'),
         round: 2,
+        voteId: filterBracketVotingId(voting, 'game_19'),
       },
       {
         p1: filterBracketVotingWinner(voting, 'game_10', '10'),
@@ -343,6 +363,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_20', 'player_a_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_20'),
         round: 2,
+        voteId: filterBracketVotingId(voting, 'game_20'),
       },
       {
         p1: filterBracketVotingWinner(voting, 'game_12', '12'),
@@ -351,6 +372,7 @@ module.exports.getBracket = async (req, res) => {
         score2: 0,
         hasEnded: true,
         round: 2,
+        voteId: null,
       },
       {
         p1: filterBracketVotingWinner(voting, 'game_13', '13'),
@@ -359,6 +381,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_22', 'player_a_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_22'),
         round: 2,
+        voteId: filterBracketVotingId(voting, 'game_22'),
       },
     ];
     const round2 = [];
@@ -371,6 +394,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_23', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_23'),
         round: 3,
+        voteId: filterBracketVotingId(voting, 'game_23'),
       },
       {
         p1: filterBracketVotingWinner(voting, 'game_5', '5'),
@@ -379,6 +403,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_24', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_24'),
         round: 3,
+        voteId: filterBracketVotingId(voting, 'game_24'),
       },
       {
         p1: filterBracketVotingWinner(voting, 'game_19', '19'),
@@ -387,6 +412,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_25', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_25'),
         round: 3,
+        voteId: filterBracketVotingId(voting, 'game_25'),
       },
       {
         p1: filterBracketVotingWinner(voting, 'game_12', '12'),
@@ -395,6 +421,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_26', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_26'),
         round: 3,
+        voteId: filterBracketVotingId(voting, 'game_26'),
       },
     ];
     const round3 = [];
@@ -407,6 +434,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_27', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_27'),
         round: 4,
+        voteId: filterBracketVotingId(voting, 'game_27'),
       },
       {
         p1: filterBracketVotingWinner(voting, 'game_25', '25'),
@@ -415,6 +443,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_28', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_28'),
         round: 4,
+        voteId: filterBracketVotingId(voting, 'game_28'),
       },
     ];
     const round4 = [];
@@ -427,6 +456,7 @@ module.exports.getBracket = async (req, res) => {
         score2: filterBracketVotingScores(voting, 'game_29', 'player_b_count'),
         hasEnded: filterBracketVotingStatus(voting, 'game_29'),
         round: 5,
+        voteId: filterBracketVotingId(voting, 'game_29'),
       },
     ];
     const round5 = [];
