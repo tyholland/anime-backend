@@ -24,6 +24,7 @@ module.exports.getPlayer = async (req, res) => {
 
     return res.status(200).json(player);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get specific player',
@@ -84,6 +85,7 @@ module.exports.getAnimeNews = async (req, res) => {
 
     return res.status(200).json(listings);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get specific player',

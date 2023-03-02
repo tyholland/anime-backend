@@ -23,6 +23,7 @@ module.exports.checkUserExists = async (req, res) => {
       exists: !!account.length,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Check if User exists',
@@ -63,6 +64,7 @@ module.exports.loginUser = async (req, res) => {
       token: accessToken,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Login User',
@@ -140,6 +142,7 @@ module.exports.createUser = async (req, res) => {
       token: accessToken,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Create User',
@@ -168,6 +171,7 @@ module.exports.deleteAccount = async (req, res) => {
       success: true,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Delete Account',

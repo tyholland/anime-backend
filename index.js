@@ -82,7 +82,7 @@ app.get('/doc', (req, res) => {
 
   fs.readFile(indexFile, 'utf8', (err, data) => {
     if (err) {
-      console.error('Something went wrong:', err);
+      console.log(err);
       return res.status(500).send('Oops, better luck next time!');
     }
 

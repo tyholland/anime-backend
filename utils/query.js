@@ -1,5 +1,5 @@
 const mysql = require('./mysql').instance();
-const { characterAttr, sortRankings } = require('./index');
+const { characterAttr, sortRankings, randomAffinity } = require('./index');
 const { sendLeagueEndedEmail } = require('./mailchimp');
 
 module.exports.createNewTeam = async (userId, leagueId, res) => {
@@ -27,6 +27,7 @@ module.exports.createNewTeam = async (userId, leagueId, res) => {
       leagueId,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Can not create a new team',
@@ -47,7 +48,11 @@ module.exports.formatTeam = async (data, member, res) => {
     week,
     id,
     status,
+    affinity,
   } = data;
+
+  const isAffinityActive =
+    member.is_voting_active === 0 && member.is_roster_active === 0;
 
   let homeTeam = 'team_a';
   let awayTeam = 'team_b';
@@ -134,6 +139,8 @@ module.exports.formatTeam = async (data, member, res) => {
       support,
       bs_support,
       battlefield,
+      affinity,
+      isAffinityActive,
     };
 
     if (matchup.length) {
@@ -150,6 +157,8 @@ module.exports.formatTeam = async (data, member, res) => {
         opponentVillain: matchup[0].villain,
         opponentBattlefield: matchup[0].battlefield,
         votes,
+        affinity,
+        isAffinityActive,
       };
     }
 
@@ -175,6 +184,7 @@ module.exports.formatTeam = async (data, member, res) => {
       },
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Can not format team',
@@ -185,7 +195,7 @@ module.exports.formatTeam = async (data, member, res) => {
 module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
   try {
     const matchup = await mysql(
-      `SELECT t.villain, t.battlefield FROM matchup m, team t WHERE m.id = ? AND m.${team} = t.id`,
+      `SELECT t.villain, t.battlefield, m.league_id FROM matchup m, team t WHERE m.id = ? AND m.${team} = t.id`,
       [matchupId]
     );
 
@@ -201,6 +211,7 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       villain,
       battlefield,
       week,
+      affinity,
     } = specificTeam[0];
 
     const characterArr = [
@@ -227,6 +238,14 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       [matchupId, 0]
     );
 
+    const league = await mysql(
+      'SELECT is_roster_active, is_voting_active FROM league WHERE id = ?',
+      [matchup[0].league_id]
+    );
+
+    const isAffinityActive =
+      league[0].is_voting_active === 0 && league[0].is_roster_active === 0;
+
     const details = {
       week,
       support,
@@ -235,6 +254,8 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       opponentVillain: matchup[0].villain,
       opponentBattlefield: matchup[0].battlefield,
       votes,
+      affinity,
+      isAffinityActive,
     };
 
     const captainData = characterAttr(players, captain, 'captain', details);
@@ -289,20 +310,22 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
 
 const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
   if (week === 1) {
+    const rand = Math.floor(Math.random() * (randomAffinity.length + 1));
+
     try {
       await mysql(
         'INSERT INTO `matchup` (`league_id`, `team_a`, `team_b`, `score_a`, `score_b`, `week`, `active`) VALUES (?, ?, ?, ?, ?, ?, ?)',
         [leagueId, teamA, teamB, 0, 0, week, 1]
       );
 
-      await mysql('UPDATE team SET week = ?, status = ? WHERE id = ?', [
-        week,
-        'home',
-        teamA,
-      ]);
+      await mysql(
+        'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
+        [week, 'home', randomAffinity[rand], teamA]
+      );
       await mysql('UPDATE team SET week = ?, status = ? WHERE id = ?', [
         week,
         'away',
+        randomAffinity[rand],
         teamB,
       ]);
 
@@ -313,27 +336,27 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
   }
 
   try {
+    const weekRand = Math.floor(Math.random() * (randomAffinity.length + 1));
+
     const newTeamA = await mysql(
       'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE id = ?',
       [teamA]
     );
 
-    await mysql('UPDATE team SET week = ?, status = ? WHERE id = ?', [
-      week,
-      'home',
-      newTeamA.insertId,
-    ]);
+    await mysql(
+      'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
+      [week, 'home', randomAffinity[weekRand], newTeamA.insertId]
+    );
 
     const newTeamB = await mysql(
       'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE id = ?',
       [teamB]
     );
 
-    await mysql('UPDATE team SET week = ?, status = ? WHERE id = ?', [
-      week,
-      'away',
-      newTeamB.insertId,
-    ]);
+    await mysql(
+      'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
+      [week, 'away', randomAffinity[weekRand], newTeamB.insertId]
+    );
 
     await mysql(
       'INSERT INTO `matchup` (`league_id`, `team_a`, `team_b`, `score_a`, `score_b`, `week`, `active`) VALUES (?, ?, ?, ?, ?, ?, ?)',
