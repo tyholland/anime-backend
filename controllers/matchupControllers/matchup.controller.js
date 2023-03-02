@@ -54,6 +54,7 @@ module.exports.getMatchup = async (req, res) => {
       votes,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get Matchup',
@@ -79,6 +80,7 @@ module.exports.getMatchupFromTeam = async (req, res) => {
 
     return res.status(200).json(matchupData);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get matchup from team',
@@ -141,6 +143,7 @@ module.exports.createMatchupVotes = async (req, res) => {
       matchupVoteId: newVote.insertId,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Create matchup voting',
@@ -165,6 +168,7 @@ module.exports.getMatchupVotes = async (req, res) => {
 
     return res.status(200).json(votes[0]);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get Matchup votes',
@@ -213,6 +217,7 @@ module.exports.getAllMatchupVotes = async (req, res) => {
 
     return res.status(200).json(votes);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get all matchup votes',
@@ -266,6 +271,7 @@ module.exports.addVotes = async (req, res) => {
       votes: voteTotal.length,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Add votes',

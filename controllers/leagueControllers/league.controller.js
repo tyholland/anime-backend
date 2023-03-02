@@ -29,6 +29,7 @@ module.exports.getLeague = async (req, res) => {
 
     return res.status(200).json(leagueData);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get League',
@@ -47,6 +48,7 @@ module.exports.getAllLeagues = async (req, res) => {
 
     return res.status(200).json(leagueData);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get All Leagues',
@@ -71,6 +73,7 @@ module.exports.createLeague = async (req, res) => {
 
     return await createNewTeam(userId, newLeague.insertId, res);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Create League',
@@ -122,6 +125,7 @@ module.exports.joinLeague = async (req, res) => {
 
     return await createNewTeam(userId, id, res);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Join League',
@@ -149,6 +153,7 @@ module.exports.updateLeague = async (req, res) => {
       success: true,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Update League',
@@ -195,6 +200,7 @@ module.exports.deleteLeague = async (req, res) => {
       success: true,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Delete League',
@@ -238,6 +244,7 @@ module.exports.getScoreboard = async (req, res) => {
 
     return res.status(200).json(mainScoreboard);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get scoreboard',
@@ -271,6 +278,7 @@ module.exports.getStandings = async (req, res) => {
 
     return res.status(200).json(rankings);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get standings',
@@ -299,6 +307,7 @@ module.exports.startLeague = async (req, res) => {
       success: true,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Start league',
@@ -326,6 +335,7 @@ module.exports.getLeagueAdminData = async (req, res) => {
       teams,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get League Admin',
@@ -369,6 +379,7 @@ module.exports.removeTeamFromLeague = async (req, res) => {
       teams,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Remove Team from League',
@@ -395,6 +406,7 @@ module.exports.getPlayoffsSchedule = async (req, res) => {
 
     return res.status(200).json(playoffSchedule);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get playoff schedule',

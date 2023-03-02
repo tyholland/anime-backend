@@ -18,7 +18,7 @@ module.exports.getTeam = async (req, res) => {
     const team = await getTeamQuery(team_id);
 
     const member = await mysql(
-      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members lm, league l, team t WHERE lm.user_id = ? AND t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
+      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, l.is_voting_active, l.is_roster_active, lm.league_id FROM league_members lm, league l, team t WHERE lm.user_id = ? AND t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [userId, team_id]
     );
 
@@ -30,6 +30,7 @@ module.exports.getTeam = async (req, res) => {
 
     return await formatTeam(team[0], member[0], res);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get team',
@@ -44,7 +45,7 @@ module.exports.getMatchupTeam = async (req, res) => {
     const team = await getTeamQuery(team_id);
 
     const member = await mysql(
-      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members lm, league l, team t WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
+      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, l.is_voting_active, l.is_roster_active, lm.league_id FROM league_members lm, league l, team t WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [team_id]
     );
 
@@ -56,6 +57,7 @@ module.exports.getMatchupTeam = async (req, res) => {
 
     return await formatTeam(team[0], member[0], res);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get team',
@@ -108,6 +110,7 @@ module.exports.getTeamInfo = async (req, res) => {
       rank: rankings,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get team info',
@@ -141,6 +144,7 @@ module.exports.updateTeamName = async (req, res) => {
       success: true,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Update team name',
@@ -163,7 +167,7 @@ module.exports.updateTeam = async (req, res) => {
 
   try {
     const team = await mysql(
-      'SELECT t.league_member_id, l.week FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id AND t.week = l.week AND l.is_roster_active = ?',
+      'SELECT t.league_member_id, t.affinity, l.week, l.is_voting_active, l.is_roster_active FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id AND t.week = l.week AND l.is_roster_active = ?',
       [team_id, 1]
     );
 
@@ -214,6 +218,8 @@ module.exports.updateTeam = async (req, res) => {
         item.id === bsBrawler.id ? bsSupport.id : support.id;
       const isSupportInvalid = isSupport || isBsSupport || isBattlefield;
       const votes = [];
+      const isAffinityActive =
+        team[0].is_voting_active === 0 && team[0].is_roster_active === 0;
 
       const boost = getBoostPoints(
         isBattlefield,
@@ -221,10 +227,11 @@ module.exports.updateTeam = async (req, res) => {
         specificSupport,
         battlefield.id,
         affinities,
-        team[0].week,
         players,
         votes,
-        item
+        item,
+        team[0].affinity,
+        isAffinityActive
       );
 
       teamPoints += item.power_level + boost.total;
@@ -255,6 +262,7 @@ module.exports.updateTeam = async (req, res) => {
       success: true,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Update team',
@@ -297,6 +305,7 @@ module.exports.getSchedule = async (req, res) => {
 
     return res.status(200).json(mainSchedule);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Get schedule',
@@ -331,6 +340,7 @@ module.exports.removeTeam = async (req, res) => {
       success: true,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error,
       action: 'Remove team',

@@ -113,88 +113,117 @@ module.exports.getAffinitiesTypes = (character) => {
 
 const season = [
   {
-    week: 1,
     element: 'fire',
     value: 250,
   },
   {
-    week: 2,
     element: 'water',
     value: 300,
   },
   {
-    week: 3,
     element: 'earth',
     value: 300,
   },
   {
-    week: 4,
     element: 'wind',
     value: 250,
   },
   {
-    week: 5,
     element: 'arcane',
     value: 200,
   },
   {
-    week: 6,
     element: 'darkness',
     value: 250,
   },
   {
-    week: 7,
     element: 'celestial',
     value: 300,
   },
   {
-    week: 8,
     element: 'ice',
     value: 300,
   },
   {
-    week: 9,
     element: 'electric',
     value: 250,
   },
   {
-    week: 10,
-    element: ['wind', 'water'],
-    value: [250, 300],
-  },
-  {
-    week: 11,
-    element: ['darkness', 'ice'],
-    value: [250, 300],
-  },
-  {
-    week: 12,
-    element: ['arcane', 'fire'],
-    value: [200, 250],
+    element: 'no_affinity',
+    value: 50,
   },
 ];
 
-const getWeeklyBoost = (affinities, week) => {
-  const weekAffinity = season.filter((item) => {
-    return (
-      item.week === week &&
-      affinities.some((power) => power.type === item.element)
-    );
-  });
+module.exports.randomAffinity = [
+  'fire',
+  'water',
+  'earth',
+  'wind',
+  'arcane',
+  'darkness',
+  'celestial',
+  'ice',
+  'electric',
+  'no_affinity',
+  'wind, water',
+  'darkness, ice',
+  'arcane, fire',
+];
 
-  return weekAffinity.length ? weekAffinity[0].value / 100 : 0;
-};
-
-const getWeeklyDamage = (weakness, week) => {
-  if (!weakness || weakness === 'None') {
+const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
+  if (!isAffinityActive) {
     return 0;
   }
 
-  const damage = season.filter((item) => {
-    return item.week === week && weakness.toLowerCase() === item.element;
+  const affinity = teamAffinity.split(',');
+
+  const weekAffinity = [];
+  let affinityVal = 0;
+
+  affinity.forEach((item) => {
+    const hasPower = affinities.filter((power) => power.type === item)[0];
+
+    if (hasPower) {
+      weekAffinity.push(hasPower.type);
+    }
   });
 
-  return damage.length ? damage[0].value / 100 : 0;
+  season.forEach((item) => {
+    const hasPower = weekAffinity.some((affinity) => affinity === item.element);
+
+    affinityVal += hasPower ? item.value : 0;
+  });
+
+  return affinityVal > 0 ? affinityVal / 100 : 0;
+};
+
+const getWeeklyDamage = (weakness, teamAffinity, isAffinityActive) => {
+  if (!weakness || weakness === 'None' || !isAffinityActive) {
+    return 0;
+  }
+
+  const affinity = teamAffinity.split(',');
+
+  const weekAffinity = [];
+  let affinityVal = 0;
+
+  affinity.forEach((item) => {
+    const hasDamage = weakness.toLowerCase() === item;
+
+    if (hasDamage) {
+      weekAffinity.push(item);
+    }
+  });
+
+  season.forEach((item) => {
+    const hasDamage = weekAffinity.some(
+      (affinity) => affinity === item.element
+    );
+
+    affinityVal += hasDamage ? item.value : 0;
+  });
+
+  return affinityVal > 0 ? affinityVal / 100 : 0;
 };
 
 const getSupportBoost = (players, mainAffinities, support) => {
@@ -325,13 +354,15 @@ module.exports.getBoostPoints = (
   specificSupport,
   battlefield,
   affinities,
-  week,
   players,
   votes,
-  character
+  character,
+  teamAffinity,
+  isAffinityActive
 ) => {
   const { power_level } = character;
-  const weekBoost = getWeeklyBoost(affinities, week) * power_level;
+  const weekBoost =
+    getWeeklyBoost(affinities, teamAffinity, isAffinityActive) * power_level;
   const boostSupport =
     getSupportBoost(players, affinities, specificSupport) * power_level;
   const battlefieldSupport =
@@ -357,13 +388,14 @@ module.exports.getDamagePoints = (
   villain,
   battlefield,
   weakness,
-  week,
   players,
   votes,
-  character
+  character,
+  teamAffinity,
+  isAffinityActive
 ) => {
   const { power_level } = character;
-  const weekDamage = getWeeklyDamage(weakness, week);
+  const weekDamage = getWeeklyDamage(weakness, teamAffinity, isAffinityActive);
   const villainDamage = getVillainDamage(players, weakness, villain);
   const battlefieldDamage = getBattlefieldDamage(
     players,
@@ -394,13 +426,14 @@ module.exports.getDamagePoints = (
 module.exports.characterAttr = (players, char, rank, details) => {
   const main = players.filter((item) => item.id === char);
   const {
-    week,
     support,
     battlefield,
     bs_support,
     opponentVillain,
     opponentBattlefield,
     votes,
+    affinity,
+    isAffinityActive,
   } = details;
 
   if (!main.length) {
@@ -442,20 +475,22 @@ module.exports.characterAttr = (players, char, rank, details) => {
     specificSupport,
     battlefield,
     affinities,
-    week,
     players,
     votes,
-    main[0]
+    main[0],
+    affinity,
+    isAffinityActive
   );
 
   const damage = this.getDamagePoints(
     opponentVillain,
     opponentBattlefield,
     weakness,
-    week,
     players,
     votes,
-    main[0]
+    main[0],
+    affinity,
+    isAffinityActive
   );
 
   const teamPoints = power_level + boost.total;
