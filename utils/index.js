@@ -489,3 +489,28 @@ module.exports.sortRankings = (arr) => {
     return a.win > b.win ? -1 : a.win < b.win ? 1 : 0;
   });
 };
+
+const filterPlayer = (arr, target) => {
+  if (/#|Bye/.test(target)) {
+    return target;
+  }
+
+  return arr.filter((item) => item.id === target)[0].name;
+};
+
+module.exports.bracketMatchup = (allPlayers, data, match) => {
+  const { p1, p2, score1, score2, hasEnded, round } = data;
+
+  return {
+    homeTeamName: filterPlayer(allPlayers, p1),
+    awayTeamName: filterPlayer(allPlayers, p2),
+    round,
+    matchNumber: match,
+    homeTeamScore: score1,
+    awayTeamScore: score2,
+    matchAccepted: hasEnded,
+    matchComplete: true,
+    homeTeamId: p1,
+    awayTeamId: p2,
+  };
+};

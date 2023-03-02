@@ -1,3 +1,5 @@
+const { bracketMatchup } = require('../../utils');
+
 const mysql = require('../../utils/mysql').instance();
 
 module.exports.createBracket = async (req, res) => {
@@ -30,14 +32,12 @@ module.exports.createBracket = async (req, res) => {
     player24,
   } = bracket;
 
-  console.log(bracket);
-
   try {
     const newBracket = await mysql(
       'INSERT INTO `bracket` (`creator_id`, `active`, `round`, `player_1`, `player_2`, `player_3`, `player_4`, `player_5`, `player_6`, `player_7`, `player_8`, `player_9`, `player_10`, `player_11`, `player_12`, `player_13`, `player_14`, `player_15`, `player_16`, `player_17`, `player_18`, `player_19`, `player_20`, `player_21`, `player_22`, `player_23`, `player_24`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         userId,
-        1,
+        0,
         0,
         player1.id,
         player2.id,
@@ -169,7 +169,287 @@ module.exports.getBracket = async (req, res) => {
       bracketIds,
     ]);
 
-    return res.status(200).json(players);
+    const round1Players = [
+      {
+        p1: bracket[0].player_1,
+        p2: 'Bye',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_2,
+        p2: bracket[0].player_3,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_4,
+        p2: bracket[0].player_5,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_6,
+        p2: bracket[0].player_7,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_8,
+        p2: bracket[0].player_9,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_10,
+        p2: bracket[0].player_11,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_12,
+        p2: 'Bye',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_13,
+        p2: 'Bye',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_14,
+        p2: bracket[0].player_15,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_16,
+        p2: bracket[0].player_17,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_18,
+        p2: bracket[0].player_19,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_20,
+        p2: bracket[0].player_21,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_22,
+        p2: bracket[0].player_23,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+      {
+        p1: bracket[0].player_24,
+        p2: 'Bye',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 1,
+      },
+    ];
+    const round1 = [];
+
+    const round2Players = [
+      {
+        p1: bracket[0].player_1,
+        p2: '#2 Winner',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 2,
+      },
+      {
+        p1: '#3 Winner',
+        p2: '#4 Winner',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 2,
+      },
+      {
+        p1: '#5 Winner',
+        p2: 'Bye',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 2,
+      },
+      {
+        p1: '#6 Winner',
+        p2: bracket[0].player_12,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 2,
+      },
+      {
+        p1: bracket[0].player_13,
+        p2: '#9 Winner',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 2,
+      },
+      {
+        p1: '#10 Winner',
+        p2: '#11 Winner',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 2,
+      },
+      {
+        p1: '#12 Winner',
+        p2: 'Bye',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 2,
+      },
+      {
+        p1: '#13 Winner',
+        p2: bracket[0].player_24,
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 2,
+      },
+    ];
+    const round2 = [];
+
+    const round3Players = [
+      {
+        p1: '#15 Winner',
+        p2: '#16 Winner',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 3,
+      },
+      {
+        p1: '#5 Winner',
+        p2: '#18 Winner',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 3,
+      },
+      {
+        p1: '#19 Winner',
+        p2: '#20 Winner',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 3,
+      },
+      {
+        p1: '#12 Winner',
+        p2: '#22 Winner',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 3,
+      },
+    ];
+    const round3 = [];
+
+    const round4Players = [
+      {
+        p1: '#23 Winner',
+        p2: '#24 Winner',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 4,
+      },
+      {
+        p1: '#25 Winner',
+        p2: '#26 Winner',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 4,
+      },
+    ];
+    const round4 = [];
+
+    const round5Players = [
+      {
+        p1: '#27 Winner',
+        p2: '#28 Winner',
+        score1: 0,
+        score2: 0,
+        hasEnded: false,
+        round: 5,
+      },
+    ];
+    const round5 = [];
+
+    round1Players.forEach((item, index) => {
+      round1.push(bracketMatchup(players, item, index + 1));
+    });
+
+    round2Players.forEach((item, index) => {
+      const count = index + 15;
+      round2.push(bracketMatchup(players, item, count));
+    });
+
+    round3Players.forEach((item, index) => {
+      const count = index + 23;
+      round3.push(bracketMatchup(players, item, count));
+    });
+
+    round4Players.forEach((item, index) => {
+      const count = index + 27;
+      round4.push(bracketMatchup(players, item, count));
+    });
+
+    round5Players.forEach((item, index) => {
+      const count = index + 29;
+      round5.push(bracketMatchup(players, item, count));
+    });
+
+    const allMatches = [...round1, ...round2, ...round3, ...round4, ...round5];
+
+    return res.status(200).json({
+      allMatches,
+    });
   } catch (error) {
     return res.status(500).json({
       error,

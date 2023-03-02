@@ -1162,7 +1162,7 @@ module.exports.createBracketFirstRound = async () => {
   try {
     const bracket = await mysql(
       'SELECT * FROM bracket WHERE active = ? AND round = ?',
-      [1, 0]
+      [0, 0]
     );
 
     for (let index = 0; index < bracket.length; index++) {
@@ -1223,7 +1223,8 @@ module.exports.createBracketFirstRound = async () => {
         bracket[index].creator_id
       );
 
-      await mysql('UPDATE bracket SET round = ? WHERE id = ?', [
+      await mysql('UPDATE bracket SET round = ?, active = ? WHERE id = ?', [
+        1,
         1,
         bracket[index].id,
       ]);
