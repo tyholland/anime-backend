@@ -777,8 +777,8 @@ module.exports.createTenTeamSchedule = async () => {
 module.exports.startNewWeek = async () => {
   try {
     const leagues = await mysql(
-      'SELECT id, week, name FROM league WHERE active = ?',
-      [1]
+      'SELECT id, week, name FROM league WHERE active = ? AND week != ?',
+      [1, -1]
     );
 
     for (let index = 0; index < leagues.length; index++) {
@@ -806,7 +806,10 @@ module.exports.startNewWeek = async () => {
 
 module.exports.stopRosterStartVoting = async () => {
   try {
-    const leagues = await mysql('SELECT id FROM league WHERE active = ?', [1]);
+    const leagues = await mysql(
+      'SELECT id FROM league WHERE active = ? AND (week != ? OR week != ?)',
+      [1, 0, -1]
+    );
 
     for (let index = 0; index < leagues.length; index++) {
       const { id } = leagues[index];
@@ -823,7 +826,10 @@ module.exports.stopRosterStartVoting = async () => {
 
 module.exports.stopUserVoting = async () => {
   try {
-    const leagues = await mysql('SELECT id FROM league WHERE active = ?', [1]);
+    const leagues = await mysql(
+      'SELECT id FROM league WHERE active = ? AND (week != ? OR week != ?)',
+      [1, 0, -1]
+    );
 
     for (let index = 0; index < leagues.length; index++) {
       const { id } = leagues[index];
@@ -1528,8 +1534,8 @@ module.exports.createBracketChamp = async () => {
 module.exports.activateWeeklyAffinity = async () => {
   try {
     const teams = await mysql(
-      'SELECT t.id, t.week, l.id as league_id FROM league l, league_members lm, team t WHERE l.active = ? AND l.id = lm.league_id AND lm.id = t.league_member_id AND l.week = t.week',
-      [1]
+      'SELECT t.id, t.week, l.id as league_id FROM league l, league_members lm, team t WHERE l.active = ? AND (week != ? OR week != ?) AND l.id = lm.league_id AND lm.id = t.league_member_id AND l.week = t.week',
+      [1, 0, -1]
     );
 
     if (!teams.length) {
