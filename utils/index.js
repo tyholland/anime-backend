@@ -567,7 +567,7 @@ module.exports.filterBracketVotingWinner = (voting, game, match) => {
   const vote = voting.length && voting.filter((vote) => vote.rank === game)[0];
 
   if (vote) {
-    if (vote.player_a_count === vote.player_b_count) {
+    if (vote.active !== 0) {
       return `#${match} Winner`;
     }
 
