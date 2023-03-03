@@ -1528,7 +1528,7 @@ module.exports.createBracketChamp = async () => {
 module.exports.activateWeeklyAffinity = async () => {
   try {
     const teams = await mysql(
-      'SELECT t.id, l.id as league_id FROM league l, league_members lm, team t WHERE l.active = ? AND l.id = lm.league_id AND lm.id = t.league_member_id AND l.week = t.week',
+      'SELECT t.id, t.week, l.id as league_id FROM league l, league_members lm, team t WHERE l.active = ? AND l.id = lm.league_id AND lm.id = t.league_member_id AND l.week = t.week',
       [1]
     );
 
@@ -1537,9 +1537,36 @@ module.exports.activateWeeklyAffinity = async () => {
     }
 
     for (let index = 0; index < teams.length; index++) {
-      const { id } = teams[index];
+      const { id, league_id, week } = teams[index];
 
+      // Update activeAffinity to be true
       await mysql('UPDATE team SET activeAffinity = ? WHERE id = ?', [1, id]);
+
+      // Update matchup scores
+      const matchup = await mysql(
+        'SELECT * FROM matchup WHERE league_id = ? AND week = ?',
+        [league_id, week]
+      );
+
+      for (let index = 0; index < matchup.length; index++) {
+        const { id, team_a, team_b } = matchup[index];
+
+        const scoreA = await this.getFullTeamMatchupPoints(
+          team_a,
+          'team_b',
+          id
+        );
+        const scoreB = await this.getFullTeamMatchupPoints(
+          team_b,
+          'team_a',
+          id
+        );
+
+        await mysql(
+          'UPDATE matchup SET score_a = ?, score_b = ? WHERE id = ?',
+          [scoreA, scoreB, id]
+        );
+      }
     }
   } catch (err) {
     throw new Error('Can not activate weekly affinity');
