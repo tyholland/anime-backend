@@ -49,10 +49,8 @@ module.exports.formatTeam = async (data, member, res) => {
     id,
     status,
     affinity,
+    activeAffinity,
   } = data;
-
-  const isAffinityActive =
-    member.is_voting_active === 0 && member.is_roster_active === 0;
 
   let homeTeam = 'team_a';
   let awayTeam = 'team_b';
@@ -140,7 +138,7 @@ module.exports.formatTeam = async (data, member, res) => {
       bs_support,
       battlefield,
       affinity,
-      isAffinityActive,
+      activeAffinity,
     };
 
     if (matchup.length) {
@@ -158,7 +156,7 @@ module.exports.formatTeam = async (data, member, res) => {
         opponentBattlefield: matchup[0].battlefield,
         votes,
         affinity,
-        isAffinityActive,
+        activeAffinity,
       };
     }
 
@@ -212,6 +210,7 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       battlefield,
       week,
       affinity,
+      activeAffinity,
     } = specificTeam[0];
 
     const characterArr = [
@@ -238,14 +237,6 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       [matchupId, 0]
     );
 
-    const league = await mysql(
-      'SELECT is_roster_active, is_voting_active FROM league WHERE id = ?',
-      [matchup[0].league_id]
-    );
-
-    const isAffinityActive =
-      league[0].is_voting_active === 0 && league[0].is_roster_active === 0;
-
     const details = {
       week,
       support,
@@ -255,7 +246,7 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       opponentBattlefield: matchup[0].battlefield,
       votes,
       affinity,
-      isAffinityActive,
+      activeAffinity,
     };
 
     const captainData = characterAttr(players, captain, 'captain', details);
@@ -1531,5 +1522,26 @@ module.exports.createBracketChamp = async () => {
     }
   } catch (err) {
     throw new Error('Can not create bracket champ');
+  }
+};
+
+module.exports.activateWeeklyAffinity = async () => {
+  try {
+    const teams = await mysql(
+      'SELECT t.id, l.id as league_id FROM league l, league_members lm, team t WHERE l.active = ? AND l.id = lm.league_id AND lm.id = t.league_member_id AND l.week = t.week',
+      [1]
+    );
+
+    if (!teams.length) {
+      return;
+    }
+
+    for (let index = 0; index < teams.length; index++) {
+      const { id } = teams[index];
+
+      await mysql('UPDATE team SET activeAffinity = ? WHERE id = ?', [1, id]);
+    }
+  } catch (err) {
+    throw new Error('Can not activate weekly affinity');
   }
 };

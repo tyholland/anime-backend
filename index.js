@@ -30,6 +30,7 @@ const {
   createBracketFourthRound,
   createBracketFinalRound,
   createBracketChamp,
+  activateWeeklyAffinity,
 } = require('./utils/query');
 
 /**
@@ -145,6 +146,7 @@ cron.schedule(
   async () => {
     // Stop matchup voting
     await stopUserVoting();
+    await activateWeeklyAffinity();
   },
   {
     scheduled: true,

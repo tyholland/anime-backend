@@ -433,7 +433,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
     opponentBattlefield,
     votes,
     affinity,
-    isAffinityActive,
+    activeAffinity,
   } = details;
 
   if (!main.length) {
@@ -479,7 +479,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
     votes,
     main[0],
     affinity,
-    isAffinityActive
+    activeAffinity
   );
 
   const damage = this.getDamagePoints(
@@ -490,7 +490,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
     votes,
     main[0],
     affinity,
-    isAffinityActive
+    activeAffinity
   );
 
   const teamPoints = power_level + boost.total;
