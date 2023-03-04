@@ -239,6 +239,7 @@ module.exports.getScoreboard = async (req, res) => {
         teamB: scoreboardB[index].team_name,
         scoreA: games[index].score_a,
         scoreB: games[index].score_b,
+        match: games[index].id,
       });
     }
 

@@ -298,6 +298,7 @@ module.exports.getSchedule = async (req, res) => {
         scoreA: games[index].score_a,
         scoreB: games[index].score_b,
         week: index + 1,
+        match: games[index].id,
       });
     }
 

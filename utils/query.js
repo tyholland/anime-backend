@@ -785,6 +785,11 @@ module.exports.startNewWeek = async () => {
       const { week, id, name } = leagues[index];
       const newWeek = week + 1;
 
+      await mysql(
+        'UPDATE matchup SET active = ? WHERE league_id = ? AND week = ?',
+        [0, id, week]
+      );
+
       if (week === 12) {
         await mysql(
           'UPDATE league SET active = ?, is_roster_active = ?, is_voting_active = ? WHERE id = ?',
@@ -797,6 +802,11 @@ module.exports.startNewWeek = async () => {
       await mysql(
         'UPDATE league SET week = ?, is_roster_active = ? WHERE id = ?',
         [newWeek, 1, id]
+      );
+
+      await mysql(
+        'UPDATE matchup SET active = ? WHERE league_id = ? AND week = ?',
+        [1, id, newWeek]
       );
     }
   } catch (err) {
