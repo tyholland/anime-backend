@@ -837,17 +837,29 @@ module.exports.stopRosterStartVoting = async () => {
 module.exports.stopUserVoting = async () => {
   try {
     const leagues = await mysql(
-      'SELECT id FROM league WHERE active = ? AND (week != ? OR week != ?)',
+      'SELECT id, week FROM league WHERE active = ? AND (week != ? OR week != ?)',
       [1, 0, -1]
     );
 
     for (let index = 0; index < leagues.length; index++) {
-      const { id } = leagues[index];
+      const { id, week } = leagues[index];
 
       await mysql('UPDATE league SET is_voting_active = ? WHERE id = ?', [
         0,
         id,
       ]);
+
+      const matchup = await mysql(
+        'SELECT * FROM matchup WHERE league_id = ? AND week = ?',
+        [id, week]
+      );
+
+      for (let index = 0; index < matchup.length; index++) {
+        await mysql(
+          'UPDATE votes SET active = ? WHERE matchup_id = ? AND is_bracket = ?',
+          [0, matchup[index].id, 0]
+        );
+      }
     }
   } catch (err) {
     throw new Error('Can not stop voting');

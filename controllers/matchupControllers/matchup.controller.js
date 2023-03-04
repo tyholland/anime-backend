@@ -253,13 +253,13 @@ module.exports.addVotes = async (req, res) => {
     }
 
     const isVoteActive = await mysql(
-      'SELECT * FROM matchup m, league l, votes v WHERE v.id = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id AND l.is_voting_active = ?',
-      [voteId, 0, 1]
+      'SELECT * FROM matchup m, league l, votes v WHERE v.id = ? AND v.is_bracket = ? AND v.active = ? AND v.matchup_id = m.id AND m.league_id = l.id AND l.is_voting_active = ?',
+      [voteId, 0, 1, 1]
     );
 
     if (!isVoteActive.length) {
       return res.status(400).json({
-        message: 'You can not vote on matchups right now.',
+        message: 'Voting on this matchup is not available.',
       });
     }
 
