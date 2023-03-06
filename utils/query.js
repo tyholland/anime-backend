@@ -124,6 +124,8 @@ module.exports.formatTeam = async (data, member, res) => {
             id: null,
           },
           week,
+          affinity,
+          activeAffinity,
         },
       });
     }
@@ -179,6 +181,8 @@ module.exports.formatTeam = async (data, member, res) => {
           details
         ),
         week,
+        affinity,
+        activeAffinity,
       },
     });
   } catch (error) {
