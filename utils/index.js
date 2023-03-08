@@ -244,14 +244,14 @@ const getSupportBoost = (players, mainAffinities, support) => {
 };
 
 const getVillainDamage = (players, weakness, villain) => {
-  if (!weakness || weakness === 'None') {
-    return 0;
-  }
-
   const character = players.filter((item) => item.id === villain)[0];
   const affinities = this.getAffinitiesTypes(character);
   const hasMatch = affinities.filter((item) => {
-    return item.type === weakness.toLowerCase();
+    if (item.type === 'noAffinity') {
+      return item;
+    }
+
+    return item.type === weakness?.toLowerCase();
   });
 
   return hasMatch.length ? hasMatch[0].value / 100 : 0;
@@ -275,17 +275,24 @@ const getBattlefieldBoost = (players, mainAffinities, field) => {
 };
 
 const getBattlefieldDamage = (players, weakness, field) => {
-  if (!weakness || weakness === 'None') {
-    return 0;
-  }
-
   const character = players.filter((item) => item.id === field)[0];
   const affinities = this.getAffinitiesTypes(character);
   const hasMatch = affinities.filter((item) => {
-    return item.type === weakness.toLowerCase();
-  });
+    if (item.type === 'noAffinity') {
+      return item;
+    }
 
-  return hasMatch.length ? hasMatch[0].value / 100 : 0;
+    return item.type === weakness?.toLowerCase();
+  });
+  let matchPoints = 0;
+
+  if (hasMatch.length) {
+    hasMatch.forEach((item) => {
+      matchPoints += item.value / 100;
+    });
+  }
+
+  return matchPoints;
 };
 
 const getVotingBoost = (votes, character) => {
