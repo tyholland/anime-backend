@@ -105,7 +105,7 @@ module.exports.getAffinitiesTypes = (character) => {
   ];
 
   return affinities.filter((item) => {
-    if (!!item.value && item.value > 0) {
+    if (item.value > 0) {
       return item;
     }
   });
@@ -198,7 +198,7 @@ const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
 };
 
 const getWeeklyDamage = (weakness, teamAffinity, isAffinityActive) => {
-  if (!weakness || weakness === 'None' || !isAffinityActive) {
+  if (weakness === 'None' || !isAffinityActive) {
     return 0;
   }
 
@@ -251,7 +251,7 @@ const getVillainDamage = (players, weakness, villain) => {
       return item;
     }
 
-    return item.type === weakness?.toLowerCase();
+    return item.type === weakness.toLowerCase();
   });
 
   return hasMatch.length ? hasMatch[0].value / 100 : 0;
@@ -282,7 +282,7 @@ const getBattlefieldDamage = (players, weakness, field) => {
       return item;
     }
 
-    return item.type === weakness?.toLowerCase();
+    return item.type === weakness.toLowerCase();
   });
   let matchPoints = 0;
 

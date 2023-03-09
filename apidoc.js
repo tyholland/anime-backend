@@ -77,7 +77,6 @@
  * @apiSuccess  {varchar}         full_name     player full name
  * @apiSuccess  {varchar}         name          player first name
  * @apiSuccess  {varchar}         series        anime series
- * @apiSuccess  {varchar}         rank          player rank
  * @apiSuccess  {int}             power_level   player power level
  * @apiSuccess  {varchar}         category      player category
  * @apiSuccess  {int}             fire          affinity type
@@ -91,7 +90,6 @@
  * @apiSuccess  {int}             ice           affinity type
  * @apiSuccess  {int}             no_affinity   no affinity type
  * @apiSuccess  {varchar}         weakness      player weakness
- * @apiSuccess  {int}             power_loss    player power loss
  * @apiSuccess  {varchar}         image_url     image url of player
  *
  * @apiError    (Error 5xx)       500           Error get all players
@@ -109,7 +107,6 @@
  * @apiSuccess  {varchar}         full_name                    player full name
  * @apiSuccess  {varchar}         name                         player first name
  * @apiSuccess  {varchar}         series                       anime series
- * @apiSuccess  {varchar}         rank                         player rank
  * @apiSuccess  {int}             power_level                  player power level
  * @apiSuccess  {varchar}         category                     player category
  * @apiSuccess  {int}             fire                         affinity type
@@ -123,7 +120,6 @@
  * @apiSuccess  {int}             ice                          affinity type
  * @apiSuccess  {int}             no_affinity                  no affinity type
  * @apiSuccess  {varchar}         weakness                     player weakness
- * @apiSuccess  {int}             power_loss                   player power loss
  * @apiSuccess  {varchar}         image_url                    image url of player
  *
  * @apiError    (Error 5xx)       500                          Error getting all playable players
@@ -141,7 +137,6 @@
  * @apiSuccess  {varchar}     full_name             player full name
  * @apiSuccess  {varchar}     name                  player first name
  * @apiSuccess  {varchar}     series                anime series
- * @apiSuccess  {varchar}     rank                  player rank
  * @apiSuccess  {int}         power_level           player power level
  * @apiSuccess  {varchar}     category              player category
  * @apiSuccess  {int}         fire                  affinity type
@@ -155,7 +150,6 @@
  * @apiSuccess  {int}         ice                   affinity type
  * @apiSuccess  {int}         no_affinity           no affinity type
  * @apiSuccess  {varchar}     weakness              player weakness
- * @apiSuccess  {int}         power_loss            player power loss
  * @apiSuccess  {varchar}     image_url             image url of player
  *
  * @apiError    (Error 5xx)   500                   Error geeting specific player
