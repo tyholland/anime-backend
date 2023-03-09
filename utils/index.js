@@ -150,7 +150,7 @@ const season = [
   },
   {
     element: 'no_affinity',
-    value: 50,
+    value: 500,
   },
 ];
 
@@ -229,8 +229,8 @@ const getWeeklyDamage = (weakness, teamAffinity, isAffinityActive) => {
 const getSupportBoost = (players, mainAffinities, support) => {
   const character = players.filter((item) => item.id === support)[0];
   const affinities = this.getAffinitiesTypes(character);
-  const hasMatch = mainAffinities.filter((item) => {
-    return affinities.some((res) => res.type === item.type);
+  const hasMatch = affinities.filter((item) => {
+    return mainAffinities.some((res) => res.type === item.type);
   });
   let matchPoints = 0;
 
@@ -260,8 +260,8 @@ const getVillainDamage = (players, weakness, villain) => {
 const getBattlefieldBoost = (players, mainAffinities, field) => {
   const character = players.filter((item) => item.id === field)[0];
   const affinities = this.getAffinitiesTypes(character);
-  const hasMatch = mainAffinities.filter((item) => {
-    return affinities.some((res) => res.type === item.type);
+  const hasMatch = affinities.filter((item) => {
+    return mainAffinities.some((res) => res.type === item.type);
   });
   let matchPoints = 0;
 
