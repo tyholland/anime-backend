@@ -108,7 +108,7 @@ module.exports.createUser = async (req, res) => {
       const accessObj = {
         email: oldUser[0].email,
         userId: oldUser[0].user_id,
-        firebaseUID: firebaseId,
+        firebaseId,
       };
       const accessToken = jwt.sign(accessObj, secret);
 
@@ -133,7 +133,7 @@ module.exports.createUser = async (req, res) => {
     const accessObj = {
       email: account[0].email,
       userId: account[0].user_id,
-      firebaseUID: firebaseId,
+      firebaseId,
     };
     const accessToken = jwt.sign(accessObj, secret);
 
@@ -181,4 +181,26 @@ module.exports.deleteAccount = async (req, res) => {
 
 module.exports.logoutUser = (req, res) => {
   return res.clearCookie('__session').status(200).json({ success: true });
+};
+
+module.exports.adminDashboard = async (req, res) => {
+  const { firebaseId } = req.user;
+
+  try {
+    const users = await mysql('SELECT * FROM admin');
+
+    if (!users.some((item) => item.firebase_uid !== firebaseId)) {
+      return res.status(400).json({
+        message: 'You are not authorizzed to view this page',
+      });
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Admin Dashboard',
+    });
+  }
 };

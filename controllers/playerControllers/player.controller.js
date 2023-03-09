@@ -92,3 +92,60 @@ module.exports.getAnimeNews = async (req, res) => {
     });
   }
 };
+
+module.exports.updatePlayer = async (req, res) => {
+  const {
+    full_name,
+    name,
+    series,
+    power_level,
+    category,
+    fire,
+    water,
+    wind,
+    earth,
+    arcane,
+    electric,
+    celestrial,
+    darkness,
+    ice,
+    no_affinity,
+    weakness,
+    image_url,
+    id,
+  } = req.body;
+
+  try {
+    await mysql(
+      'UPDATE players SET full_name = ?, name = ?, series = ?, power_level = ?, category = ?, fire = ?, water = ?, wind = ?, earth = ?, arcane = ?, electric = ?, celestrial = ?, darkness = ?, ice = ?, no_affinity = ?, weakness = ?, image_url = ? WHERE id = ?',
+      [
+        full_name,
+        name,
+        series,
+        parseInt(power_level),
+        category,
+        parseInt(fire),
+        parseInt(water),
+        parseInt(wind),
+        parseInt(earth),
+        parseInt(arcane),
+        parseInt(electric),
+        parseInt(celestrial),
+        parseInt(darkness),
+        parseInt(ice),
+        parseInt(no_affinity),
+        weakness,
+        image_url,
+        id,
+      ]
+    );
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Update Player',
+    });
+  }
+};
