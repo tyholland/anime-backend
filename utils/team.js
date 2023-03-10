@@ -34,7 +34,53 @@ module.exports.createNewTeam = async (userId, leagueId, res) => {
   }
 };
 
-module.exports.formatTeam = async (data, member, res) => {
+module.exports.getSpecificTeamInfo = async (member_id, userId) => {
+  try {
+    const member = await mysql(
+      'SELECT lm.team_name, lm.points, lm.id, l.name, lm.league_id, l.week as leagueWeek FROM league_members lm, league l WHERE lm.id = ? AND lm.league_id = l.id',
+      [member_id]
+    );
+
+    const games = await mysql(
+      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b, t.id as teamId FROM league_members lm, team t, matchup m, league l WHERE lm.user_id = ? AND l.id = ? AND l.id = lm.league_id AND m.week < l.week AND lm.id = t.league_member_id AND (m.team_a = t.id OR m.team_b = t.id)',
+      [userId, member[0].league_id]
+    );
+
+    let rankings = {
+      win: 0,
+      loss: 0,
+    };
+
+    for (let index = 0; index < games?.length; index++) {
+      if (games[index].team_a === games[index].teamId) {
+        const isWin = games[index].score_a > games[index].score_b;
+
+        rankings = {
+          win: isWin ? rankings.win + 1 : rankings.win,
+          loss: !isWin ? rankings.loss + 1 : rankings.loss,
+        };
+      }
+
+      if (games[index].team_b === games[index].teamId) {
+        const isWin = games[index].score_b > games[index].score_a;
+
+        rankings = {
+          win: isWin ? rankings.win + 1 : rankings.win,
+          loss: !isWin ? rankings.loss + 1 : rankings.loss,
+        };
+      }
+    }
+
+    return {
+      member: member[0],
+      rank: rankings,
+    };
+  } catch (error) {
+    throw new Error('Can not get team info');
+  }
+};
+
+module.exports.formatTeam = async (data, memberInfo, userId, res) => {
   const {
     captain,
     brawler_a,
@@ -62,7 +108,7 @@ module.exports.formatTeam = async (data, member, res) => {
   try {
     const matchup = await mysql(
       `SELECT t.villain, t.battlefield, m.id as matchupId FROM matchup m, team t WHERE m.league_id = ? AND m.week = ? AND m.${homeTeam} = ? AND t.id = m.${awayTeam}`,
-      [member.league_id, week, id]
+      [memberInfo.league_id, week, id]
     );
     let characterArr = [
       captain,
@@ -94,9 +140,9 @@ module.exports.formatTeam = async (data, member, res) => {
 
     if (!characterIds.length) {
       return res.status(200).json({
-        teamName: member.team_name,
-        memberId: member.id,
-        userPoints: member.userPoints,
+        teamName: memberInfo.team_name,
+        memberId: memberInfo.id,
+        userPoints: memberInfo.userPoints,
         team: {
           captain: {
             id: null,
@@ -161,10 +207,15 @@ module.exports.formatTeam = async (data, member, res) => {
       };
     }
 
+    const { member, rank } = await this.getSpecificTeamInfo(
+      memberInfo.id,
+      userId
+    );
+
     return res.status(200).json({
-      teamName: member.team_name,
-      memberId: member.id,
-      userPoints: member.userPoints,
+      teamName: memberInfo.team_name,
+      memberId: memberInfo.id,
+      userPoints: memberInfo.userPoints,
       team: {
         captain: characterAttr(players, captain, 'captain', details),
         brawler_a: characterAttr(players, brawler_a, 'brawler_a', details),
@@ -182,6 +233,10 @@ module.exports.formatTeam = async (data, member, res) => {
         week,
         affinity,
         activeAffinity,
+      },
+      info: {
+        ...member,
+        rank,
       },
     });
   } catch (error) {

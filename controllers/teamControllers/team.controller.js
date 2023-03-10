@@ -1,7 +1,11 @@
 const mysql = require('../../utils/mysql').instance();
 const { getAffinitiesTypes, getBoostPoints } = require('../../utils/index');
 const { getLeagueMemebrInfo } = require('../../utils/query');
-const { formatTeam, getTeamQuery } = require('../../utils/team');
+const {
+  formatTeam,
+  getTeamQuery,
+  getSpecificTeamInfo,
+} = require('../../utils/team');
 const Profanity = require('profanity-js');
 const profanity = new Profanity('', {
   language: 'en-us',
@@ -25,7 +29,7 @@ module.exports.getTeam = async (req, res) => {
       });
     }
 
-    return await formatTeam(team[0], member[0], res);
+    return await formatTeam(team[0], member[0], userId, res);
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -37,6 +41,7 @@ module.exports.getTeam = async (req, res) => {
 
 module.exports.getMatchupTeam = async (req, res) => {
   const { team_id } = req.params;
+  const { userId } = req.user;
 
   try {
     const team = await getTeamQuery(team_id);
@@ -52,7 +57,7 @@ module.exports.getMatchupTeam = async (req, res) => {
       });
     }
 
-    return await formatTeam(team[0], member[0], res);
+    return await formatTeam(team[0], member[0], userId, res);
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -67,44 +72,11 @@ module.exports.getTeamInfo = async (req, res) => {
   const { userId } = req.user;
 
   try {
-    const member = await mysql(
-      'SELECT lm.team_name, lm.points, lm.id, l.name, lm.league_id, l.week as leagueWeek FROM league_members lm, league l WHERE lm.id = ? AND lm.league_id = l.id',
-      [member_id]
-    );
-
-    const games = await mysql(
-      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b, t.id as teamId FROM league_members lm, team t, matchup m, league l WHERE lm.user_id = ? AND l.id = ? AND l.id = lm.league_id AND m.week < l.week AND lm.id = t.league_member_id AND (m.team_a = t.id OR m.team_b = t.id)',
-      [userId, member[0].league_id]
-    );
-
-    let rankings = {
-      win: 0,
-      loss: 0,
-    };
-
-    for (let index = 0; index < games?.length; index++) {
-      if (games[index].team_a === games[index].teamId) {
-        const isWin = games[index].score_a > games[index].score_b;
-
-        rankings = {
-          win: isWin ? rankings.win + 1 : rankings.win,
-          loss: !isWin ? rankings.loss + 1 : rankings.loss,
-        };
-      }
-
-      if (games[index].team_b === games[index].teamId) {
-        const isWin = games[index].score_b > games[index].score_a;
-
-        rankings = {
-          win: isWin ? rankings.win + 1 : rankings.win,
-          loss: !isWin ? rankings.loss + 1 : rankings.loss,
-        };
-      }
-    }
+    const { member, rank } = await getSpecificTeamInfo(member_id, userId);
 
     return res.status(200).json({
-      ...member[0],
-      rank: rankings,
+      ...member,
+      rank,
     });
   } catch (error) {
     console.log(error);
