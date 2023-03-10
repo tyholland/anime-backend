@@ -102,22 +102,31 @@ app.get('/doc', (req, res) => {
 require('./routes/routes')(app);
 
 cron.schedule(
-  '0 20 * * Sunday',
+  '0 8 * * Sunday',
   async () => {
     // Start new week or end league
     await startNewWeek();
 
+    // Create playoffs schedule
+    await playoffsFirstRound();
+    await playoffsSemis();
+    await playoffsFinals();
+  },
+  {
+    scheduled: true,
+    timezone: 'America/New_York',
+  }
+);
+
+cron.schedule(
+  '0 2 * * Sunday',
+  async () => {
     // Create team schedule and matchups
     await createSixTeamSchedule();
     await createSevenTeamSchedule();
     await createEightTeamSchedule();
     await createNineTeamSchedule();
     await createTenTeamSchedule();
-
-    // Create playoffs schedule
-    await playoffsFirstRound();
-    await playoffsSemis();
-    await playoffsFinals();
 
     // Start Bracket Voting
     await createBracketFirstRound();
@@ -134,7 +143,7 @@ cron.schedule(
 );
 
 cron.schedule(
-  '0 8 * * Wednesday',
+  '0 2 * * Wednesday',
   async () => {
     // Stop users from changing their roster. Start matchup voting
     await stopRosterStartVoting();

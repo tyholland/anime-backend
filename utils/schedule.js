@@ -16,12 +16,11 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
         'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
         [week, 'home', randomAffinity[rand], teamA]
       );
-      await mysql('UPDATE team SET week = ?, status = ? WHERE id = ?', [
-        week,
-        'away',
-        randomAffinity[rand],
-        teamB,
-      ]);
+
+      await mysql(
+        'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
+        [week, 'away', randomAffinity[rand], teamB]
+      );
 
       return;
     } catch (err) {
