@@ -138,6 +138,11 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
 
     const characterIds = characterArr.filter((item) => !!item);
 
+    const { member, rank } = await this.getSpecificTeamInfo(
+      memberInfo.id,
+      userId
+    );
+
     if (!characterIds.length) {
       return res.status(200).json({
         teamName: memberInfo.team_name,
@@ -171,6 +176,10 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
           week,
           affinity,
           activeAffinity,
+        },
+        info: {
+          ...member,
+          rank,
         },
       });
     }
@@ -206,11 +215,6 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
         activeAffinity,
       };
     }
-
-    const { member, rank } = await this.getSpecificTeamInfo(
-      memberInfo.id,
-      userId
-    );
 
     return res.status(200).json({
       teamName: memberInfo.team_name,
