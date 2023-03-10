@@ -66,7 +66,10 @@ module.exports.getPlayablePlayers = async (req, res) => {
       return player;
     });
 
-    return res.status(200).json(unusedPlayers);
+    return res.status(200).json({
+      unusedPlayers,
+      allPlayer: players,
+    });
   } catch (error) {
     res.status(500).json({
       error,

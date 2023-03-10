@@ -6,12 +6,13 @@ const {
   sendLeagueDeletedEmail,
 } = require('../../utils/mailchimp');
 const {
-  createNewTeam,
   getLeagueMemebrInfo,
   checkValidUserInLeague,
-  createPlayoffsSchedule,
   getRankings,
+  checkMatchupUserExists,
 } = require('../../utils/query');
+const { createPlayoffsSchedule } = require('../../utils/schedule');
+const { createNewTeam } = require('../../utils/team');
 const Profanity = require('profanity-js');
 const profanity = new Profanity('', {
   language: 'en-us',
@@ -23,11 +24,23 @@ module.exports.getLeague = async (req, res) => {
 
   try {
     const leagueData = await mysql(
-      'SELECT l.name, l.num_teams, l.creator_id, t.id as teamId FROM league l, league_members lm, team t WHERE l.id = ? AND l.id = lm.league_id AND lm.user_id = ? AND lm.id = t.league_member_id AND l.week = t.week',
+      'SELECT l.name, l.num_teams, l.week, l.creator_id, t.id as teamId FROM league l, league_members lm, team t WHERE l.id = ? AND l.id = lm.league_id AND lm.user_id = ? AND lm.id = t.league_member_id AND l.week = t.week',
       [league_id, userId]
     );
 
-    return res.status(200).json(leagueData);
+    const matchupData = await mysql(
+      'SELECT m.id as matchupId FROM team t, matchup m WHERE t.id = ? AND t.week = m.week AND (t.id = m.team_a OR t.id = m.team_b)',
+      [leagueData[0].team_id]
+    );
+
+    if (matchupData.length) {
+      await checkMatchupUserExists(userId, matchupData[0].matchupId, res);
+    }
+
+    return res.status(200).json({
+      leagueData,
+      matchupData,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({

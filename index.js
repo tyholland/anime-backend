@@ -13,25 +13,29 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cron = require('node-cron');
 const {
+  startNewWeek,
+  stopRosterStartVoting,
+  stopUserVoting,
+  activateWeeklyAffinity,
+} = require('./utils/query');
+const {
   createSixTeamSchedule,
   createSevenTeamSchedule,
   createEightTeamSchedule,
   createNineTeamSchedule,
   createTenTeamSchedule,
-  startNewWeek,
-  stopRosterStartVoting,
-  stopUserVoting,
   playoffsFirstRound,
   playoffsSemis,
   playoffsFinals,
+} = require('./utils/schedule');
+const {
   createBracketFirstRound,
   createBracketSecondRound,
   createBracketThirdRound,
   createBracketFourthRound,
   createBracketFinalRound,
   createBracketChamp,
-  activateWeeklyAffinity,
-} = require('./utils/query');
+} = require('./utils/bracket');
 
 /**
  * App Variables

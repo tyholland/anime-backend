@@ -1,7 +1,5 @@
-const {
-  getFullTeamMatchupPoints,
-  checkMatchupUserExists,
-} = require('../../utils/query');
+const { checkMatchupUserExists } = require('../../utils/query');
+const { getFullTeamMatchupPoints } = require('../../utils/team');
 
 const mysql = require('../../utils/mysql').instance();
 

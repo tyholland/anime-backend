@@ -1,10 +1,7 @@
 const mysql = require('../../utils/mysql').instance();
 const { getAffinitiesTypes, getBoostPoints } = require('../../utils/index');
-const {
-  formatTeam,
-  getLeagueMemebrInfo,
-  getTeamQuery,
-} = require('../../utils/query');
+const { getLeagueMemebrInfo } = require('../../utils/query');
+const { formatTeam, getTeamQuery } = require('../../utils/team');
 const Profanity = require('profanity-js');
 const profanity = new Profanity('', {
   language: 'en-us',
