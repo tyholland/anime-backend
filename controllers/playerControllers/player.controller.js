@@ -68,7 +68,7 @@ module.exports.getPlayablePlayers = async (req, res) => {
 
     return res.status(200).json({
       unusedPlayers,
-      allPlayer: players,
+      allPlayers: players,
     });
   } catch (error) {
     res.status(500).json({

@@ -59,6 +59,19 @@ module.exports.getAllLeagues = async (req, res) => {
       [userId]
     );
 
+    for (let index = 0; index < leagueData.length; index++) {
+      const matchupData = await mysql(
+        'SELECT m.id as matchupId FROM team t, matchup m WHERE t.id = ? AND t.week = m.week AND (t.id = m.team_a OR t.id = m.team_b)',
+        [leagueData[index].teamId]
+      );
+
+      if (matchupData.length) {
+        await checkMatchupUserExists(userId, matchupData[0].matchupId, res);
+      }
+
+      leagueData[index].matchupId = matchupData[0]?.matchupId;
+    }
+
     return res.status(200).json(leagueData);
   } catch (error) {
     console.log(error);
