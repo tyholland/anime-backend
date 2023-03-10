@@ -48,7 +48,7 @@ module.exports.sendLeagueStartEmail = async (leagueName, leagueId) => {
     const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName} has just started`;
     const preview = `${leagueName} started`;
-    const campaignId = '318174';
+    const campaignId = '031c1ccb3d';
 
     await updateCampaign(campaignId, subject, preview, segmentId);
     await mailchimp.campaigns.send(campaignId);
@@ -62,7 +62,7 @@ module.exports.sendLeagueEndedEmail = async (leagueName, leagueId) => {
     const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName} has just ended`;
     const preview = `${leagueName} ended`;
-    const campaignId = '318345';
+    const campaignId = '242cddbae1';
 
     await updateCampaign(campaignId, subject, preview, segmentId);
     await mailchimp.campaigns.send(campaignId);
@@ -76,7 +76,7 @@ module.exports.sendLeagueDeletedEmail = async (leagueName, leagueId) => {
     const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName} was deleted`;
     const preview = `${leagueName} deleted`;
-    const campaignId = '318352';
+    const campaignId = 'c74b67925f';
 
     await updateCampaign(campaignId, subject, preview, segmentId);
     await mailchimp.campaigns.send(campaignId);
