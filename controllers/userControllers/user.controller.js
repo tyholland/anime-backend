@@ -189,7 +189,7 @@ module.exports.adminDashboard = async (req, res) => {
   try {
     const users = await mysql('SELECT * FROM admin');
 
-    if (!users.some((item) => item.firebase_uid !== firebaseId)) {
+    if (!users.some((item) => item.firebase_uid === firebaseId)) {
       return res.status(400).json({
         message: 'You are not authorizzed to view this page',
       });
