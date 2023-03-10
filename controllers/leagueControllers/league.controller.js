@@ -324,6 +324,18 @@ module.exports.startLeague = async (req, res) => {
       leagueId,
     ]);
 
+    const members = await mysql(
+      'SELECT id FROM league_members WHERE league_id = ?',
+      [leagueId]
+    );
+
+    for (let index = 0; index < members.length; index++) {
+      await mysql(
+        'UPDATE team SET week = ? WHERE league_member_id = ? AND week = ?',
+        [0, members[index].id, -1]
+      );
+    }
+
     const league = await mysql('SELECT name FROM league WHERE id = ?', [
       leagueId,
     ]);
