@@ -30,7 +30,7 @@ module.exports.getLeague = async (req, res) => {
 
     const matchupData = await mysql(
       'SELECT m.id as matchupId FROM team t, matchup m WHERE t.id = ? AND t.week = m.week AND (t.id = m.team_a OR t.id = m.team_b)',
-      [leagueData[0].team_id]
+      [leagueData[0].teamId]
     );
 
     if (matchupData.length) {

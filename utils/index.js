@@ -149,7 +149,7 @@ const season = [
     value: 250,
   },
   {
-    element: 'no_affinity',
+    element: 'noAffinity',
     value: 500,
   },
 ];
@@ -171,7 +171,7 @@ module.exports.randomAffinity = [
 ];
 
 const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
-  if (!isAffinityActive) {
+  if (isAffinityActive === 0) {
     return 0;
   }
 
@@ -181,7 +181,8 @@ const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
   let affinityVal = 0;
 
   affinity.forEach((item) => {
-    const hasPower = affinities.filter((power) => power.type === item)[0];
+    const powerType = item === 'no_affinity' ? 'noAffinity' : item;
+    const hasPower = affinities.filter((power) => power.type === powerType)[0];
 
     if (hasPower) {
       weekAffinity.push(hasPower.type);
@@ -198,7 +199,7 @@ const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
 };
 
 const getWeeklyDamage = (weakness, teamAffinity, isAffinityActive) => {
-  if (weakness === 'None' || !isAffinityActive) {
+  if (weakness === 'None' || isAffinityActive === 0) {
     return 0;
   }
 
