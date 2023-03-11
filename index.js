@@ -102,7 +102,7 @@ app.get('/doc', (req, res) => {
 require('./routes/routes')(app);
 
 cron.schedule(
-  '0 8 * * Sunday',
+  '0 12 * * Sunday',
   async () => {
     // Start new week or end league
     await startNewWeek();
