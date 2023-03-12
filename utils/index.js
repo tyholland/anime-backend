@@ -413,13 +413,13 @@ module.exports.getDamagePoints = (
   const votingDamage = getVotingDamage(votes, character);
 
   const villainPoints =
-    villainDamage === 0 ? 0 : Math.floor(power_level / villainDamage);
+    villainDamage === 0 ? 0 : Math.floor(power_level * villainDamage);
   const fieldPoints =
-    battlefieldDamage === 0 ? 0 : Math.floor(power_level / battlefieldDamage);
+    battlefieldDamage === 0 ? 0 : Math.floor(power_level * battlefieldDamage);
   const weekPoints =
-    weekDamage === 0 ? 0 : Math.floor(power_level / weekDamage);
+    weekDamage === 0 ? 0 : Math.floor(power_level * weekDamage);
   const votingPoints =
-    votingDamage === 0 ? 0 : Math.floor(power_level / votingDamage);
+    votingDamage === 0 ? 0 : Math.floor(power_level * votingDamage);
   const totalPoints = villainPoints + fieldPoints + weekPoints + votingPoints;
 
   return {
