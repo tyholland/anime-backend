@@ -108,22 +108,22 @@ startRule.tz = 'America/New_York';
 startRule.dayOfWeek = 0;
 
 const scheduleRule = new cron.RecurrenceRule();
-startRule.hour = 12;
-startRule.minute = 0;
-startRule.tz = 'America/New_York';
-startRule.dayOfWeek = 0;
+scheduleRule.hour = 12;
+scheduleRule.minute = 0;
+scheduleRule.tz = 'America/New_York';
+scheduleRule.dayOfWeek = 0;
 
 const voteRule = new cron.RecurrenceRule();
-startRule.hour = 2;
-startRule.minute = 0;
-startRule.tz = 'America/New_York';
-startRule.dayOfWeek = 3;
+voteRule.hour = 2;
+voteRule.minute = 0;
+voteRule.tz = 'America/New_York';
+voteRule.dayOfWeek = 3;
 
 const affinityRule = new cron.RecurrenceRule();
-startRule.hour = 23;
-startRule.minute = 0;
-startRule.tz = 'America/New_York';
-startRule.dayOfWeek = 6;
+affinityRule.hour = 23;
+affinityRule.minute = 0;
+affinityRule.tz = 'America/New_York';
+affinityRule.dayOfWeek = 6;
 
 cron.scheduleJob(startRule, async () => {
   // Start new week or end league
