@@ -4,7 +4,7 @@ const { getLeagueMemebrInfo, getRankings } = require('./query');
 
 const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
   if (week === 1) {
-    const rand = Math.floor(Math.random() * (randomAffinity.length + 1));
+    const rand = Math.floor(Math.random() * randomAffinity.length);
 
     try {
       await mysql(
@@ -14,12 +14,12 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
 
       await mysql(
         'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
-        [week, 'home', randomAffinity[rand], teamA]
+        [0, 'home', randomAffinity[rand], teamA]
       );
 
       await mysql(
         'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
-        [week, 'away', randomAffinity[rand], teamB]
+        [0, 'away', randomAffinity[rand], teamB]
       );
 
       return;
@@ -29,7 +29,7 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
   }
 
   try {
-    const weekRand = Math.floor(Math.random() * (randomAffinity.length + 1));
+    const weekRand = Math.floor(Math.random() * randomAffinity.length);
 
     const newTeamA = await mysql(
       'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE id = ?',
@@ -125,8 +125,6 @@ module.exports.createSixTeamSchedule = async () => {
     await insertNewMatchup(leagueId, team6, team3, 9);
     await insertNewMatchup(leagueId, team2, team4, 9);
     await insertNewMatchup(leagueId, team5, team1, 9);
-
-    await mysql('UPDATE league SET week = ? WHERE id = ?', [1, leagueId]);
   } catch (err) {
     throw new Error('Can not create six team schedule');
   }
@@ -205,8 +203,6 @@ module.exports.createSevenTeamSchedule = async () => {
     await insertNewMatchup(leagueId, team1, team7, 9);
     await insertNewMatchup(leagueId, 0, team6, 9);
     await insertNewMatchup(leagueId, team2, team5, 9);
-
-    await mysql('UPDATE league SET week = ? WHERE id = ?', [1, leagueId]);
   } catch (err) {
     throw new Error('Can not create seven team schedule');
   }
@@ -286,8 +282,6 @@ module.exports.createEightTeamSchedule = async () => {
     await insertNewMatchup(leagueId, team1, team3, 9);
     await insertNewMatchup(leagueId, team5, team7, 9);
     await insertNewMatchup(leagueId, team6, team8, 9);
-
-    await mysql('UPDATE league SET week = ? WHERE id = ?', [1, leagueId]);
   } catch (err) {
     throw new Error('Can not create eight team schedule');
   }
@@ -377,8 +371,6 @@ module.exports.createNineTeamSchedule = async () => {
     await insertNewMatchup(leagueId, 0, team3, 9);
     await insertNewMatchup(leagueId, team1, team5, 9);
     await insertNewMatchup(leagueId, team6, team9, 9);
-
-    await mysql('UPDATE league SET week = ? WHERE id = ?', [1, leagueId]);
   } catch (err) {
     throw new Error('Can not create nine team schedule');
   }
@@ -469,8 +461,6 @@ module.exports.createTenTeamSchedule = async () => {
     await insertNewMatchup(leagueId, team10, team3, 9);
     await insertNewMatchup(leagueId, team1, team5, 9);
     await insertNewMatchup(leagueId, team6, team9, 9);
-
-    await mysql('UPDATE league SET week = ? WHERE id = ?', [1, leagueId]);
   } catch (err) {
     throw new Error('Can not create ten team schedule');
   }

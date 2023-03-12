@@ -19,6 +19,20 @@ module.exports.startNewWeek = async () => {
         [0, id, week]
       );
 
+      if (week === 0) {
+        const teams = await mysql(
+          'SELECT t.id FROM league_members lm, team t WHERE lm.league_id = ? AND lm.id = t.league_member_id',
+          [id]
+        );
+
+        for (let i = 0; i < teams.length; i++) {
+          await mysql('UPDATE team SET week = ? WHERE id = ?', [
+            newWeek,
+            teams[i].id,
+          ]);
+        }
+      }
+
       if (week === 12) {
         await mysql(
           'UPDATE league SET active = ?, is_roster_active = ?, is_voting_active = ? WHERE id = ?',

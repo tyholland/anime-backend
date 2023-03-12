@@ -102,13 +102,13 @@ app.get('/doc', (req, res) => {
 require('./routes/routes')(app);
 
 const startRule = new cron.RecurrenceRule();
-startRule.hour = 13;
+startRule.hour = 12;
 startRule.minute = 0;
 startRule.tz = 'America/New_York';
 startRule.dayOfWeek = 0;
 
 const scheduleRule = new cron.RecurrenceRule();
-scheduleRule.hour = 12;
+scheduleRule.hour = 2;
 scheduleRule.minute = 0;
 scheduleRule.tz = 'America/New_York';
 scheduleRule.dayOfWeek = 0;
