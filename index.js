@@ -11,7 +11,7 @@ const session = require('express-session');
 const errorhandler = require('errorhandler');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const cron = require('node-cron');
+const cron = require('node-schedule');
 const {
   startNewWeek,
   stopRosterStartVoting,
@@ -101,71 +101,67 @@ app.get('/doc', (req, res) => {
 
 require('./routes/routes')(app);
 
-cron.schedule(
-  '0 12 * * Sunday',
-  async () => {
-    // Start new week or end league
-    await startNewWeek();
+const startRule = new cron.RecurrenceRule();
+startRule.hour = 13;
+startRule.minute = 0;
+startRule.tz = 'America/New_York';
+startRule.dayOfWeek = 0;
 
-    // Create playoffs schedule
-    await playoffsFirstRound();
-    await playoffsSemis();
-    await playoffsFinals();
-  },
-  {
-    scheduled: true,
-    timezone: 'America/New_York',
-  }
-);
+const scheduleRule = new cron.RecurrenceRule();
+startRule.hour = 12;
+startRule.minute = 0;
+startRule.tz = 'America/New_York';
+startRule.dayOfWeek = 0;
 
-cron.schedule(
-  '0 2 * * Sunday',
-  async () => {
-    // Create team schedule and matchups
-    await createSixTeamSchedule();
-    await createSevenTeamSchedule();
-    await createEightTeamSchedule();
-    await createNineTeamSchedule();
-    await createTenTeamSchedule();
+const voteRule = new cron.RecurrenceRule();
+startRule.hour = 2;
+startRule.minute = 0;
+startRule.tz = 'America/New_York';
+startRule.dayOfWeek = 3;
 
-    // Start Bracket Voting
-    await createBracketFirstRound();
-    await createBracketSecondRound();
-    await createBracketThirdRound();
-    await createBracketFourthRound();
-    await createBracketFinalRound();
-    await createBracketChamp();
-  },
-  {
-    scheduled: true,
-    timezone: 'America/New_York',
-  }
-);
+const affinityRule = new cron.RecurrenceRule();
+startRule.hour = 23;
+startRule.minute = 0;
+startRule.tz = 'America/New_York';
+startRule.dayOfWeek = 6;
 
-cron.schedule(
-  '0 2 * * Wednesday',
-  async () => {
-    // Stop users from changing their roster. Start matchup voting
-    await stopRosterStartVoting();
-  },
-  {
-    scheduled: true,
-    timezone: 'America/New_York',
-  }
-);
+cron.scheduleJob(startRule, async () => {
+  // Start new week or end league
+  await startNewWeek();
 
-cron.schedule(
-  '0 23 * * Saturday',
-  async () => {
-    // Stop matchup voting
-    await stopUserVoting();
-    await activateWeeklyAffinity();
-  },
-  {
-    scheduled: true,
-    timezone: 'America/New_York',
-  }
-);
+  // Create playoffs schedule
+  await playoffsFirstRound();
+  await playoffsSemis();
+  await playoffsFinals();
+});
+
+cron.scheduleJob(scheduleRule, async () => {
+  // Create team schedule and matchups
+  await createSixTeamSchedule();
+  await createSevenTeamSchedule();
+  await createEightTeamSchedule();
+  await createNineTeamSchedule();
+  await createTenTeamSchedule();
+
+  // Start Bracket Voting
+  await createBracketFirstRound();
+  await createBracketSecondRound();
+  await createBracketThirdRound();
+  await createBracketFourthRound();
+  await createBracketFinalRound();
+  await createBracketChamp();
+});
+
+cron.scheduleJob(voteRule, async () => {
+  // Stop users from changing their roster. Start matchup voting
+  await stopRosterStartVoting();
+});
+
+cron.scheduleJob(affinityRule, async () => {
+  // Stop matchup voting
+  await stopUserVoting();
+  await activateWeeklyAffinity();
+});
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);

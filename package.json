@@ -31,7 +31,7 @@
     "mal-scraper": "^2.11.4",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
-    "node-cron": "^3.0.2",
+    "node-schedule": "^2.1.1",
     "npm": "^8.17.0",
     "profanity-js": "^0.1.4",
     "promise-mysql": "^5.2.0"
