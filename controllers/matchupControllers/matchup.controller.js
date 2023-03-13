@@ -122,7 +122,8 @@ module.exports.createMatchupVotes = async (req, res) => {
 
     if (!league.length) {
       return res.status(400).json({
-        message: 'You can not create anymore votes right now.',
+        message:
+          'Voting is currently disabled. Please try again when voting becomes active.',
       });
     }
 

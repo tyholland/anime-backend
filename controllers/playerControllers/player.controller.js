@@ -3,7 +3,7 @@ const malScraper = require('mal-scraper');
 
 module.exports.getAllPlayers = async (req, res) => {
   try {
-    const players = await mysql('SELECT * FROM players');
+    const players = await mysql('SELECT * FROM players WHERE active = ?', [1]);
 
     return res.status(200).json(players);
   } catch (error) {
@@ -18,9 +18,10 @@ module.exports.getPlayer = async (req, res) => {
   const { player_id } = req.params;
 
   try {
-    const player = await mysql('SELECT * FROM players WHERE id = ?', [
-      player_id,
-    ]);
+    const player = await mysql(
+      'SELECT * FROM players WHERE id = ? AND active = ?',
+      [player_id, 1]
+    );
 
     return res.status(200).json(player);
   } catch (error) {
@@ -36,7 +37,7 @@ module.exports.getPlayablePlayers = async (req, res) => {
   const { team_id } = req.params;
 
   try {
-    const players = await mysql('SELECT * FROM players');
+    const players = await mysql('SELECT * FROM players WHERE active = ?', [1]);
     const league = await mysql(
       'SELECT l.id FROM league l, league_members lm, team t WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [team_id]
@@ -149,6 +150,25 @@ module.exports.updatePlayer = async (req, res) => {
     return res.status(500).json({
       error,
       action: 'Update Player',
+    });
+  }
+};
+
+module.exports.addPlayer = async (req, res) => {
+  const { player, series, rank } = req.body;
+
+  try {
+    await mysql(
+      'INSERT INTO `players` (`full_name`, `name`, `series`, `power_level`, `category` ) VALUES (?, ?, ?, ?, ?)',
+      [player, player, series, 0, rank]
+    );
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Add Player',
     });
   }
 };
