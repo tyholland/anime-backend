@@ -14,6 +14,19 @@ module.exports.getAllPlayers = async (req, res) => {
   }
 };
 
+module.exports.getAdminPlayers = async (req, res) => {
+  try {
+    const players = await mysql('SELECT * FROM players');
+
+    return res.status(200).json(players);
+  } catch (error) {
+    res.status(500).json({
+      error,
+      action: 'Get all admin players',
+    });
+  }
+};
+
 module.exports.getPlayer = async (req, res) => {
   const { player_id } = req.params;
 
