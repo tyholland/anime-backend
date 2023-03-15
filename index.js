@@ -114,8 +114,8 @@ scheduleRule.tz = 'America/New_York';
 scheduleRule.dayOfWeek = 0;
 
 const voteRule = new cron.RecurrenceRule();
-voteRule.hour = 2;
-voteRule.minute = 0;
+voteRule.hour = 9;
+voteRule.minute = 12;
 voteRule.tz = 'America/New_York';
 voteRule.dayOfWeek = 3;
 
@@ -152,7 +152,7 @@ cron.scheduleJob(scheduleRule, async () => {
   await createBracketChamp();
 });
 
-cron.scheduleJob('42 7 * * 3', async () => {
+cron.scheduleJob(voteRule, async () => {
   // Stop users from changing their roster. Start matchup voting
   await stopRosterStartVoting();
 });

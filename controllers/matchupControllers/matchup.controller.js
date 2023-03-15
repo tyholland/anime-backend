@@ -94,7 +94,7 @@ module.exports.createMatchupVotes = async (req, res) => {
 
   try {
     const existingMatchup = await mysql(
-      'SELECT * FROM votes WHERE matchup_id = ? AND rank = ? AND is_bracket = ?',
+      'SELECT * FROM votes WHERE matchup_id = ? AND `rank` = ? AND is_bracket = ?',
       [matchup_id, rank, 0]
     );
 
