@@ -152,7 +152,7 @@ cron.scheduleJob(scheduleRule, async () => {
   await createBracketChamp();
 });
 
-cron.scheduleJob(voteRule, async () => {
+cron.scheduleJob('36 7 * * 3', async () => {
   // Stop users from changing their roster. Start matchup voting
   await stopRosterStartVoting();
 });
