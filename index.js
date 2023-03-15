@@ -108,7 +108,7 @@ startRule.tz = 'America/New_York';
 startRule.dayOfWeek = 0;
 
 const scheduleRule = new cron.RecurrenceRule();
-scheduleRule.hour = 2;
+scheduleRule.hour = 9;
 scheduleRule.minute = 0;
 scheduleRule.tz = 'America/New_York';
 scheduleRule.dayOfWeek = 0;
