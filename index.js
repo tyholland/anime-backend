@@ -28,13 +28,6 @@ const {
   playoffsSemis,
   playoffsFinals,
 } = require('./utils/schedule');
-const {
-  createBracketFirstRound,
-  createBracketSecondRound,
-  createBracketThirdRound,
-  createBracketFinalRound,
-  createBracketChamp,
-} = require('./utils/bracket');
 
 /**
  * App Variables
@@ -141,13 +134,6 @@ cron.scheduleJob(scheduleRule, async () => {
   await createEightTeamSchedule();
   await createNineTeamSchedule();
   await createTenTeamSchedule();
-
-  // Start Bracket Voting
-  await createBracketFirstRound();
-  await createBracketSecondRound();
-  await createBracketThirdRound();
-  await createBracketFinalRound();
-  await createBracketChamp();
 });
 
 cron.scheduleJob(voteRule, async () => {

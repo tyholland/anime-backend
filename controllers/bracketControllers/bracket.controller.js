@@ -4,7 +4,12 @@ const {
   filterBracketVotingScores,
   filterBracketVotingWinner,
   filterBracketVotingId,
-} = require('../../utils');
+  createBracketFirstRound,
+  createBracketSecondRound,
+  createBracketFinalRound,
+  createBracketThirdRound,
+  createBracketChamp,
+} = require('../../utils/bracket');
 
 const mysql = require('../../utils/mysql').instance();
 
@@ -32,7 +37,7 @@ module.exports.createBracket = async (req, res) => {
 
   try {
     const newBracket = await mysql(
-      'INSERT INTO `bracket` (`creator_id`, `active`, `round`, `player_1`, `player_2`, `player_3`, `player_4`, `player_5`, `player_6`, `player_7`, `player_8`, `player_9`, `player_10`, `player_11`, `player_12`, `player_13`, `player_14`, `player_15`, `player_16``) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO `bracket` (`creator_id`, `active`, `round`, `player_1`, `player_2`, `player_3`, `player_4`, `player_5`, `player_6`, `player_7`, `player_8`, `player_9`, `player_10`, `player_11`, `player_12`, `player_13`, `player_14`, `player_15`, `player_16`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         userId,
         0,
@@ -334,6 +339,8 @@ module.exports.getBracket = async (req, res) => {
 
     return res.status(200).json({
       allMatches,
+      round: bracket[0].round,
+      creator: bracket[0].creator_id,
     });
   } catch (error) {
     console.log(error);
@@ -358,6 +365,116 @@ module.exports.getAllBrackets = async (req, res) => {
     return res.status(500).json({
       error,
       action: 'Get all brackets',
+    });
+  }
+};
+
+module.exports.startRound1 = async (req, res) => {
+  const { bracket_id } = req.params;
+
+  try {
+    await createBracketFirstRound(bracket_id);
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Bracket - start round 1',
+    });
+  }
+};
+
+module.exports.startRound2 = async (req, res) => {
+  const { bracket_id } = req.params;
+
+  try {
+    await createBracketSecondRound(bracket_id);
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Bracket - start round 2',
+    });
+  }
+};
+
+module.exports.startRound3 = async (req, res) => {
+  const { bracket_id } = req.params;
+
+  try {
+    await createBracketThirdRound(bracket_id);
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Bracket - start round 3',
+    });
+  }
+};
+
+module.exports.startRound4 = async (req, res) => {
+  const { bracket_id } = req.params;
+
+  try {
+    await createBracketFinalRound(bracket_id);
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Bracket - start round 4',
+    });
+  }
+};
+
+module.exports.startChampRound = async (req, res) => {
+  const { bracket_id } = req.params;
+
+  try {
+    await createBracketChamp(bracket_id);
+
+    const bracket = await mysql('SELECT champ FROM bracket WHERE id = ?', [
+      bracket_id,
+    ]);
+
+    const players = await mysql('SELECT full_name FROM players WHERE id = ?', [
+      bracket[0].champ,
+    ]);
+
+    return res.status(200).json({ champ: players[0].full_name });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Bracket - start champ round',
+    });
+  }
+};
+
+module.exports.getTheChamp = async (req, res) => {
+  const { bracket_id } = req.params;
+
+  try {
+    const bracket = await mysql('SELECT champ FROM bracket WHERE id = ?', [
+      bracket_id,
+    ]);
+
+    const players = await mysql('SELECT full_name FROM players WHERE id = ?', [
+      bracket[0].champ,
+    ]);
+
+    return res.status(200).json({ champ: players[0].full_name });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Bracket - get the champ',
     });
   }
 };
