@@ -287,7 +287,7 @@ module.exports.getBracket = async (req, res) => {
         voteId: filterBracketVotingId(voting, 'game_13'),
       },
       {
-        p1: filterBracketVotingWinner(voting, 'game_11', '1'),
+        p1: filterBracketVotingWinner(voting, 'game_11', '11'),
         p2: filterBracketVotingWinner(voting, 'game_12', '12'),
         score1: filterBracketVotingScores(voting, 'game_14', 'player_a_count'),
         score2: filterBracketVotingScores(voting, 'game_14', 'player_b_count'),

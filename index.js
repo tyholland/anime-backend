@@ -32,7 +32,6 @@ const {
   createBracketFirstRound,
   createBracketSecondRound,
   createBracketThirdRound,
-  createBracketFourthRound,
   createBracketFinalRound,
   createBracketChamp,
 } = require('./utils/bracket');
@@ -147,7 +146,6 @@ cron.scheduleJob(scheduleRule, async () => {
   await createBracketFirstRound();
   await createBracketSecondRound();
   await createBracketThirdRound();
-  await createBracketFourthRound();
   await createBracketFinalRound();
   await createBracketChamp();
 });
