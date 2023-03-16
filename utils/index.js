@@ -535,18 +535,30 @@ module.exports.sortRankings = (arr) => {
 
 const filterPlayer = (arr, target) => {
   if (/#|Bye/.test(target)) {
-    return target;
+    return {
+      playerName: target,
+      showShort: false,
+    };
   }
 
-  return arr.filter((item) => item.id === target)[0].name;
+  const playerName = arr.filter((item) => item.id === target)[0].name;
+  const shortenName = playerName.match(/.{1,6}/g);
+
+  return {
+    shortenName: `${shortenName[0]}...`,
+    playerName,
+    showShort: playerName.length > 9,
+  };
 };
 
 module.exports.bracketMatchup = (allPlayers, data, match) => {
   const { p1, p2, score1, score2, hasEnded, round, voteId } = data;
+  const name1 = filterPlayer(allPlayers, p1);
+  const name2 = filterPlayer(allPlayers, p2);
 
   return {
-    homeTeamName: filterPlayer(allPlayers, p1),
-    awayTeamName: filterPlayer(allPlayers, p2),
+    homeTeamName: name1.showShort ? name1.shortenName : name1.playerName,
+    awayTeamName: name2.showShort ? name2.shortenName : name2.playerName,
     round,
     matchNumber: match,
     homeTeamScore: score1,
@@ -555,6 +567,8 @@ module.exports.bracketMatchup = (allPlayers, data, match) => {
     matchComplete: true,
     homeTeamId: p1,
     awayTeamId: p2,
+    homeTeamFullName: name1.playerName,
+    awayTeamFullName: name2.playerName,
     voteId,
   };
 };
