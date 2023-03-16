@@ -14,7 +14,7 @@ const {
 const mysql = require('../../utils/mysql').instance();
 
 module.exports.createBracket = async (req, res) => {
-  const { bracket } = req.body;
+  const { bracket, name } = req.body;
   const { userId } = req.user;
   const {
     player1,
@@ -37,7 +37,7 @@ module.exports.createBracket = async (req, res) => {
 
   try {
     const newBracket = await mysql(
-      'INSERT INTO `bracket` (`creator_id`, `active`, `round`, `player_1`, `player_2`, `player_3`, `player_4`, `player_5`, `player_6`, `player_7`, `player_8`, `player_9`, `player_10`, `player_11`, `player_12`, `player_13`, `player_14`, `player_15`, `player_16`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO `bracket` (`creator_id`, `active`, `round`, `player_1`, `player_2`, `player_3`, `player_4`, `player_5`, `player_6`, `player_7`, `player_8`, `player_9`, `player_10`, `player_11`, `player_12`, `player_13`, `player_14`, `player_15`, `player_16`, `name`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         userId,
         0,
@@ -58,6 +58,7 @@ module.exports.createBracket = async (req, res) => {
         player14.id,
         player15.id,
         player16.id,
+        name,
       ]
     );
 
@@ -341,6 +342,7 @@ module.exports.getBracket = async (req, res) => {
       allMatches,
       round: bracket[0].round,
       creator: bracket[0].creator_id,
+      name: bracket[0].name,
     });
   } catch (error) {
     console.log(error);
