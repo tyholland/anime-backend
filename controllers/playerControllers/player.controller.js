@@ -129,12 +129,13 @@ module.exports.updatePlayer = async (req, res) => {
     no_affinity,
     weakness,
     image_url,
+    active,
     id,
   } = req.body;
 
   try {
     await mysql(
-      'UPDATE players SET full_name = ?, name = ?, series = ?, power_level = ?, category = ?, fire = ?, water = ?, wind = ?, earth = ?, arcane = ?, electric = ?, celestrial = ?, darkness = ?, ice = ?, no_affinity = ?, weakness = ?, image_url = ? WHERE id = ?',
+      'UPDATE players SET full_name = ?, name = ?, series = ?, power_level = ?, category = ?, fire = ?, water = ?, wind = ?, earth = ?, arcane = ?, electric = ?, celestrial = ?, darkness = ?, ice = ?, no_affinity = ?, weakness = ?, image_url = ?, active = ? WHERE id = ?',
       [
         full_name,
         name,
@@ -153,6 +154,7 @@ module.exports.updatePlayer = async (req, res) => {
         parseInt(no_affinity),
         weakness,
         image_url,
+        parseInt(active),
         id,
       ]
     );
