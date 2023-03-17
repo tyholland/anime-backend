@@ -315,11 +315,15 @@ const getVotingBoost = (votes, character) => {
       vote.rank.toLowerCase() === category.toLowerCase();
 
     if (isPlayerA) {
-      isWinner = vote.player_a_count > vote.player_b_count;
+      isWinner =
+        vote.player_a_count > vote.player_b_count &&
+        vote.player_a_count !== vote.player_b_count;
     }
 
     if (isPlayerB) {
-      isWinner = vote.player_b_count > vote.player_a_count;
+      isWinner =
+        vote.player_b_count > vote.player_a_count &&
+        vote.player_b_count !== vote.player_a_count;
     }
   });
 
@@ -345,11 +349,15 @@ const getVotingDamage = (votes, character) => {
       vote.rank.toLowerCase() === category.toLowerCase();
 
     if (isPlayerA) {
-      isLoser = vote.player_a_count < vote.player_b_count;
+      isLoser =
+        vote.player_a_count < vote.player_b_count &&
+        vote.player_a_count !== vote.player_b_count;
     }
 
     if (isPlayerB) {
-      isLoser = vote.player_b_count < vote.player_a_count;
+      isLoser =
+        vote.player_b_count < vote.player_a_count &&
+        vote.player_b_count !== vote.player_a_count;
     }
   });
 
