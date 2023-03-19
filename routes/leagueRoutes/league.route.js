@@ -13,19 +13,37 @@ const {
   getPlayoffsSchedule,
 } = require('../../controllers/leagueControllers/league.controller');
 const { authenticateToken } = require('../../utils');
+const { cacheOneDay } = require('../../utils/cache');
+const cache = require('../../utils/cache').instance();
 
 module.exports = (app) => {
-  app.get('/league/view', authenticateToken, getAllLeagues);
-  app.get('/league/:league_id', authenticateToken, getLeague);
+  app.get('/league/view', cache(cacheOneDay), authenticateToken, getAllLeagues);
+  app.get(
+    '/league/:league_id',
+    cache(cacheOneDay),
+    authenticateToken,
+    getLeague
+  );
   app.post('/league/create', authenticateToken, createLeague);
   app.put('/league/join', authenticateToken, joinLeague);
   app.put('/league/:league_id', authenticateToken, updateLeague);
   app.delete('/league/:league_id', authenticateToken, deleteLeague);
-  app.get('/league/scoreboard/:league_id', authenticateToken, getScoreboard);
-  app.get('/league/standings/:league_id', authenticateToken, getStandings);
+  app.get(
+    '/league/scoreboard/:league_id',
+    cache(cacheOneDay),
+    authenticateToken,
+    getScoreboard
+  );
+  app.get(
+    '/league/standings/:league_id',
+    cache(cacheOneDay),
+    authenticateToken,
+    getStandings
+  );
   app.post('/league/start', authenticateToken, startLeague);
   app.get(
     '/league/admin/settings/:league_id',
+    cache(cacheOneDay),
     authenticateToken,
     getLeagueAdminData
   );
@@ -36,6 +54,7 @@ module.exports = (app) => {
   );
   app.get(
     '/league/playoffs/:league_id',
+    cache(cacheOneDay),
     authenticateToken,
     getPlayoffsSchedule
   );

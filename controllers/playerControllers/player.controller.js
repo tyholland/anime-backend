@@ -98,6 +98,7 @@ module.exports.getAnimeNews = async (req, res) => {
   try {
     const listings = await search.search('anime', {
       term: 'shounen',
+      maxResults: 100,
     });
 
     return res.status(200).json(listings);
