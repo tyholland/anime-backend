@@ -7,8 +7,7 @@ module.exports.middleware = () => {
     secret,
     algorithms: ['HS256'],
     getToken: function getTokenFromAuth(req) {
-      const token =
-        req.cookies.token || getAuthToken(req.headers.authorization);
+      const token = getAuthToken(req.headers.authorization);
 
       if (!token) {
         return null;

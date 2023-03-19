@@ -31,8 +31,7 @@ module.exports.getAuthToken = (auth) => {
 };
 
 module.exports.authenticateToken = (req, res, next) => {
-  const token =
-    req.cookies.token || this.getAuthToken(req.headers.authorization);
+  const token = this.getAuthToken(req.headers.authorization);
 
   if (!token) return res.status(401).json({ type: 'NO AUTH TOKEN!' });
 
