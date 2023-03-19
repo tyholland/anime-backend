@@ -147,6 +147,14 @@ cron.scheduleJob(affinityRule, async () => {
   await activateWeeklyAffinity();
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  const { affinityRule } = process.env;
+
+  if (affinityRule === 'true') {
+    // Stop matchup voting
+    await stopUserVoting();
+    await activateWeeklyAffinity();
+  }
+
   console.log(`Server is listening on port ${PORT}`);
 });
