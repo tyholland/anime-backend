@@ -112,10 +112,10 @@ voteRule.tz = 'America/New_York';
 voteRule.dayOfWeek = 3;
 
 const affinityRule = new cron.RecurrenceRule();
-affinityRule.hour = 23;
+affinityRule.hour = 8;
 affinityRule.minute = 0;
 affinityRule.tz = 'America/New_York';
-affinityRule.dayOfWeek = 6;
+affinityRule.dayOfWeek = 0;
 
 cron.scheduleJob(startRule, async () => {
   // Start new week or end league
