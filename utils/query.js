@@ -213,11 +213,11 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
       mainRankings.find((rank) => {
         if (rank.team === rankingsB[index].team_name) {
           rank.win =
-            games[index].score_a > games[index].score_b
+            games[index].score_b > games[index].score_a
               ? rank.win + 1
               : rank.win;
           rank.loss =
-            games[index].score_a < games[index].score_b
+            games[index].score_b < games[index].score_a
               ? rank.loss + 1
               : rank.loss;
         }
@@ -226,8 +226,8 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
       mainRankings.push({
         team: rankingsB[index].team_name,
         teamId: rankingsB[index].id,
-        win: games[index].score_a > games[index].score_b ? 1 : 0,
-        loss: games[index].score_a < games[index].score_b ? 1 : 0,
+        win: games[index].score_b > games[index].score_a ? 1 : 0,
+        loss: games[index].score_b < games[index].score_a ? 1 : 0,
       });
     }
 
