@@ -240,7 +240,7 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
 module.exports.activateWeeklyAffinity = async () => {
   try {
     const teams = await mysql(
-      'SELECT t.id, t.week, l.id as league_id FROM league l, league_members lm, team t WHERE l.active = ? AND (week != ? OR week != ?) AND l.id = lm.league_id AND lm.id = t.league_member_id AND l.week = t.week',
+      'SELECT t.id, t.week, l.id as league_id FROM league l, league_members lm, team t WHERE l.active = ? AND (l.week != ? OR l.week != ?) AND l.id = lm.league_id AND lm.id = t.league_member_id AND l.week = t.week',
       [1, 0, -1]
     );
 
@@ -273,6 +273,7 @@ module.exports.activateWeeklyAffinity = async () => {
       }
     }
   } catch (err) {
+    console.log(err);
     throw new Error('Can not activate weekly affinity');
   }
 };
