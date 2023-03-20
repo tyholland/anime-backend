@@ -11,23 +11,6 @@ const session = require('express-session');
 const errorhandler = require('errorhandler');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const cron = require('node-schedule');
-const {
-  startNewWeek,
-  stopRosterStartVoting,
-  stopUserVoting,
-  activateWeeklyAffinity,
-} = require('./utils/query');
-const {
-  createSixTeamSchedule,
-  createSevenTeamSchedule,
-  createEightTeamSchedule,
-  createNineTeamSchedule,
-  createTenTeamSchedule,
-  playoffsFirstRound,
-  playoffsSemis,
-  playoffsFinals,
-} = require('./utils/schedule');
 
 /**
  * App Variables
@@ -93,68 +76,6 @@ app.get('/doc', (req, res) => {
 
 require('./routes/routes')(app);
 
-const startRule = new cron.RecurrenceRule();
-startRule.hour = 12;
-startRule.minute = 0;
-startRule.tz = 'America/New_York';
-startRule.dayOfWeek = 0;
-
-const scheduleRule = new cron.RecurrenceRule();
-scheduleRule.hour = 9;
-scheduleRule.minute = 0;
-scheduleRule.tz = 'America/New_York';
-scheduleRule.dayOfWeek = 0;
-
-const voteRule = new cron.RecurrenceRule();
-voteRule.hour = 9;
-voteRule.minute = 12;
-voteRule.tz = 'America/New_York';
-voteRule.dayOfWeek = 3;
-
-const affinityRule = new cron.RecurrenceRule();
-affinityRule.hour = 8;
-affinityRule.minute = 0;
-affinityRule.tz = 'America/New_York';
-affinityRule.dayOfWeek = 0;
-
-cron.scheduleJob(startRule, async () => {
-  // Start new week or end league
-  await startNewWeek();
-
-  // Create playoffs schedule
-  await playoffsFirstRound();
-  await playoffsSemis();
-  await playoffsFinals();
-});
-
-cron.scheduleJob(scheduleRule, async () => {
-  // Create team schedule and matchups
-  await createSixTeamSchedule();
-  await createSevenTeamSchedule();
-  await createEightTeamSchedule();
-  await createNineTeamSchedule();
-  await createTenTeamSchedule();
-});
-
-cron.scheduleJob(voteRule, async () => {
-  // Stop users from changing their roster. Start matchup voting
-  await stopRosterStartVoting();
-});
-
-cron.scheduleJob(affinityRule, async () => {
-  // Stop matchup voting
-  await stopUserVoting();
-  await activateWeeklyAffinity();
-});
-
 app.listen(PORT, async () => {
-  const { affinityRule } = process.env;
-
-  if (affinityRule === 'true') {
-    // Stop matchup voting
-    await stopUserVoting();
-    await activateWeeklyAffinity();
-  }
-
   console.log(`Server is listening on port ${PORT}`);
 });
