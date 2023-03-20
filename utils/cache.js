@@ -15,6 +15,7 @@ module.exports.instance = () => {
   return setupCache();
 };
 
+module.exports.cacheFiveMins = 300;
 module.exports.cacheThirtyMins = 1800;
 module.exports.cacheOneHour = 3600;
 module.exports.cacheOneDay = 86400;

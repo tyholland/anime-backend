@@ -13,7 +13,7 @@ const {
   getPlayoffsSchedule,
 } = require('../../controllers/leagueControllers/league.controller');
 const { authenticateToken } = require('../../utils');
-const { cacheOneDay } = require('../../utils/cache');
+const { cacheOneDay, cacheFiveMins } = require('../../utils/cache');
 const cache = require('../../utils/cache').instance();
 
 module.exports = (app) => {
@@ -30,7 +30,7 @@ module.exports = (app) => {
   app.delete('/league/:league_id', authenticateToken, deleteLeague);
   app.get(
     '/league/scoreboard/:league_id',
-    cache(cacheOneDay),
+    cache(cacheFiveMins),
     authenticateToken,
     getScoreboard
   );
