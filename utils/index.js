@@ -240,7 +240,7 @@ const getSupportBoost = (players, mainAffinities, support, week) => {
     });
   }
 
-  if (character.bye_week === week) {
+  if (character?.bye_week === week) {
     return 0;
   }
 
@@ -258,7 +258,7 @@ const getVillainDamage = (players, weakness, villain, week) => {
     return item.type === weakness.toLowerCase();
   });
 
-  if (character.bye_week === week) {
+  if (character?.bye_week === week) {
     return 0;
   }
 
@@ -279,7 +279,7 @@ const getBattlefieldBoost = (players, mainAffinities, field, week) => {
     });
   }
 
-  if (character.bye_week === week) {
+  if (character?.bye_week === week) {
     return 0;
   }
 
@@ -304,7 +304,7 @@ const getBattlefieldDamage = (players, weakness, field, week) => {
     });
   }
 
-  if (character.bye_week === week) {
+  if (character?.bye_week === week) {
     return 0;
   }
 
