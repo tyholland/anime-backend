@@ -98,6 +98,43 @@ module.exports.getUserPoints = async (characterIds) => {
   }
 };
 
+const getWeekRecap = async (week, userId, leagueId) => {
+  if (week === 1) {
+    return;
+  }
+
+  try {
+    const previousMatchup = await mysql(
+      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b, t.id as currentTeamId, lm.team_name FROM league_members lm, team t, matchup m WHERE lm.user_id = ? AND lm.league_id = ? AND lm.recap = ? AND lm.id = t.league_member_id AND m.week = ? AND (m.team_a = t.id OR m.team_b = t.id)',
+      [userId, leagueId, 1, week - 1]
+    );
+
+    if (!previousMatchup.length) {
+      return null;
+    }
+
+    const { currentTeamId, team_a, team_b, score_a, score_b, team_name } =
+      previousMatchup[0];
+
+    const opponent = currentTeamId === team_a ? team_b : team_a;
+    const winner = score_a > score_b ? team_a : team_b;
+
+    const otherTeam = await mysql(
+      'SELECT team_name FROM league_members lm, team t WHERE t.id = ? AND t.league_member_id = lm.id',
+      [opponent]
+    );
+
+    return {
+      week: week - 1,
+      score: `${score_a} to ${score_b}`,
+      winner: winner === currentTeamId ? team_name : otherTeam[0].team_name,
+      loser: winner !== opponent ? otherTeam[0].team_name : team_name,
+    };
+  } catch (err) {
+    throw new Error('Can not get week recap');
+  }
+};
+
 module.exports.formatTeam = async (data, memberInfo, userId, res) => {
   const {
     captain,
@@ -236,6 +273,8 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
       };
     }
 
+    const recap = await getWeekRecap(week, userId, memberInfo.league_id);
+
     return res.status(200).json({
       teamName: memberInfo.team_name,
       memberId: memberInfo.id,
@@ -262,6 +301,7 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
         ...member,
         rank,
       },
+      recap,
     });
   } catch (error) {
     console.log(error);

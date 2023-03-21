@@ -312,3 +312,25 @@ module.exports.removeTeam = async (req, res) => {
     });
   }
 };
+
+module.exports.hideWeekRecap = async (req, res) => {
+  const { userId } = req.user;
+  const { league_id } = req.params;
+
+  try {
+    await mysql(
+      'UPDATE league_members SET recap = ? WHERE user_id = ? AND league_id = ?',
+      [0, userId, league_id]
+    );
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Hide recap week',
+    });
+  }
+};

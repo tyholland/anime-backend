@@ -14,6 +14,7 @@ module.exports.startNewWeek = async () => {
       const { week, id, name } = leagues[index];
       const newWeek = week + 1;
 
+      // Make previous week inactive
       await mysql(
         'UPDATE matchup SET active = ? WHERE league_id = ? AND week = ?',
         [0, id, week]
@@ -51,6 +52,13 @@ module.exports.startNewWeek = async () => {
         'UPDATE matchup SET active = ? WHERE league_id = ? AND week = ?',
         [1, id, newWeek]
       );
+
+      if (newWeek > 1) {
+        await mysql('UPDATE league_members SET recap = ? WHERE league_id = ?', [
+          1,
+          id,
+        ]);
+      }
     }
   } catch (err) {
     throw new Error('Can not start new week');
