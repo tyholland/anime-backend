@@ -159,76 +159,90 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
 
     if (isFirstWeek) {
       for (let index = 0; index < games.length; index++) {
-        mainRankings.find((rank) => {
-          if (rank.team === rankingsA[index].team_name) {
-            return;
-          }
-        });
+        const hasRankingA = mainRankings.some(
+          (rank) => rank.team === rankingsA[index].team_name
+        );
+        const hasRankingB = mainRankings.some(
+          (rank) => rank.team === rankingsB[index].team_name
+        );
 
-        mainRankings.push({
-          team: rankingsA[index].team_name,
-          teamId: rankingsA[index].id,
-          win: 0,
-          loss: 0,
-        });
+        if (!hasRankingA) {
+          mainRankings.push({
+            team: rankingsA[index].team_name,
+            teamId: rankingsA[index].id,
+            win: 0,
+            loss: 0,
+          });
+        }
 
-        mainRankings.find((rank) => {
-          if (rank.team === rankingsB[index].team_name) {
-            return;
-          }
-        });
-
-        mainRankings.push({
-          team: rankingsB[index].team_name,
-          teamId: rankingsB[index].id,
-          win: 0,
-          loss: 0,
-        });
+        if (!hasRankingB) {
+          mainRankings.push({
+            team: rankingsB[index].team_name,
+            teamId: rankingsB[index].id,
+            win: 0,
+            loss: 0,
+          });
+        }
       }
 
       return sortRankings(mainRankings);
     }
 
     for (let index = 0; index < games.length; index++) {
-      mainRankings.find((rank) => {
-        if (rank.team === rankingsA[index].team_name) {
-          rank.win =
-            games[index].score_a > games[index].score_b
-              ? rank.win + 1
-              : rank.win;
-          rank.loss =
-            games[index].score_a < games[index].score_b
-              ? rank.loss + 1
-              : rank.loss;
-        }
-      });
+      const hasRankingA = mainRankings.some(
+        (rank) => rank.team === rankingsA[index].team_name
+      );
+      const hasRankingB = mainRankings.some(
+        (rank) => rank.team === rankingsB[index].team_name
+      );
 
-      mainRankings.push({
-        team: rankingsA[index].team_name,
-        teamId: rankingsA[index].id,
-        win: games[index].score_a > games[index].score_b ? 1 : 0,
-        loss: games[index].score_a < games[index].score_b ? 1 : 0,
-      });
+      if (hasRankingA) {
+        mainRankings.find((rank) => {
+          if (rank.team === rankingsA[index].team_name) {
+            rank.win =
+              games[index].score_a > games[index].score_b
+                ? rank.win + 1
+                : rank.win;
+            rank.loss =
+              games[index].score_a < games[index].score_b
+                ? rank.loss + 1
+                : rank.loss;
+          }
+        });
+      }
 
-      mainRankings.find((rank) => {
-        if (rank.team === rankingsB[index].team_name) {
-          rank.win =
-            games[index].score_b > games[index].score_a
-              ? rank.win + 1
-              : rank.win;
-          rank.loss =
-            games[index].score_b < games[index].score_a
-              ? rank.loss + 1
-              : rank.loss;
-        }
-      });
+      if (!hasRankingA) {
+        mainRankings.push({
+          team: rankingsA[index].team_name,
+          teamId: rankingsA[index].id,
+          win: games[index].score_a > games[index].score_b ? 1 : 0,
+          loss: games[index].score_a < games[index].score_b ? 1 : 0,
+        });
+      }
 
-      mainRankings.push({
-        team: rankingsB[index].team_name,
-        teamId: rankingsB[index].id,
-        win: games[index].score_b > games[index].score_a ? 1 : 0,
-        loss: games[index].score_b < games[index].score_a ? 1 : 0,
-      });
+      if (hasRankingB) {
+        mainRankings.find((rank) => {
+          if (rank.team === rankingsB[index].team_name) {
+            rank.win =
+              games[index].score_b > games[index].score_a
+                ? rank.win + 1
+                : rank.win;
+            rank.loss =
+              games[index].score_b < games[index].score_a
+                ? rank.loss + 1
+                : rank.loss;
+          }
+        });
+      }
+
+      if (!hasRankingB) {
+        mainRankings.push({
+          team: rankingsB[index].team_name,
+          teamId: rankingsB[index].id,
+          win: games[index].score_b > games[index].score_a ? 1 : 0,
+          loss: games[index].score_b < games[index].score_a ? 1 : 0,
+        });
+      }
     }
 
     return sortRankings(mainRankings);
