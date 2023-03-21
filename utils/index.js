@@ -226,7 +226,7 @@ const getWeeklyDamage = (weakness, teamAffinity, isAffinityActive) => {
   return affinityVal > 0 ? affinityVal / 100 : 0;
 };
 
-const getSupportBoost = (players, mainAffinities, support) => {
+const getSupportBoost = (players, mainAffinities, support, week) => {
   const character = players.filter((item) => item.id === support)[0];
   const affinities = this.getAffinitiesTypes(character);
   const hasMatch = affinities.filter((item) => {
@@ -240,10 +240,14 @@ const getSupportBoost = (players, mainAffinities, support) => {
     });
   }
 
+  if (character.bye_week === week) {
+    return 0;
+  }
+
   return matchPoints;
 };
 
-const getVillainDamage = (players, weakness, villain) => {
+const getVillainDamage = (players, weakness, villain, week) => {
   const character = players.filter((item) => item.id === villain)[0];
   const affinities = this.getAffinitiesTypes(character);
   const hasMatch = affinities.filter((item) => {
@@ -254,10 +258,14 @@ const getVillainDamage = (players, weakness, villain) => {
     return item.type === weakness.toLowerCase();
   });
 
+  if (character.bye_week === week) {
+    return 0;
+  }
+
   return hasMatch.length ? hasMatch[0].value / 100 : 0;
 };
 
-const getBattlefieldBoost = (players, mainAffinities, field) => {
+const getBattlefieldBoost = (players, mainAffinities, field, week) => {
   const character = players.filter((item) => item.id === field)[0];
   const affinities = this.getAffinitiesTypes(character);
   const hasMatch = affinities.filter((item) => {
@@ -271,10 +279,14 @@ const getBattlefieldBoost = (players, mainAffinities, field) => {
     });
   }
 
+  if (character.bye_week === week) {
+    return 0;
+  }
+
   return matchPoints;
 };
 
-const getBattlefieldDamage = (players, weakness, field) => {
+const getBattlefieldDamage = (players, weakness, field, week) => {
   const character = players.filter((item) => item.id === field)[0];
   const affinities = this.getAffinitiesTypes(character);
   const hasMatch = affinities.filter((item) => {
@@ -290,6 +302,10 @@ const getBattlefieldDamage = (players, weakness, field) => {
     hasMatch.forEach((item) => {
       matchPoints += item.value / 100;
     });
+  }
+
+  if (character.bye_week === week) {
+    return 0;
   }
 
   return matchPoints;
@@ -373,15 +389,16 @@ module.exports.getBoostPoints = (
   votes,
   character,
   teamAffinity,
-  isAffinityActive
+  isAffinityActive,
+  week
 ) => {
   const { power_level } = character;
   const weekBoost =
     getWeeklyBoost(affinities, teamAffinity, isAffinityActive) * power_level;
   const boostSupport =
-    getSupportBoost(players, affinities, specificSupport) * power_level;
+    getSupportBoost(players, affinities, specificSupport, week) * power_level;
   const battlefieldSupport =
-    getBattlefieldBoost(players, affinities, battlefield) * power_level;
+    getBattlefieldBoost(players, affinities, battlefield, week) * power_level;
   const votingBoost = getVotingBoost(votes, character) * power_level;
 
   const supportPoints = isSupportInvalid ? 0 : Math.floor(boostSupport);
@@ -407,15 +424,17 @@ module.exports.getDamagePoints = (
   votes,
   character,
   teamAffinity,
-  isAffinityActive
+  isAffinityActive,
+  week
 ) => {
   const { power_level } = character;
   const weekDamage = getWeeklyDamage(weakness, teamAffinity, isAffinityActive);
-  const villainDamage = getVillainDamage(players, weakness, villain);
+  const villainDamage = getVillainDamage(players, weakness, villain, week);
   const battlefieldDamage = getBattlefieldDamage(
     players,
     weakness,
-    battlefield
+    battlefield,
+    week
   );
   const votingDamage = getVotingDamage(votes, character);
 
@@ -495,7 +514,8 @@ module.exports.characterAttr = (players, char, rank, details) => {
     votes,
     main[0],
     affinity,
-    activeAffinity
+    activeAffinity,
+    week
   );
 
   const damage = this.getDamagePoints(
@@ -506,7 +526,8 @@ module.exports.characterAttr = (players, char, rank, details) => {
     votes,
     main[0],
     affinity,
-    activeAffinity
+    activeAffinity,
+    week
   );
 
   const teamPoints = power_level + boost.total;
