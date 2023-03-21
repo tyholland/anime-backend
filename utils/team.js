@@ -80,7 +80,7 @@ module.exports.getSpecificTeamInfo = async (member_id, userId) => {
   }
 };
 
-module.exports.getUserPoints = async (characterIds, week) => {
+module.exports.getUserPoints = async (characterIds) => {
   try {
     const players = characterIds.length
       ? await mysql('SELECT * FROM players WHERE id in (?)', [characterIds])
@@ -89,11 +89,6 @@ module.exports.getUserPoints = async (characterIds, week) => {
     let totalPoints = 0;
     const defaultPoints = 9000;
     players.forEach((item) => {
-      if (item.bye_week === week) {
-        totalPoints += 0;
-        return;
-      }
-
       totalPoints += item.power_level;
     });
 
@@ -144,7 +139,7 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
       battlefield,
     ];
 
-    const userPoints = await this.getUserPoints(characterArr, week);
+    const userPoints = await this.getUserPoints(characterArr);
 
     if (matchup.length) {
       characterArr = [

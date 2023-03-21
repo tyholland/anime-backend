@@ -159,7 +159,7 @@ module.exports.updateTeam = async (req, res) => {
     ];
     const characterIds = characterArr.filter((item) => !!item);
 
-    const userPoints = await getUserPoints(characterIds, team[0].week);
+    const userPoints = await getUserPoints(characterIds);
 
     if (userPoints < 0) {
       return res.status(400).json({
