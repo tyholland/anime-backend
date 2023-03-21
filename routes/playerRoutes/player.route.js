@@ -8,7 +8,7 @@ const {
   getAdminPlayers,
 } = require('../../controllers/playerControllers/player.controller');
 const { authenticateToken } = require('../../utils');
-const { cacheOneWeek, cacheOneDay } = require('../../utils/cache');
+const { cacheOneWeek } = require('../../utils/cache');
 const cache = require('../../utils/cache').instance();
 
 module.exports = (app) => {
@@ -20,12 +20,7 @@ module.exports = (app) => {
     getAdminPlayers
   );
   app.get('/player/:player_id', cache(cacheOneWeek), getPlayer);
-  app.get(
-    '/player/select/:team_id',
-    cache(cacheOneDay),
-    authenticateToken,
-    getPlayablePlayers
-  );
+  app.get('/player/select/:team_id', authenticateToken, getPlayablePlayers);
   app.put('/player/update', authenticateToken, updatePlayer);
   app.post('/player/add', authenticateToken, addPlayer);
   app.get('/player/anime/news', cache(cacheOneWeek), getAnimeNews);

@@ -165,6 +165,11 @@ module.exports.updateTeam = async (req, res) => {
     let totalPoints = 0;
     const defaultPoints = 9000;
     players.forEach((item) => {
+      if (item.bye_week === team[0].week) {
+        totalPoints += 0;
+        return;
+      }
+
       totalPoints += item.power_level;
     });
     const userPoints = defaultPoints - totalPoints;

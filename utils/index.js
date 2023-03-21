@@ -449,6 +449,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
     votes,
     affinity,
     activeAffinity,
+    week,
   } = details;
 
   if (!main.length) {
@@ -474,7 +475,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
     };
   }
 
-  const { id, name, power_level, weakness } = main[0];
+  const { id, name, power_level, weakness, bye_week } = main[0];
 
   const isBattlefield = rank === 'battlefield';
   const isBsBrawler = rank === 'bs_brawler';
@@ -510,6 +511,30 @@ module.exports.characterAttr = (players, char, rank, details) => {
 
   const teamPoints = power_level + boost.total;
   const matchPoints = teamPoints - damage.total;
+
+  if (week === bye_week) {
+    return {
+      id,
+      name,
+      rank,
+      teamPoints: 0,
+      matchPoints: 0,
+      affinity: affinities,
+      originalPower: 0,
+      boost: {
+        week: 0,
+        support: 0,
+        battlefield: 0,
+        voting: 0,
+      },
+      damage: {
+        week: 0,
+        villain: 0,
+        battlefield: 0,
+        voting: 0,
+      },
+    };
+  }
 
   return {
     id,
