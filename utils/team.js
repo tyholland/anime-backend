@@ -80,6 +80,29 @@ module.exports.getSpecificTeamInfo = async (member_id, userId) => {
   }
 };
 
+module.exports.getUserPoints = async (characterIds, week) => {
+  try {
+    const players = characterIds.length
+      ? await mysql('SELECT * FROM players WHERE id in (?)', [characterIds])
+      : [];
+
+    let totalPoints = 0;
+    const defaultPoints = 9000;
+    players.forEach((item) => {
+      if (item.bye_week === week) {
+        totalPoints += 0;
+        return;
+      }
+
+      totalPoints += item.power_level;
+    });
+
+    return defaultPoints - totalPoints;
+  } catch (err) {
+    throw new Error('Can not get user points');
+  }
+};
+
 module.exports.formatTeam = async (data, memberInfo, userId, res) => {
   const {
     captain,
@@ -120,6 +143,8 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
       villain,
       battlefield,
     ];
+
+    const userPoints = await this.getUserPoints(characterArr, week);
 
     if (matchup.length) {
       characterArr = [
@@ -219,7 +244,7 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
     return res.status(200).json({
       teamName: memberInfo.team_name,
       memberId: memberInfo.id,
-      userPoints: memberInfo.userPoints,
+      userPoints,
       team: {
         captain: characterAttr(players, captain, 'captain', details),
         brawler_a: characterAttr(players, brawler_a, 'brawler_a', details),

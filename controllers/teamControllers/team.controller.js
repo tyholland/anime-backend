@@ -5,6 +5,7 @@ const {
   formatTeam,
   getTeamQuery,
   getSpecificTeamInfo,
+  getUserPoints,
 } = require('../../utils/team');
 const Profanity = require('profanity-js');
 const profanity = new Profanity('', {
@@ -158,21 +159,7 @@ module.exports.updateTeam = async (req, res) => {
     ];
     const characterIds = characterArr.filter((item) => !!item);
 
-    const players = characterIds.length
-      ? await mysql('SELECT * FROM players WHERE id in (?)', [characterIds])
-      : [];
-
-    let totalPoints = 0;
-    const defaultPoints = 9000;
-    players.forEach((item) => {
-      if (item.bye_week === team[0].week) {
-        totalPoints += 0;
-        return;
-      }
-
-      totalPoints += item.power_level;
-    });
-    const userPoints = defaultPoints - totalPoints;
+    const userPoints = await getUserPoints(characterIds, team[0].week);
 
     if (userPoints < 0) {
       return res.status(400).json({
@@ -182,6 +169,10 @@ module.exports.updateTeam = async (req, res) => {
     }
 
     let teamPoints = 0;
+
+    const players = characterIds.length
+      ? await mysql('SELECT * FROM players WHERE id in (?)', [characterIds])
+      : [];
 
     players.forEach((item) => {
       const affinities = getAffinitiesTypes(item);
