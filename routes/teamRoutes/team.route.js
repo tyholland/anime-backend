@@ -6,6 +6,7 @@ const {
   getMatchupTeam,
   getSchedule,
   removeTeam,
+  hideWeekRecap,
 } = require('../../controllers/teamControllers/team.controller');
 const { authenticateToken } = require('../../utils');
 const { cacheOneDay, cacheFiveMins } = require('../../utils/cache');
@@ -29,4 +30,5 @@ module.exports = (app) => {
     getSchedule
   );
   app.delete('/team/:league_id', authenticateToken, removeTeam);
+  app.put('/team/recap/:league_id', authenticateToken, hideWeekRecap);
 };

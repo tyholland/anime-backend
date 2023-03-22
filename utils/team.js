@@ -126,6 +126,7 @@ const getWeekRecap = async (week, userId, leagueId) => {
 
     return {
       week: week - 1,
+      currentTeam: team_name,
       score: `${score_a} to ${score_b}`,
       winner: winner === currentTeamId ? team_name : otherTeam[0].team_name,
       loser: winner !== opponent ? otherTeam[0].team_name : team_name,
@@ -200,6 +201,8 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
       userId
     );
 
+    const recap = await getWeekRecap(week, userId, memberInfo.league_id);
+
     if (!characterIds.length) {
       return res.status(200).json({
         teamName: memberInfo.team_name,
@@ -238,6 +241,7 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
           ...member,
           rank,
         },
+        recap,
       });
     }
 
@@ -272,8 +276,6 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
         activeAffinity,
       };
     }
-
-    const recap = await getWeekRecap(week, userId, memberInfo.league_id);
 
     return res.status(200).json({
       teamName: memberInfo.team_name,
