@@ -626,7 +626,9 @@ module.exports.playerFormula = async (req, res) => {
     /******************************
      * Remove No Affinity from
      * characters that have at
-     * least 1 affinity
+     * least 1 affinity.
+     * Update affinity values to
+     * correct values.
      * ***************************/
     if (update === 'affinity') {
       await mysql(
