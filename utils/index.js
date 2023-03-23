@@ -149,7 +149,7 @@ const season = [
   },
   {
     element: 'noAffinity',
-    value: 500,
+    value: 350,
   },
 ];
 
