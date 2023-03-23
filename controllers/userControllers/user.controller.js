@@ -241,7 +241,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const eliteCaptain = await mysql(
-        'SELECT id FROM players WHERE series = \'One Punch Man\' OR series = \'One Piece\' OR series = \'Naruto\' OR series = \'My Hero Academia\' OR series = \'Bleach\' OR series = \'Jujutsu Kaisen\' OR series = \'Attack on Titan\' OR series = \'Fairy Tail\' OR series = \'Demon Slayer\' OR series = \'Hunter x Hunter\' AND category = \'Captain\''
+        'SELECT id FROM players WHERE (series = \'One Punch Man\' OR series = \'One Piece\' OR series = \'Naruto\' OR series = \'My Hero Academia\' OR series = \'Bleach\' OR series = \'Jujutsu Kaisen\' OR series = \'Attack on Titan\' OR series = \'Fairy Tail\' OR series = \'Demon Slayer\' OR series = \'Hunter x Hunter\') AND category = \'Captain\''
       );
 
       for (let index = 0; index < eliteCaptain.length; index++) {
@@ -258,7 +258,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeACaptain = await mysql(
-        'SELECT id FROM players WHERE series = \'Black Clover\' OR series = \'Solo Leveling\' OR series = \'The God of High School\' OR series = \'The Seven Deadly Sins\' OR series = \'Fire Force\' OR series = \'Yu Yu Hakusho\' OR series = \'TBATE\' OR series = \'Full Metal Alchemist\' OR series = \'Inuyasha\' OR series = \'Sailor Moon\' OR series = \'Rurouni Kenshin\' AND category = \'Captain\''
+        'SELECT id FROM players WHERE (series = \'Black Clover\' OR series = \'Solo Leveling\' OR series = \'The God of High School\' OR series = \'The Seven Deadly Sins\' OR series = \'Fire Force\' OR series = \'Yu Yu Hakusho\' OR series = \'TBATE\' OR series = \'Full Metal Alchemist\' OR series = \'Inuyasha\' OR series = \'Sailor Moon\' OR series = \'Rurouni Kenshin\') AND category = \'Captain\''
       );
 
       for (let index = 0; index < gradeACaptain.length; index++) {
@@ -273,7 +273,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeBCaptain = await mysql(
-        'SELECT id FROM players WHERE series = \'Latna Saga: Survival of…\' OR series = \'Soul Eater\' OR series = \'Tensei Slime\' OR series = \'The Great Mage Returns\' OR series = \'Omniscient Reader\' OR series = \'Death Note\' OR series = \'KonoSuba\' OR series = \'Gundam Wing\' OR series = \'Katekyo Hitman Reborn!\' OR series = \'Shield Hero\' OR series = \'Cowboy Bebop\' OR series = \'Trigun\' OR series = \'Magic Emperor\' OR series = \'Martial Arts Reigns\' OR series = \'Versatile Mage\' OR series = \'Unordinary\' OR series = \'Akira\' AND category = \'Captain\''
+        'SELECT id FROM players WHERE (series = \'Latna Saga: Survival of…\' OR series = \'Soul Eater\' OR series = \'Tensei Slime\' OR series = \'The Great Mage Returns\' OR series = \'Omniscient Reader\' OR series = \'Death Note\' OR series = \'KonoSuba\' OR series = \'Gundam Wing\' OR series = \'Katekyo Hitman Reborn!\' OR series = \'Shield Hero\' OR series = \'Cowboy Bebop\' OR series = \'Trigun\' OR series = \'Magic Emperor\' OR series = \'Martial Arts Reigns\' OR series = \'Versatile Mage\' OR series = \'Unordinary\' OR series = \'Akira\') AND category = \'Captain\''
       );
 
       for (let index = 0; index < gradeBCaptain.length; index++) {
@@ -288,7 +288,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeCCaptain = await mysql(
-        'SELECT id FROM players WHERE series = \'Blue Exorcist\' OR series = \'Magi\' OR series = \'Digimon\' OR series = \'Boondocks\' OR series = \'Dr. Stone\' OR series = \'Yu-Gi-Oh!\' OR series = \'Paranoia Agent\' OR series = \'No Series\' OR series = \'Berserk\' AND category = \'Captain\''
+        'SELECT id FROM players WHERE (series = \'Blue Exorcist\' OR series = \'Magi\' OR series = \'Digimon\' OR series = \'Boondocks\' OR series = \'Dr. Stone\' OR series = \'Yu-Gi-Oh!\' OR series = \'Paranoia Agent\' OR series = \'No Series\' OR series = \'Berserk\') AND category = \'Captain\''
       );
 
       for (let index = 0; index < gradeCCaptain.length; index++) {
@@ -323,7 +323,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const eliteBrawler = await mysql(
-        'SELECT id FROM players WHERE series = \'One Punch Man\' OR series = \'One Piece\' OR series = \'Naruto\' OR series = \'My Hero Academia\' OR series = \'Bleach\' OR series = \'Jujutsu Kaisen\' OR series = \'Attack on Titan\' OR series = \'Fairy Tail\' OR series = \'Demon Slayer\' OR series = \'Hunter x Hunter\' AND category = \'Brawler\''
+        'SELECT id FROM players WHERE (series = \'One Punch Man\' OR series = \'One Piece\' OR series = \'Naruto\' OR series = \'My Hero Academia\' OR series = \'Bleach\' OR series = \'Jujutsu Kaisen\' OR series = \'Attack on Titan\' OR series = \'Fairy Tail\' OR series = \'Demon Slayer\' OR series = \'Hunter x Hunter\') AND category = \'Brawler\''
       );
 
       for (let index = 0; index < eliteBrawler.length; index++) {
@@ -338,7 +338,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeABrawler = await mysql(
-        'SELECT id FROM players WHERE series = \'Black Clover\' OR series = \'Solo Leveling\' OR series = \'The God of High School\' OR series = \'The Seven Deadly Sins\' OR series = \'Fire Force\' OR series = \'Yu Yu Hakusho\' OR series = \'TBATE\' OR series = \'Full Metal Alchemist\' OR series = \'Inuyasha\' OR series = \'Sailor Moon\' OR series = \'Rurouni Kenshin\' AND category = \'Brawler\''
+        'SELECT id FROM players WHERE (series = \'Black Clover\' OR series = \'Solo Leveling\' OR series = \'The God of High School\' OR series = \'The Seven Deadly Sins\' OR series = \'Fire Force\' OR series = \'Yu Yu Hakusho\' OR series = \'TBATE\' OR series = \'Full Metal Alchemist\' OR series = \'Inuyasha\' OR series = \'Sailor Moon\' OR series = \'Rurouni Kenshin\') AND category = \'Brawler\''
       );
 
       for (let index = 0; index < gradeABrawler.length; index++) {
@@ -353,7 +353,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeBBrawler = await mysql(
-        'SELECT id FROM players WHERE series = \'Latna Saga: Survival of…\' OR series = \'Soul Eater\' OR series = \'Tensei Slime\' OR series = \'The Great Mage Returns\' OR series = \'Omniscient Reader\' OR series = \'Death Note\' OR series = \'KonoSuba\' OR series = \'Gundam Wing\' OR series = \'Katekyo Hitman Reborn!\' OR series = \'Shield Hero\' OR series = \'Cowboy Bebop\' OR series = \'Trigun\' OR series = \'Magic Emperor\' OR series = \'Martial Arts Reigns\' OR series = \'Versatile Mage\' OR series = \'Unordinary\' OR series = \'Akira\' AND category = \'Brawler\''
+        'SELECT id FROM players WHERE (series = \'Latna Saga: Survival of…\' OR series = \'Soul Eater\' OR series = \'Tensei Slime\' OR series = \'The Great Mage Returns\' OR series = \'Omniscient Reader\' OR series = \'Death Note\' OR series = \'KonoSuba\' OR series = \'Gundam Wing\' OR series = \'Katekyo Hitman Reborn!\' OR series = \'Shield Hero\' OR series = \'Cowboy Bebop\' OR series = \'Trigun\' OR series = \'Magic Emperor\' OR series = \'Martial Arts Reigns\' OR series = \'Versatile Mage\' OR series = \'Unordinary\' OR series = \'Akira\') AND category = \'Brawler\''
       );
 
       for (let index = 0; index < gradeBBrawler.length; index++) {
@@ -368,7 +368,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeCBrawler = await mysql(
-        'SELECT id FROM players WHERE series = \'Blue Exorcist\' OR series = \'Magi\' OR series = \'Digimon\' OR series = \'Boondocks\' OR series = \'Dr. Stone\' OR series = \'Yu-Gi-Oh!\' OR series = \'Paranoia Agent\' OR series = \'No Series\' OR series = \'Berserk\' AND category = \'Brawler\''
+        'SELECT id FROM players WHERE (series = \'Blue Exorcist\' OR series = \'Magi\' OR series = \'Digimon\' OR series = \'Boondocks\' OR series = \'Dr. Stone\' OR series = \'Yu-Gi-Oh!\' OR series = \'Paranoia Agent\' OR series = \'No Series\' OR series = \'Berserk\') AND category = \'Brawler\''
       );
 
       for (let index = 0; index < gradeCBrawler.length; index++) {
@@ -403,7 +403,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const eliteSupport = await mysql(
-        'SELECT id FROM players WHERE series = \'One Punch Man\' OR series = \'One Piece\' OR series = \'Naruto\' OR series = \'My Hero Academia\' OR series = \'Bleach\' OR series = \'Jujutsu Kaisen\' OR series = \'Attack on Titan\' OR series = \'Fairy Tail\' OR series = \'Demon Slayer\' OR series = \'Hunter x Hunter\' AND category = \'Support\''
+        'SELECT id FROM players WHERE (series = \'One Punch Man\' OR series = \'One Piece\' OR series = \'Naruto\' OR series = \'My Hero Academia\' OR series = \'Bleach\' OR series = \'Jujutsu Kaisen\' OR series = \'Attack on Titan\' OR series = \'Fairy Tail\' OR series = \'Demon Slayer\' OR series = \'Hunter x Hunter\') AND category = \'Support\''
       );
 
       for (let index = 0; index < eliteSupport.length; index++) {
@@ -418,7 +418,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeASupport = await mysql(
-        'SELECT id FROM players WHERE series = \'Black Clover\' OR series = \'Solo Leveling\' OR series = \'The God of High School\' OR series = \'The Seven Deadly Sins\' OR series = \'Fire Force\' OR series = \'Yu Yu Hakusho\' OR series = \'TBATE\' OR series = \'Full Metal Alchemist\' OR series = \'Inuyasha\' OR series = \'Sailor Moon\' OR series = \'Rurouni Kenshin\' AND category = \'Support\''
+        'SELECT id FROM players WHERE (series = \'Black Clover\' OR series = \'Solo Leveling\' OR series = \'The God of High School\' OR series = \'The Seven Deadly Sins\' OR series = \'Fire Force\' OR series = \'Yu Yu Hakusho\' OR series = \'TBATE\' OR series = \'Full Metal Alchemist\' OR series = \'Inuyasha\' OR series = \'Sailor Moon\' OR series = \'Rurouni Kenshin\') AND category = \'Support\''
       );
 
       for (let index = 0; index < gradeASupport.length; index++) {
@@ -433,7 +433,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeBSupport = await mysql(
-        'SELECT id FROM players WHERE series = \'Latna Saga: Survival of…\' OR series = \'Soul Eater\' OR series = \'Tensei Slime\' OR series = \'The Great Mage Returns\' OR series = \'Omniscient Reader\' OR series = \'Death Note\' OR series = \'KonoSuba\' OR series = \'Gundam Wing\' OR series = \'Katekyo Hitman Reborn!\' OR series = \'Shield Hero\' OR series = \'Cowboy Bebop\' OR series = \'Trigun\' OR series = \'Magic Emperor\' OR series = \'Martial Arts Reigns\' OR series = \'Versatile Mage\' OR series = \'Unordinary\' OR series = \'Akira\' AND category = \'Support\''
+        'SELECT id FROM players WHERE (series = \'Latna Saga: Survival of…\' OR series = \'Soul Eater\' OR series = \'Tensei Slime\' OR series = \'The Great Mage Returns\' OR series = \'Omniscient Reader\' OR series = \'Death Note\' OR series = \'KonoSuba\' OR series = \'Gundam Wing\' OR series = \'Katekyo Hitman Reborn!\' OR series = \'Shield Hero\' OR series = \'Cowboy Bebop\' OR series = \'Trigun\' OR series = \'Magic Emperor\' OR series = \'Martial Arts Reigns\' OR series = \'Versatile Mage\' OR series = \'Unordinary\' OR series = \'Akira\') AND category = \'Support\''
       );
 
       for (let index = 0; index < gradeBSupport.length; index++) {
@@ -448,7 +448,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeCSupport = await mysql(
-        'SELECT id FROM players WHERE series = \'Blue Exorcist\' OR series = \'Magi\' OR series = \'Digimon\' OR series = \'Boondocks\' OR series = \'Dr. Stone\' OR series = \'Yu-Gi-Oh!\' OR series = \'Paranoia Agent\' OR series = \'No Series\' OR series = \'Berserk\' AND category = \'Support\''
+        'SELECT id FROM players WHERE (series = \'Blue Exorcist\' OR series = \'Magi\' OR series = \'Digimon\' OR series = \'Boondocks\' OR series = \'Dr. Stone\' OR series = \'Yu-Gi-Oh!\' OR series = \'Paranoia Agent\' OR series = \'No Series\' OR series = \'Berserk\') AND category = \'Support\''
       );
 
       for (let index = 0; index < gradeCSupport.length; index++) {
@@ -483,7 +483,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const eliteVillain = await mysql(
-        'SELECT id FROM players WHERE series = \'One Punch Man\' OR series = \'One Piece\' OR series = \'Naruto\' OR series = \'My Hero Academia\' OR series = \'Bleach\' OR series = \'Jujutsu Kaisen\' OR series = \'Attack on Titan\' OR series = \'Fairy Tail\' OR series = \'Demon Slayer\' OR series = \'Hunter x Hunter\' AND category = \'Villain\''
+        'SELECT id FROM players WHERE (series = \'One Punch Man\' OR series = \'One Piece\' OR series = \'Naruto\' OR series = \'My Hero Academia\' OR series = \'Bleach\' OR series = \'Jujutsu Kaisen\' OR series = \'Attack on Titan\' OR series = \'Fairy Tail\' OR series = \'Demon Slayer\' OR series = \'Hunter x Hunter\') AND category = \'Villain\''
       );
 
       for (let index = 0; index < eliteVillain.length; index++) {
@@ -498,7 +498,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeAVillain = await mysql(
-        'SELECT id FROM players WHERE series = \'Black Clover\' OR series = \'Solo Leveling\' OR series = \'The God of High School\' OR series = \'The Seven Deadly Sins\' OR series = \'Fire Force\' OR series = \'Yu Yu Hakusho\' OR series = \'TBATE\' OR series = \'Full Metal Alchemist\' OR series = \'Inuyasha\' OR series = \'Sailor Moon\' OR series = \'Rurouni Kenshin\' AND category = \'Villain\''
+        'SELECT id FROM players WHERE (series = \'Black Clover\' OR series = \'Solo Leveling\' OR series = \'The God of High School\' OR series = \'The Seven Deadly Sins\' OR series = \'Fire Force\' OR series = \'Yu Yu Hakusho\' OR series = \'TBATE\' OR series = \'Full Metal Alchemist\' OR series = \'Inuyasha\' OR series = \'Sailor Moon\' OR series = \'Rurouni Kenshin\') AND category = \'Villain\''
       );
 
       for (let index = 0; index < gradeAVillain.length; index++) {
@@ -513,7 +513,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeBVillain = await mysql(
-        'SELECT id FROM players WHERE series = \'Latna Saga: Survival of…\' OR series = \'Soul Eater\' OR series = \'Tensei Slime\' OR series = \'The Great Mage Returns\' OR series = \'Omniscient Reader\' OR series = \'Death Note\' OR series = \'KonoSuba\' OR series = \'Gundam Wing\' OR series = \'Katekyo Hitman Reborn!\' OR series = \'Shield Hero\' OR series = \'Cowboy Bebop\' OR series = \'Trigun\' OR series = \'Magic Emperor\' OR series = \'Martial Arts Reigns\' OR series = \'Versatile Mage\' OR series = \'Unordinary\' OR series = \'Akira\' AND category = \'Villain\''
+        'SELECT id FROM players WHERE (series = \'Latna Saga: Survival of…\' OR series = \'Soul Eater\' OR series = \'Tensei Slime\' OR series = \'The Great Mage Returns\' OR series = \'Omniscient Reader\' OR series = \'Death Note\' OR series = \'KonoSuba\' OR series = \'Gundam Wing\' OR series = \'Katekyo Hitman Reborn!\' OR series = \'Shield Hero\' OR series = \'Cowboy Bebop\' OR series = \'Trigun\' OR series = \'Magic Emperor\' OR series = \'Martial Arts Reigns\' OR series = \'Versatile Mage\' OR series = \'Unordinary\' OR series = \'Akira\') AND category = \'Villain\''
       );
 
       for (let index = 0; index < gradeBVillain.length; index++) {
@@ -528,7 +528,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeCVillain = await mysql(
-        'SELECT id FROM players WHERE series = \'Blue Exorcist\' OR series = \'Magi\' OR series = \'Digimon\' OR series = \'Boondocks\' OR series = \'Dr. Stone\' OR series = \'Yu-Gi-Oh!\' OR series = \'Paranoia Agent\' OR series = \'No Series\' OR series = \'Berserk\' AND category = \'Villain\''
+        'SELECT id FROM players WHERE (series = \'Blue Exorcist\' OR series = \'Magi\' OR series = \'Digimon\' OR series = \'Boondocks\' OR series = \'Dr. Stone\' OR series = \'Yu-Gi-Oh!\' OR series = \'Paranoia Agent\' OR series = \'No Series\' OR series = \'Berserk\') AND category = \'Villain\''
       );
 
       for (let index = 0; index < gradeCVillain.length; index++) {
@@ -563,7 +563,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const eliteBattlefield = await mysql(
-        'SELECT id FROM players WHERE series = \'One Punch Man\' OR series = \'One Piece\' OR series = \'Naruto\' OR series = \'My Hero Academia\' OR series = \'Bleach\' OR series = \'Jujutsu Kaisen\' OR series = \'Attack on Titan\' OR series = \'Fairy Tail\' OR series = \'Demon Slayer\' OR series = \'Hunter x Hunter\' AND category = \'Battlefield\''
+        'SELECT id FROM players WHERE (series = \'One Punch Man\' OR series = \'One Piece\' OR series = \'Naruto\' OR series = \'My Hero Academia\' OR series = \'Bleach\' OR series = \'Jujutsu Kaisen\' OR series = \'Attack on Titan\' OR series = \'Fairy Tail\' OR series = \'Demon Slayer\' OR series = \'Hunter x Hunter\') AND category = \'Battlefield\''
       );
 
       for (let index = 0; index < eliteBattlefield.length; index++) {
@@ -578,7 +578,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeABattlefield = await mysql(
-        'SELECT id FROM players WHERE series = \'Black Clover\' OR series = \'Solo Leveling\' OR series = \'The God of High School\' OR series = \'The Seven Deadly Sins\' OR series = \'Fire Force\' OR series = \'Yu Yu Hakusho\' OR series = \'TBATE\' OR series = \'Full Metal Alchemist\' OR series = \'Inuyasha\' OR series = \'Sailor Moon\' OR series = \'Rurouni Kenshin\' AND category = \'Battlefield\''
+        'SELECT id FROM players WHERE (series = \'Black Clover\' OR series = \'Solo Leveling\' OR series = \'The God of High School\' OR series = \'The Seven Deadly Sins\' OR series = \'Fire Force\' OR series = \'Yu Yu Hakusho\' OR series = \'TBATE\' OR series = \'Full Metal Alchemist\' OR series = \'Inuyasha\' OR series = \'Sailor Moon\' OR series = \'Rurouni Kenshin\') AND category = \'Battlefield\''
       );
 
       for (let index = 0; index < gradeABattlefield.length; index++) {
@@ -593,7 +593,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeBBattlefield = await mysql(
-        'SELECT id FROM players WHERE series = \'Latna Saga: Survival of…\' OR series = \'Soul Eater\' OR series = \'Tensei Slime\' OR series = \'The Great Mage Returns\' OR series = \'Omniscient Reader\' OR series = \'Death Note\' OR series = \'KonoSuba\' OR series = \'Gundam Wing\' OR series = \'Katekyo Hitman Reborn!\' OR series = \'Shield Hero\' OR series = \'Cowboy Bebop\' OR series = \'Trigun\' OR series = \'Magic Emperor\' OR series = \'Martial Arts Reigns\' OR series = \'Versatile Mage\' OR series = \'Unordinary\' OR series = \'Akira\' AND category = \'Battlefield\''
+        'SELECT id FROM players WHERE (series = \'Latna Saga: Survival of…\' OR series = \'Soul Eater\' OR series = \'Tensei Slime\' OR series = \'The Great Mage Returns\' OR series = \'Omniscient Reader\' OR series = \'Death Note\' OR series = \'KonoSuba\' OR series = \'Gundam Wing\' OR series = \'Katekyo Hitman Reborn!\' OR series = \'Shield Hero\' OR series = \'Cowboy Bebop\' OR series = \'Trigun\' OR series = \'Magic Emperor\' OR series = \'Martial Arts Reigns\' OR series = \'Versatile Mage\' OR series = \'Unordinary\' OR series = \'Akira\') AND category = \'Battlefield\''
       );
 
       for (let index = 0; index < gradeBBattlefield.length; index++) {
@@ -608,7 +608,7 @@ module.exports.playerFormula = async (req, res) => {
       }
 
       const gradeCBattlefield = await mysql(
-        'SELECT id FROM players WHERE series = \'Blue Exorcist\' OR series = \'Magi\' OR series = \'Digimon\' OR series = \'Boondocks\' OR series = \'Dr. Stone\' OR series = \'Yu-Gi-Oh!\' OR series = \'Paranoia Agent\' OR series = \'No Series\' OR series = \'Berserk\' AND category = \'Battlefield\''
+        'SELECT id FROM players WHERE (series = \'Blue Exorcist\' OR series = \'Magi\' OR series = \'Digimon\' OR series = \'Boondocks\' OR series = \'Dr. Stone\' OR series = \'Yu-Gi-Oh!\' OR series = \'Paranoia Agent\' OR series = \'No Series\' OR series = \'Berserk\') AND category = \'Battlefield\''
       );
 
       for (let index = 0; index < gradeCBattlefield.length; index++) {
