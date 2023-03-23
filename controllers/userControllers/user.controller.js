@@ -227,6 +227,8 @@ module.exports.playerFormula = async (req, res) => {
         'SELECT id FROM players WHERE series = \'DBZ\' AND category = \'Captain\''
       );
 
+      goatCaptain.push({ id: 3 });
+
       for (let index = 0; index < goatCaptain.length; index++) {
         const { id } = goatCaptain[index];
 
@@ -245,12 +247,14 @@ module.exports.playerFormula = async (req, res) => {
       for (let index = 0; index < eliteCaptain.length; index++) {
         const { id } = eliteCaptain[index];
 
-        await mysql(
-          `UPDATE players AS p1 INNER JOIN( SELECT fire, water, wind, earth, arcane, electric, celestrial, darkness, ice, no_affinity FROM players WHERE id = ? ) AS p2 SET p1.power_level = (${elite} + ${captain} + IF(p2.fire > 0, 100, 0) + IF(p2.water > 0, 100, 0) + IF(p2.wind > 0, 100, 0) + IF(p2.earth > 0, 100, 0) + IF(p2.arcane > 0, 100, 0) + IF(p2.electric > 0, 100, 0) + IF(p2.celestrial > 0, 100, 0) + IF(p2.darkness > 0, 100, 0) + IF(p2.ice > 0, 100, 0) + IF(p2.no_affinity > 0, 100, 0)), p1.cost = (${
-            elite / 2
-          } + ${captain / 2}) WHERE p1.id = ?`,
-          [id, id]
-        );
+        if (id !== 3) {
+          await mysql(
+            `UPDATE players AS p1 INNER JOIN( SELECT fire, water, wind, earth, arcane, electric, celestrial, darkness, ice, no_affinity FROM players WHERE id = ? ) AS p2 SET p1.power_level = (${elite} + ${captain} + IF(p2.fire > 0, 100, 0) + IF(p2.water > 0, 100, 0) + IF(p2.wind > 0, 100, 0) + IF(p2.earth > 0, 100, 0) + IF(p2.arcane > 0, 100, 0) + IF(p2.electric > 0, 100, 0) + IF(p2.celestrial > 0, 100, 0) + IF(p2.darkness > 0, 100, 0) + IF(p2.ice > 0, 100, 0) + IF(p2.no_affinity > 0, 100, 0)), p1.cost = (${
+              elite / 2
+            } + ${captain / 2}) WHERE p1.id = ?`,
+            [id, id]
+          );
+        }
       }
 
       const gradeACaptain = await mysql(
