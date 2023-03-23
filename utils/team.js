@@ -89,7 +89,7 @@ module.exports.getUserPoints = async (characterIds) => {
     let totalPoints = 0;
     const defaultPoints = 9000;
     players.forEach((item) => {
-      totalPoints += item.power_level;
+      totalPoints += item.cost;
     });
 
     return defaultPoints - totalPoints;
