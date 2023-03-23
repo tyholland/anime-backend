@@ -5,6 +5,7 @@ const {
   logoutUser,
   checkUserExists,
   adminDashboard,
+  playerFormula,
 } = require('./../../controllers/userControllers/user.controller');
 const { authenticateToken } = require('../../utils');
 const { cacheOneDay } = require('../../utils/cache');
@@ -22,4 +23,5 @@ module.exports = (app) => {
     authenticateToken,
     adminDashboard
   );
+  app.get('/admin/player/formula/:update', playerFormula);
 };
