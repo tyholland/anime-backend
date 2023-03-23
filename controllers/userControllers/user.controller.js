@@ -689,7 +689,7 @@ module.exports.playerFormula = async (req, res) => {
           no_affinity,
         } = players[index];
 
-        const numAffinities =
+        let numAffinities =
           (fire > 0 ? 10 : 0) +
           (water > 0 ? 10 : 0) +
           (wind > 0 ? 10 : 0) +
@@ -700,6 +700,8 @@ module.exports.playerFormula = async (req, res) => {
           (darkness > 0 ? 10 : 0) +
           (ice > 0 ? 10 : 0) +
           (no_affinity > 0 ? 10 : 0);
+
+        numAffinities = numAffinities > 10 ? numAffinities : 0;
 
         await mysql(
           `UPDATE players SET fire = IF(${fire} > 0, (250 + ${numAffinities}), 0), water = IF(${water} > 0, (300 + ${numAffinities}), 0), wind = IF(${wind} > 0, (250 + ${numAffinities}), 0), earth = IF(${earth} > 0, (300 + ${numAffinities}), 0), arcane = IF(${arcane} > 0, (200 + ${numAffinities}), 0), electric = IF(${electric} > 0, (250 + ${numAffinities}), 0), celestrial = IF(${celestrial} > 0, (300 + ${numAffinities}), 0), darkness = IF(${darkness} > 0, (250 + ${numAffinities}), 0), ice = IF(${ice} > 0, (300 + ${numAffinities}), 0), no_affinity = IF(${no_affinity} > 0, (350 + ${numAffinities}), 0) WHERE id = ?`,
