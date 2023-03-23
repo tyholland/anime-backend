@@ -660,6 +660,48 @@ module.exports.playerFormula = async (req, res) => {
       );
     }
 
+    /******************************
+     * Update Boosts and Damages
+     * ***************************/
+    if (update === 'support') {
+      const players = await mysql(
+        'SELECT id, fire, water, wind, earth, arcane, electric, celestrial, darkness, ice, no_affinity FROM players WHERE category = \'Support\' OR category = \'Villain\' OR category = \'Battlefield\''
+      );
+
+      for (let index = 0; index < players.length; index++) {
+        const {
+          id,
+          fire,
+          water,
+          wind,
+          earth,
+          arcane,
+          electric,
+          celestrial,
+          darkness,
+          ice,
+          no_affinity,
+        } = players[index];
+
+        const numAffinities =
+          (fire > 0 ? 10 : 0) +
+          (water > 0 ? 10 : 0) +
+          (wind > 0 ? 10 : 0) +
+          (earth > 0 ? 10 : 0) +
+          (arcane > 0 ? 10 : 0) +
+          (electric > 0 ? 10 : 0) +
+          (celestrial > 0 ? 10 : 0) +
+          (darkness > 0 ? 10 : 0) +
+          (ice > 0 ? 10 : 0) +
+          (no_affinity > 0 ? 10 : 0);
+
+        await mysql(
+          `UPDATE players SET fire = IF(${fire} > 0, (250 + ${numAffinities}), 0), water = IF(${water} > 0, (300 + ${numAffinities}), 0), wind = IF(${wind} > 0, (250 + ${numAffinities}), 0), earth = IF(${earth} > 0, (300 + ${numAffinities}), 0), arcane = IF(${arcane} > 0, (200 + ${numAffinities}), 0), electric = IF(${electric} > 0, (250 + ${numAffinities}), 0), celestrial = IF(${celestrial} > 0, (300 + ${numAffinities}), 0), darkness = IF(${darkness} > 0, (250 + ${numAffinities}), 0), ice = IF(${ice} > 0, (300 + ${numAffinities}), 0), no_affinity = IF(${no_affinity} > 0, (350 + ${numAffinities}), 0) WHERE id = ?`,
+          [id]
+        );
+      }
+    }
+
     return res.status(200).json({ success: true });
   } catch (error) {
     console.log(error);
