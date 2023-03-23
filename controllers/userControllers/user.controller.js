@@ -669,7 +669,7 @@ module.exports.playerFormula = async (req, res) => {
     /******************************
      * Update Boosts and Damages
      * ***************************/
-    if (update === 'support') {
+    if (update === 'boost') {
       const players = await mysql(
         'SELECT id, fire, water, wind, earth, arcane, electric, celestrial, darkness, ice, no_affinity FROM players WHERE category = \'Support\' OR category = \'Villain\' OR category = \'Battlefield\''
       );
