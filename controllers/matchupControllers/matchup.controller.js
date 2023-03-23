@@ -203,8 +203,8 @@ module.exports.getAllMatchupVotes = async (req, res) => {
 
       votes = voteIds.length
         ? await mysql(
-          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE NOT v.id IN (?) AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
-          [voteIds, 0]
+          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE NOT v.id IN (?) AND v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+          [voteIds, 1, 0]
         )
         : await mysql(
           'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
