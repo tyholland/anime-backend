@@ -176,7 +176,35 @@ module.exports.getMatchupVotes = async (req, res) => {
       });
     }
 
-    return res.status(200).json(votes[0]);
+    const allVotes = [];
+
+    for (let index = 0; index < votes.length; index++) {
+      const { matchup_id } = votes[index];
+
+      const matchup = await mysql(
+        'SELECT team_a, team_b FROM matchup WHERE id = ?',
+        [matchup_id]
+      );
+
+      const teamA = await mysql(
+        'SELECT lm.team_name FROM league_members lm, team t WHERE t.id = ? AND t.league_member_id = lm.id',
+        [matchup[0].team_a]
+      );
+
+      const teamB = await mysql(
+        'SELECT lm.team_name FROM league_members lm, team t WHERE t.id = ? AND t.league_member_id = lm.id',
+        [matchup[0].team_b]
+      );
+
+      const currentVote = votes[index];
+      allVotes.push({
+        ...currentVote,
+        teamA: teamA[0].team_name,
+        teamB: teamB[0].team_name,
+      });
+    }
+
+    return res.status(200).json(allVotes[0]);
   } catch (error) {
     console.log(error);
     return res.status(500).json({
