@@ -203,18 +203,18 @@ module.exports.getAllMatchupVotes = async (req, res) => {
 
       votes = voteIds.length
         ? await mysql(
-          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE NOT v.id IN (?) AND v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName, m.id as matchupId FROM votes v, matchup m, league l WHERE NOT v.id IN (?) AND v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
           [voteIds, 1, 0]
         )
         : await mysql(
-          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName, m.id as matchupId FROM votes v, matchup m, league l WHERE v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
           [1, 0]
         );
     }
 
     if (!currentUser) {
       votes = await mysql(
-        'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName FROM votes v, matchup m, league l WHERE v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
+        'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName, m.id as matchupId FROM votes v, matchup m, league l WHERE v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
         [1, 0]
       );
     }
@@ -225,7 +225,35 @@ module.exports.getAllMatchupVotes = async (req, res) => {
       });
     }
 
-    return res.status(200).json(votes);
+    const allVotes = [];
+
+    for (let index = 0; index < votes.length; index++) {
+      const { matchupId } = votes[index];
+
+      const matchup = await mysql(
+        'SELECT team_a, team_b FROM matchup WHERE id = ?',
+        [matchupId]
+      );
+
+      const teamA = await mysql(
+        'SELECT lm.team_name FROM league_members lm, team t WHERE t.id = ? AND t.league_member_id = lm.id',
+        [matchup[0].team_a]
+      );
+
+      const teamB = await mysql(
+        'SELECT lm.team_name FROM league_members lm, team t WHERE t.id = ? AND t.league_member_id = lm.id',
+        [matchup[0].team_b]
+      );
+
+      const currentVote = votes[index];
+      allVotes.push({
+        ...currentVote,
+        teamA: teamA[0].team_name,
+        teamB: teamB[0].team_name,
+      });
+    }
+
+    return res.status(200).json(allVotes);
   } catch (error) {
     console.log(error);
     return res.status(500).json({
