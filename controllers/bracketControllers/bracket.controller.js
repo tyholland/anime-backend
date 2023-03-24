@@ -76,19 +76,19 @@ module.exports.createBracket = async (req, res) => {
 
 module.exports.addVotes = async (req, res) => {
   // const { userId } = req.user;
-  const { voteId, votedFor, playerCount } = req.body;
+  const { voteId, votedFor, playerCount, userId } = req.body;
 
   try {
-    // const isExistingVoter = await mysql(
-    //   "SELECT * FROM votes_user WHERE user_id = ? AND votes_id = ?",
-    //   [userId, voteId]
-    // );
+    const isExistingVoter = await mysql(
+      'SELECT * FROM votes_user WHERE user_id = ? AND votes_id = ?',
+      [userId, voteId]
+    );
 
-    // if (isExistingVoter.length) {
-    //   return res.status(400).json({
-    //     message: "You already voted on this matchup",
-    //   });
-    // }
+    if (isExistingVoter.length) {
+      return res.status(400).json({
+        message: 'You already voted on this matchup',
+      });
+    }
 
     const isVoteActive = await mysql(
       'SELECT * FROM bracket b, votes v WHERE v.id = ? AND v.matchup_id = b.id AND b.active = ?',
@@ -101,11 +101,9 @@ module.exports.addVotes = async (req, res) => {
       });
     }
 
-    // Replace `userId` with 9999999, which means unknown user.
-    // We want to allow anyone to vote regardless if they are logged in or not
     await mysql(
       'INSERT INTO `votes_user` (`votes_id`, `user_id`, `vote_for_id`) VALUES (?, ?, ?)',
-      [voteId, 9999999, votedFor]
+      [voteId, userId, votedFor]
     );
 
     const voteTotal = await mysql(
