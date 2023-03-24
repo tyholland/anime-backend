@@ -277,13 +277,15 @@ const filterPlayer = (arr, target) => {
     };
   }
 
-  const playerName = arr.filter((item) => item.id === target)[0].name;
+  const player = arr.filter((item) => item.id === target)[0];
+  const playerName = player.name;
   const shortenName = playerName.match(/.{1,6}/g);
 
   return {
     shortenName: `${shortenName[0]}...`,
     playerName,
     showShort: playerName.length > 9,
+    player,
   };
 };
 
@@ -306,6 +308,8 @@ module.exports.bracketMatchup = (allPlayers, data, match) => {
     homeTeamFullName: name1.playerName,
     awayTeamFullName: name2.playerName,
     voteId,
+    homeTeamPlayer: name1.player,
+    awayTeamPlayer: name2.player,
   };
 };
 
