@@ -26,6 +26,7 @@ module.exports.middleware = () => {
       '/player',
       '/player/anime/news',
       '/bracket/add',
+      '/matchup/add',
       '/cron/affinity',
       '/cron/start',
       '/cron/vote',

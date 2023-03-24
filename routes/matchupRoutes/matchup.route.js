@@ -26,5 +26,5 @@ module.exports = (app) => {
   app.post('/matchup/vote/:matchup_id', authenticateToken, createMatchupVotes);
   app.get('/matchup/votes/:vote_id', getMatchupVotes);
   app.put('/matchup/all/votes', getAllMatchupVotes);
-  app.put('/matchup/add', authenticateToken, addVotes);
+  app.put('/matchup/add', addVotes);
 };

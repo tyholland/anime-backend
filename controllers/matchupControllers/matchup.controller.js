@@ -292,8 +292,8 @@ module.exports.getAllMatchupVotes = async (req, res) => {
 };
 
 module.exports.addVotes = async (req, res) => {
-  const { userId } = req.user;
-  const { voteId, votedFor, playerCount } = req.body;
+  // const { userId } = req.user;
+  const { voteId, votedFor, playerCount, userId } = req.body;
 
   try {
     const isExistingVoter = await mysql(
