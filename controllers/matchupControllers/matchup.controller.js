@@ -42,6 +42,11 @@ module.exports.getMatchup = async (req, res) => {
       matchup_id,
     ]);
 
+    const league = await mysql(
+      'SELECT is_voting_active FROM league WHERE id = ?',
+      [newMatchupData[0].league_id]
+    );
+
     const votes = await mysql(
       'SELECT * FROM votes WHERE matchup_id = ? AND active = ? AND is_bracket = ?',
       [matchup_id, 1, 0]
@@ -50,6 +55,7 @@ module.exports.getMatchup = async (req, res) => {
     return res.status(200).json({
       matchup: newMatchupData[0],
       votes,
+      isVotingActive: league[0].is_voting_active,
     });
   } catch (error) {
     console.log(error);
