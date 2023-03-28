@@ -5,6 +5,7 @@ const playerRoutes = require('./playerRoutes/player.route');
 const matchupRoutes = require('./matchupRoutes/matchup.route');
 const bracketRoutes = require('./bracketRoutes/bracket.route');
 const cronJobRoutes = require('./cronJobRoutes/cronJob.route');
+const draftRoutes = require('./draftRoutes/draft.route');
 
 module.exports = (app) => {
   userRoutes(app);
@@ -14,4 +15,5 @@ module.exports = (app) => {
   matchupRoutes(app);
   bracketRoutes(app);
   cronJobRoutes(app);
+  draftRoutes(app);
 };
