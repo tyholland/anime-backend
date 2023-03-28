@@ -5,11 +5,12 @@ module.exports.getDraft = async (req, res) => {
   const { userId } = req.user;
 
   try {
-    const teams = await mysql(
-      'SELECT * FROM league_members WHERE league_id = ?',
-      [league_id]
+    const draft = await mysql(
+      'SELECT * FROM draft WHERE league_id = ? AND active = ?',
+      [league_id, 1]
     );
 
+    const teams = JSON.parse(draft[0].teams);
     const currentTeam = teams.filter((item) => {
       return item.user_id === userId;
     })[0];
@@ -19,7 +20,9 @@ module.exports.getDraft = async (req, res) => {
       [currentTeam.id, -1]
     );
 
-    return res.status(200).json({ teams, userTeamId: specificTeam[0].id });
+    return res
+      .status(200)
+      .json({ draft: draft[0], userTeamId: specificTeam[0].id });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
