@@ -585,3 +585,18 @@ module.exports.sortRankings = (arr) => {
     return a.win > b.win ? -1 : a.win < b.win ? 1 : 0;
   });
 };
+
+module.exports.shuffleArray = (array) => {
+  let curId = array.length;
+
+  while (0 !== curId) {
+    let randId = Math.floor(Math.random() * curId);
+    curId -= 1;
+
+    let tmp = array[curId];
+    array[curId] = array[randId];
+    array[randId] = tmp;
+  }
+
+  return array;
+};
