@@ -27,7 +27,22 @@ module.exports.getDraft = async (req, res) => {
     console.log(error);
     return res.status(500).json({
       error,
-      action: 'Bracket - get the champ',
+      action: 'Get Draft',
+    });
+  }
+};
+
+module.exports.updateDraftTeams = async (req, res) => {
+  const { teams } = req.body;
+  const { draft_id } = req.params;
+
+  try {
+    await mysql('UPDATE draft SET teams = ? WHERE id = ?', [teams, draft_id]);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Update Draft Teams',
     });
   }
 };
