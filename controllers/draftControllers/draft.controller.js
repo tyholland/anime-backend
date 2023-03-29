@@ -7,10 +7,27 @@ module.exports.getDraft = async (req, res) => {
   const { userId } = req.user;
 
   try {
+    const league = await mysql(
+      'SELECT * FROM league WHERE id = ? AND draft_active = ? AND draft_complete = ?',
+      [league_id, 1, 0]
+    );
+
+    if (!league.length) {
+      return res.status(400).json({
+        message: 'This draft is not active at the moment',
+      });
+    }
+
     const draft = await mysql(
       'SELECT * FROM draft WHERE league_id = ? AND active = ?',
       [league_id, 1]
     );
+
+    if (!draft.length) {
+      return res.status(400).json({
+        message: 'There are no active rounds in this draft',
+      });
+    }
 
     const teams = JSON.parse(draft[0].teams);
     const currentTeam = teams.filter((item) => {
@@ -47,6 +64,26 @@ module.exports.updateDraftTeams = async (req, res) => {
     return res.status(500).json({
       error,
       action: 'Update Draft Teams',
+    });
+  }
+};
+
+module.exports.updateDraftRecentPick = async (req, res) => {
+  const { pick } = req.body;
+  const { draft_id } = req.params;
+
+  try {
+    await mysql('UPDATE draft SET recent_pick = ? WHERE id = ?', [
+      pick,
+      draft_id,
+    ]);
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Update Draft Recent Pick',
     });
   }
 };
@@ -119,6 +156,71 @@ module.exports.createDraft = async (req, res) => {
     return res.status(500).json({
       error,
       action: 'Create Draft',
+    });
+  }
+};
+
+module.exports.startDraft = async (req, res) => {
+  const { league_id } = req.params;
+
+  try {
+    await mysql('UPDATE league SET draft_active = ? WHERE id = ?', [
+      1,
+      league_id,
+    ]);
+    await mysql(
+      'UPDATE draft SET active = ? WHERE league_id = ? AND round = ?',
+      [1, league_id, 1]
+    );
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Start Draft',
+    });
+  }
+};
+
+module.exports.draftNextRound = async (req, res) => {
+  const { league_id } = req.params;
+
+  try {
+    const draft = await mysql(
+      'SELECT * FROM draft WHERE league_id = ? AND active = ?',
+      [league_id, 1]
+    );
+
+    if (!draft.length) {
+      return res.status(400).json({
+        message: 'There are no active rounds in this draft',
+      });
+    }
+
+    const round = draft[0].round;
+    const nextRound = round + 1;
+
+    await mysql(
+      'UPDATE draft SET active = ? WHERE league_id = ? AND round = ?',
+      [0, league_id, round]
+    );
+
+    if (nextRound < 9) {
+      await mysql(
+        'UPDATE draft SET active = ? WHERE league_id = ? AND round = ?',
+        [1, league_id, nextRound]
+      );
+    }
+
+    return res
+      .status(200)
+      .json({ newRound: nextRound, draftComplete: nextRound === 9 });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Start Draft',
     });
   }
 };
