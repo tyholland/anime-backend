@@ -1,5 +1,9 @@
-const { shuffleArray } = require('../../utils');
-
+const {
+  shuffleArray,
+  getAffinitiesTypes,
+  getBoostPoints,
+} = require('../../utils');
+const { getUserPoints } = require('../../utils/team');
 const mysql = require('../../utils/mysql').instance();
 
 module.exports.getDraft = async (req, res) => {
@@ -228,6 +232,118 @@ module.exports.draftNextRound = async (req, res) => {
     return res.status(500).json({
       error,
       action: 'Start Draft',
+    });
+  }
+};
+
+module.exports.addDraftPlayers = async (req, res) => {
+  const { team_id } = req.params;
+  const {
+    captain,
+    brawlerA,
+    brawlerB,
+    bsBrawler,
+    bsSupport,
+    support,
+    villain,
+    battlefield,
+  } = req.body;
+
+  try {
+    const team = await mysql(
+      'SELECT t.league_member_id, t.affinity, t.activeAffinity, l.week FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id AND t.week = l.week',
+      [team_id]
+    );
+
+    if (!team.length) {
+      return res.status(400).json({
+        message: 'Editing is disabled for your team.',
+      });
+    }
+
+    const characterArr = [
+      captain.id,
+      brawlerA.id,
+      brawlerB.id,
+      bsBrawler.id,
+      bsSupport.id,
+      support.id,
+      villain.id,
+      battlefield.id,
+    ];
+    const characterIds = characterArr.filter((item) => !!item);
+
+    const userPoints = await getUserPoints(characterIds);
+
+    if (userPoints < 0) {
+      return res.status(400).json({
+        message:
+          'The Scouter says your power level is OVER 9000! Please readjust your roster',
+      });
+    }
+
+    let teamPoints = 0;
+
+    const players = characterIds.length
+      ? await mysql('SELECT * FROM players WHERE id in (?)', [characterIds])
+      : [];
+
+    players.forEach((item) => {
+      const affinities = getAffinitiesTypes(item);
+      const isBattlefield = item.id === battlefield.id;
+      const isBsSupport = item.id === bsSupport.id;
+      const isSupport = item.id === support.id;
+      const specificSupport =
+        item.id === bsBrawler.id ? bsSupport.id : support.id;
+      const isSupportInvalid = isSupport || isBsSupport || isBattlefield;
+      const votes = [];
+
+      const boost = getBoostPoints(
+        isBattlefield,
+        isSupportInvalid,
+        specificSupport,
+        battlefield.id,
+        affinities,
+        players,
+        votes,
+        item,
+        team[0].affinity,
+        team[0].activeAffinity,
+        team[0].week
+      );
+
+      teamPoints += item.power_level + boost.total;
+    });
+
+    await mysql(
+      'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, points = ? WHERE id = ?',
+      [
+        captain.id,
+        brawlerA.id,
+        brawlerB.id,
+        bsBrawler.id,
+        bsSupport.id,
+        support.id,
+        villain.id,
+        battlefield.id,
+        teamPoints,
+        team_id,
+      ]
+    );
+
+    await mysql('UPDATE league_members SET points = ? WHERE id = ?', [
+      userPoints,
+      team[0].league_member_id,
+    ]);
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Update team',
     });
   }
 };
