@@ -213,6 +213,13 @@ module.exports.draftNextRound = async (req, res) => {
       );
     }
 
+    if (nextRound === 9) {
+      await mysql(
+        'UPDATE league SET draft_active = ?, draft_complete = ? WHERE id = ?',
+        [0, 1, league_id]
+      );
+    }
+
     return res
       .status(200)
       .json({ newRound: nextRound, draftComplete: nextRound === 9 });
