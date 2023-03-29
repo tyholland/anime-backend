@@ -61,7 +61,7 @@ module.exports.createDraft = async (req, res) => {
       [league_id]
     );
     const shuffledTeams = shuffleArray(teams);
-    const destructiveArr = shuffledTeams;
+    const destructiveArr = [...shuffledTeams];
     const reverseShuffle = destructiveArr.reverse();
     const time = teams.length * 60;
 
