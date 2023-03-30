@@ -383,9 +383,14 @@ module.exports.getLeagueAdminData = async (req, res) => {
       [league_id]
     );
 
+    const draftRounds = await mysql('SELECT * FROM draft WHERE league_id = ?', [
+      league_id,
+    ]);
+
     return res.status(200).json({
       league: leagueData[0],
       teams,
+      hasDraft: leagueData[0].draft_complete === 0 && draftRounds.length > 0,
     });
   } catch (error) {
     console.log(error);
