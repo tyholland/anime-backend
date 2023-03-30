@@ -261,8 +261,8 @@ module.exports.getSchedule = async (req, res) => {
       mainSchedule.push({
         teamA: scheduleA[index].team_name,
         teamB: scheduleB[index].team_name,
-        scoreA: games[index].score_a,
-        scoreB: games[index].score_b,
+        scoreA: games[index].score_a < 0 ? 0 : games[index].score_a,
+        scoreB: games[index].score_b < 0 ? 0 : games[index].score_b,
         week: index + 1,
         match: games[index].id,
       });

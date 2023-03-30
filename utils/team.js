@@ -357,8 +357,8 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
     ]);
 
     const votes = await mysql(
-      'SELECT * FROM votes WHERE matchup_id = ? AND is_bracket = ?',
-      [matchupId, 0]
+      'SELECT * FROM votes WHERE matchup_id = ? AND active = ? AND is_bracket = ?',
+      [matchupId, 0, 0]
     );
 
     const details = {
@@ -407,15 +407,32 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       details
     );
 
+    const captainTotal =
+      captainData.matchPoints < 0 ? 0 : captainData.matchPoints;
+    const brawlerATotal =
+      brawlerAData.matchPoints < 0 ? 0 : brawlerAData.matchPoints;
+    const brawlerBTotal =
+      brawlerBData.matchPoints < 0 ? 0 : brawlerBData.matchPoints;
+    const bsBrawlerTotal =
+      bsBrawlerData.matchPoints < 0 ? 0 : bsBrawlerData.matchPoints;
+    const bsSupportTotal =
+      bsSupportData.matchPoints < 0 ? 0 : bsSupportData.matchPoints;
+    const supportTotal =
+      supportData.matchPoints < 0 ? 0 : supportData.matchPoints;
+    const villainTotal =
+      villainData.matchPoints < 0 ? 0 : villainData.matchPoints;
+    const battlefieldTotal =
+      battlefieldData.matchPoints < 0 ? 0 : battlefieldData.matchPoints;
+
     const totalTeamPoints =
-      captainData.matchPoints +
-      brawlerAData.matchPoints +
-      brawlerBData.matchPoints +
-      bsBrawlerData.matchPoints +
-      bsSupportData.matchPoints +
-      supportData.matchPoints +
-      villainData.matchPoints +
-      battlefieldData.matchPoints;
+      captainTotal +
+      brawlerATotal +
+      brawlerBTotal +
+      bsBrawlerTotal +
+      bsSupportTotal +
+      supportTotal +
+      villainTotal +
+      battlefieldTotal;
 
     return totalTeamPoints;
   } catch (err) {

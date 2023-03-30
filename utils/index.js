@@ -476,7 +476,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
       id: null,
       name: null,
       teamPoints: null,
-      matchPoints: null,
+      matchPoints: 0,
       affinity: null,
       originalPower: null,
       boost: {
