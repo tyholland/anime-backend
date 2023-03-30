@@ -124,7 +124,7 @@ module.exports.updatePlayer = async (req, res) => {
     earth,
     arcane,
     electric,
-    celestrial,
+    celestial,
     darkness,
     ice,
     no_affinity,
@@ -136,7 +136,7 @@ module.exports.updatePlayer = async (req, res) => {
 
   try {
     await mysql(
-      'UPDATE players SET full_name = ?, name = ?, series = ?, power_level = ?, category = ?, fire = ?, water = ?, wind = ?, earth = ?, arcane = ?, electric = ?, celestrial = ?, darkness = ?, ice = ?, no_affinity = ?, weakness = ?, image_url = ?, active = ? WHERE id = ?',
+      'UPDATE players SET full_name = ?, name = ?, series = ?, power_level = ?, category = ?, fire = ?, water = ?, wind = ?, earth = ?, arcane = ?, electric = ?, celestial = ?, darkness = ?, ice = ?, no_affinity = ?, weakness = ?, image_url = ?, active = ? WHERE id = ?',
       [
         full_name,
         name,
@@ -149,7 +149,7 @@ module.exports.updatePlayer = async (req, res) => {
         parseInt(earth),
         parseInt(arcane),
         parseInt(electric),
-        parseInt(celestrial),
+        parseInt(celestial),
         parseInt(darkness),
         parseInt(ice),
         parseInt(no_affinity),

@@ -54,7 +54,7 @@ module.exports.getAffinitiesTypes = (character) => {
     earth,
     arcane,
     electric,
-    celestrial,
+    celestial,
     darkness,
     ice,
     no_affinity,
@@ -86,8 +86,8 @@ module.exports.getAffinitiesTypes = (character) => {
       value: electric,
     },
     {
-      type: 'celestrial',
-      value: celestrial,
+      type: 'celestial',
+      value: celestial,
     },
     {
       type: 'darkness',
