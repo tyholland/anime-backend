@@ -407,15 +407,32 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
       details
     );
 
+    const captainTotal =
+      !!captainData.matchPoints < 0 ? 0 : captainData.matchPoints;
+    const brawlerATotal =
+      !!brawlerAData.matchPoints < 0 ? 0 : brawlerAData.matchPoints;
+    const brawlerBTotal =
+      !!brawlerBData.matchPoints < 0 ? 0 : brawlerBData.matchPoints;
+    const bsBrawlerTotal =
+      !!bsBrawlerData.matchPoints < 0 ? 0 : bsBrawlerData.matchPoints;
+    const bsSupportTotal =
+      !!bsSupportData.matchPoints < 0 ? 0 : bsSupportData.matchPoints;
+    const supportTotal =
+      !!supportData.matchPoints < 0 ? 0 : supportData.matchPoints;
+    const villainTotal =
+      !!villainData.matchPoints < 0 ? 0 : villainData.matchPoints;
+    const battlefieldTotal =
+      !!battlefieldData.matchPoints < 0 ? 0 : battlefieldData.matchPoints;
+
     const totalTeamPoints =
-      (captainData.matchPoints < 0 ? 0 : captainData.matchPoints) +
-      (brawlerAData.matchPoints < 0 ? 0 : brawlerAData.matchPoints) +
-      (brawlerBData.matchPoints < 0 ? 0 : brawlerBData.matchPoints) +
-      (bsBrawlerData.matchPoints < 0 ? 0 : bsBrawlerData.matchPoints) +
-      (bsSupportData.matchPoints < 0 ? 0 : bsSupportData.matchPoints) +
-      (supportData.matchPoints < 0 ? 0 : supportData.matchPoints) +
-      (villainData.matchPoints < 0 ? 0 : villainData.matchPoints) +
-      (battlefieldData.matchPoints < 0 ? 0 : battlefieldData.matchPoints);
+      captainTotal +
+      brawlerATotal +
+      brawlerBTotal +
+      bsBrawlerTotal +
+      bsSupportTotal +
+      supportTotal +
+      villainTotal +
+      battlefieldTotal;
 
     return totalTeamPoints;
   } catch (err) {
