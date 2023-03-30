@@ -3,6 +3,7 @@ const {
   getAffinitiesTypes,
   getBoostPoints,
 } = require('../../utils');
+const { checkValidUserInLeague } = require('../../utils/query');
 const { getUserPoints } = require('../../utils/team');
 const mysql = require('../../utils/mysql').instance();
 
@@ -11,14 +12,23 @@ module.exports.getDraft = async (req, res) => {
   const { userId } = req.user;
 
   try {
+    await checkValidUserInLeague(userId, league_id, res);
+
     const league = await mysql(
       'SELECT * FROM league WHERE id = ? AND draft_active = ? AND draft_complete = ?',
       [league_id, 1, 0]
     );
 
     if (!league.length) {
+      const admin = await mysql(
+        'SELECT creator_id, name FROM league WHERE id = ?',
+        [league_id]
+      );
+
       return res.status(400).json({
         message: 'This draft is not active at the moment',
+        creator: admin[0].creator_id,
+        leagueName: admin[0].name,
       });
     }
 
