@@ -357,8 +357,8 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
     ]);
 
     const votes = await mysql(
-      'SELECT * FROM votes WHERE matchup_id = ? AND is_bracket = ?',
-      [matchupId, 0]
+      'SELECT * FROM votes WHERE matchup_id = ? AND active = ? AND is_bracket = ?',
+      [matchupId, 0, 0]
     );
 
     const details = {
