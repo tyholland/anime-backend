@@ -43,6 +43,15 @@ module.exports.getDraft = async (req, res) => {
       });
     }
 
+    if (!draft[0].recent_pick) {
+      const oldDraft = await mysql(
+        'SELECT * FROM draft WHERE league_id = ? AND round = ?',
+        [league_id, draft[0].round - 1]
+      );
+
+      draft[0].recent_pick = oldDraft[0].recent_pick;
+    }
+
     const teams = JSON.parse(draft[0].teams);
     const currentTeam = teams.filter((item) => {
       return item.user_id === userId;
@@ -63,6 +72,7 @@ module.exports.getDraft = async (req, res) => {
       draft: draft[0],
       userTeamId: specificTeam[0].id,
       remainingTime: Math.floor(defaultTime - totalSeconds),
+      draftComplete: league[0].draft_complete === 1,
     });
   } catch (error) {
     console.log(error);
@@ -192,12 +202,15 @@ module.exports.draftNextRound = async (req, res) => {
     );
 
     if (nextRound < 9) {
+      const date = new Date().toISOString();
+
       await mysql(
-        'UPDATE draft SET active = ? WHERE league_id = ? AND round = ?',
-        [1, league_id, nextRound]
+        'UPDATE draft SET active = ?, start_time = ?, pick_order = ? WHERE league_id = ? AND round = ?',
+        [1, date, 0, league_id, nextRound]
       );
     }
 
+    // Draft is complete
     if (nextRound === 9) {
       await mysql(
         'UPDATE league SET draft_active = ?, draft_complete = ? WHERE id = ?',
@@ -322,22 +335,12 @@ module.exports.addDraftPlayers = async (req, res) => {
       ]);
     }
 
-    let pickCount = pickOrder;
-
-    if (pickOrder !== JSON.parse(teams).length - 1) {
-      pickCount = pickOrder + 1;
-    }
-
-    if (pickOrder === JSON.parse(teams).length - 1) {
-      pickCount = 0;
-    }
-
     const date = new Date().toISOString();
 
     // Update Draft
     await mysql(
       'UPDATE draft SET teams = ?, recent_pick = ?, pick_order = ?, start_time = ? WHERE id = ?',
-      [teams, pick, pickCount, date, draftId]
+      [teams, pick, pickOrder, date, draftId]
     );
 
     return res.status(200).json({
