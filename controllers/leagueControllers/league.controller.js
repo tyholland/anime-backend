@@ -24,7 +24,7 @@ module.exports.getLeague = async (req, res) => {
 
   try {
     const leagueData = await mysql(
-      'SELECT l.name, l.num_teams, l.week, l.creator_id, l.draft_complete, t.id as teamId FROM league l, league_members lm, team t WHERE l.id = ? AND l.id = lm.league_id AND lm.user_id = ? AND lm.id = t.league_member_id AND l.week = t.week',
+      'SELECT l.name, l.num_teams, l.week, l.creator_id, l.draft_active, l.draft_complete, t.id as teamId FROM league l, league_members lm, team t WHERE l.id = ? AND l.id = lm.league_id AND lm.user_id = ? AND lm.id = t.league_member_id AND l.week = t.week',
       [league_id, userId]
     );
 
@@ -106,7 +106,7 @@ module.exports.createLeague = async (req, res) => {
   try {
     const newLeague = await mysql(
       'INSERT INTO `league` (`name`, `num_teams`, `active`, `creator_id`, `is_roster_active`, `is_voting_active`, `hash`, `create_date`, week) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, numTeams, 1, userId, 1, 0, hash, date, -1]
+      [name, numTeams, 1, userId, 0, 0, hash, date, -1]
     );
 
     await addLeagueSegment(name, newLeague.insertId);
