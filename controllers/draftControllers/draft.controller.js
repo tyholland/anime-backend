@@ -49,7 +49,9 @@ module.exports.getDraft = async (req, res) => {
         [league_id, draft[0].round - 1]
       );
 
-      draft[0].recent_pick = oldDraft[0].recent_pick;
+      if (oldDraft.length) {
+        draft[0].recent_pick = oldDraft[0].recent_pick;
+      }
     }
 
     const teams = JSON.parse(draft[0].teams);
