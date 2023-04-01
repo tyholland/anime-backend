@@ -21,7 +21,7 @@ module.exports.getDraft = async (req, res) => {
 
     if (!league.length) {
       const admin = await mysql(
-        'SELECT creator_id, name FROM league WHERE id = ?',
+        'SELECT l.creator_id, l.draft_complete, d.teams, l.name FROM league l, draft d WHERE l.id = ? AND l.id = d.league_id',
         [league_id]
       );
 
@@ -29,6 +29,8 @@ module.exports.getDraft = async (req, res) => {
         message: 'This draft is not active at the moment',
         creator: admin[0].creator_id,
         leagueName: admin[0].name,
+        draftComplete: admin[0].draft_complete === 1,
+        draft: admin,
       });
     }
 

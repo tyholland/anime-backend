@@ -328,15 +328,10 @@ module.exports.getStandings = async (req, res) => {
 };
 
 module.exports.startLeague = async (req, res) => {
-  const { userId } = req.user;
   const { leagueId } = req.body;
 
   try {
-    await mysql('UPDATE league SET week = ? WHERE creator_id = ? AND id = ?', [
-      0,
-      userId,
-      leagueId,
-    ]);
+    await mysql('UPDATE league SET week = ? WHERE id = ?', [0, leagueId]);
 
     const members = await mysql(
       'SELECT id FROM league_members WHERE league_id = ?',
