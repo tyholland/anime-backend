@@ -44,7 +44,7 @@ module.exports.getLeague = async (req, res) => {
     return res.status(200).json({
       leagueData,
       matchupData,
-      hasDraft: leagueData[0].draft_complete === 0 && draftRounds.length > 0,
+      hasDraft: draftRounds.length > 0,
     });
   } catch (error) {
     console.log(error);

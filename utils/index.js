@@ -405,13 +405,29 @@ module.exports.getBoostPoints = (
   const fieldPoints = isBattlefield ? 0 : Math.floor(battlefieldSupport);
   const weekPoints = Math.floor(weekBoost);
   const votingPoints = Math.floor(votingBoost);
-  const totalPoints = supportPoints + fieldPoints + weekPoints + votingPoints;
+
+  const date = new Date();
+  const isVotingWeekDamage = date.getDay() === 0;
+
+  if (isVotingWeekDamage || isAffinityActive === 1) {
+    const totalPoints = supportPoints + fieldPoints + weekPoints + votingPoints;
+
+    return {
+      week: weekPoints,
+      support: supportPoints,
+      battlefield: fieldPoints,
+      voting: votingPoints,
+      total: totalPoints,
+    };
+  }
+
+  const totalPoints = supportPoints + fieldPoints;
 
   return {
-    week: weekPoints,
+    week: 'Available on Sunday',
     support: supportPoints,
     battlefield: fieldPoints,
-    voting: votingPoints,
+    voting: 'Available on Sunday',
     total: totalPoints,
   };
 };
@@ -446,14 +462,41 @@ module.exports.getDamagePoints = (
     weekDamage === 0 ? 0 : Math.floor(power_level * weekDamage);
   const votingPoints =
     votingDamage === 0 ? 0 : Math.floor(power_level * votingDamage);
-  const totalPoints = villainPoints + fieldPoints + weekPoints + votingPoints;
+
+  const date = new Date();
+  const isVillainBattlefieldDamage = date.getDay() === 5 || date.getDay() === 6;
+  const isVotingWeekDamage = date.getDay() === 0;
+
+  if (isVotingWeekDamage || isAffinityActive === 1) {
+    const totalPoints = villainPoints + fieldPoints + weekPoints + votingPoints;
+
+    return {
+      week: weekPoints,
+      villain: villainPoints,
+      battlefield: fieldPoints,
+      voting: votingPoints,
+      total: totalPoints,
+    };
+  }
+
+  if (isVillainBattlefieldDamage) {
+    const totalPoints = villainPoints + fieldPoints;
+
+    return {
+      week: 'Available on Sunday',
+      villain: villainPoints,
+      battlefield: fieldPoints,
+      voting: 'Available on Sunday',
+      total: totalPoints,
+    };
+  }
 
   return {
-    week: weekPoints,
-    villain: villainPoints,
-    battlefield: fieldPoints,
-    voting: votingPoints,
-    total: totalPoints,
+    week: 'Available on Sunday',
+    villain: 'Available on Friday',
+    battlefield: 'Available on Friday',
+    voting: 'Available on Sunday',
+    total: 0,
   };
 };
 
