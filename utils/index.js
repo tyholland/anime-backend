@@ -181,10 +181,12 @@ const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
 
   affinity.forEach((item) => {
     const powerType = item === 'no_affinity' ? 'noAffinity' : item;
-    const hasPower = affinities.filter((power) => power.type === powerType)[0];
+    const hasPower = affinities.filter((power) => power.type === powerType);
 
-    if (hasPower) {
-      weekAffinity.push(hasPower.type);
+    if (hasPower.length) {
+      hasPower.forEach((item) => {
+        weekAffinity.push(item.type);
+      });
     }
   });
 
