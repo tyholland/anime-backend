@@ -211,10 +211,10 @@ const getWeeklyDamage = (weakness, teamAffinity, isAffinityActive) => {
   let affinityVal = 0;
 
   affinity.forEach((item) => {
-    const hasDamage = weakness.toLowerCase() === item;
+    const hasDamage = weakness.toLowerCase() === item.trim();
 
     if (hasDamage) {
-      weekAffinity.push(item);
+      weekAffinity.push(item.trim());
     }
   });
 
