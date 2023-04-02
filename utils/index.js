@@ -180,7 +180,8 @@ const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
   let affinityVal = 0;
 
   affinity.forEach((item) => {
-    const powerType = item === 'no_affinity' ? 'noAffinity' : item;
+    const powerType =
+      item.trim() === 'no_affinity' ? 'noAffinity' : item.trim();
     const hasPower = affinities.filter((power) => power.type === powerType);
 
     if (hasPower.length) {
