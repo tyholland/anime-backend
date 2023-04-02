@@ -412,7 +412,10 @@ module.exports.getBoostPoints = (
   const date = new Date();
   const isVotingWeekDamage = date.getDay() === 0;
 
-  if (isVotingWeekDamage || isAffinityActive === 1) {
+  if (
+    (isAffinityActive === 1 && isVotingWeekDamage) ||
+    isAffinityActive === 1
+  ) {
     const totalPoints = supportPoints + fieldPoints + weekPoints + votingPoints;
 
     return {
@@ -470,7 +473,10 @@ module.exports.getDamagePoints = (
   const isVillainBattlefieldDamage = date.getDay() === 5 || date.getDay() === 6;
   const isVotingWeekDamage = date.getDay() === 0;
 
-  if (isVotingWeekDamage || isAffinityActive === 1) {
+  if (
+    (isAffinityActive === 1 && isVotingWeekDamage) ||
+    isAffinityActive === 1
+  ) {
     const totalPoints = villainPoints + fieldPoints + weekPoints + votingPoints;
 
     return {
