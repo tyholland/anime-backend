@@ -20,7 +20,7 @@ module.exports.getTeam = async (req, res) => {
     const team = await getTeamQuery(team_id);
 
     const member = await mysql(
-      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members lm, league l, team t WHERE lm.user_id = ? AND t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
+      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, l.week, lm.league_id FROM league_members lm, league l, team t WHERE lm.user_id = ? AND t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [userId, team_id]
     );
 
@@ -48,7 +48,7 @@ module.exports.getMatchupTeam = async (req, res) => {
     const team = await getTeamQuery(team_id);
 
     const member = await mysql(
-      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, lm.league_id FROM league_members lm, league l, team t WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
+      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, l.week, lm.league_id FROM league_members lm, league l, team t WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [team_id]
     );
 
