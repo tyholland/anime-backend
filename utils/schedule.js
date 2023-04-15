@@ -51,9 +51,12 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
       [week, 'away', randomAffinity[weekRand], newTeamB.insertId]
     );
 
+    const teamIdB = newTeamB.insertId || 0;
+    const teamScoreByeA = !newTeamB.insertId ? 1 : 0;
+
     await mysql(
       'INSERT INTO `matchup` (`league_id`, `team_a`, `team_b`, `score_a`, `score_b`, `week`, `active`) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [leagueId, newTeamA.insertId, newTeamB.insertId, 0, 0, week, 0]
+      [leagueId, newTeamA.insertId, teamIdB, teamScoreByeA, 0, week, 0]
     );
 
     return;
@@ -466,7 +469,7 @@ module.exports.createTenTeamSchedule = async () => {
   }
 };
 
-module.exports.createPlayoffsSchedule = async (leagueId, week) => {
+module.exports.createPlayoffsSchedule = async (leagueId, week, round) => {
   try {
     const games = await mysql(
       'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b FROM league_members lm, team t, matchup m, league l WHERE l.id = ? AND l.id = lm.league_id AND lm.id = t.league_member_id AND t.week = ? AND (m.team_a = t.id OR m.team_b = t.id)',
@@ -489,11 +492,14 @@ module.exports.createPlayoffsSchedule = async (leagueId, week) => {
     const scheduleB = await getLeagueMemebrInfo(teamB);
 
     const playoffSchedule = [];
+    const isFirst = round === 'first';
 
     for (let index = 0; index < games.length; index++) {
+      const isBye = isFirst && (index === 0 || index === 3);
+
       playoffSchedule.push({
         teamA: scheduleA[index].team_name,
-        teamB: scheduleB[index].team_name,
+        teamB: isBye ? 'Bye' : scheduleB[index].team_name,
         scoreA: games[index].score_a < 0 ? 0 : games[index].score_a,
         scoreB: games[index].score_b < 0 ? 0 : games[index].score_b,
         week: index + 1,
@@ -602,7 +608,7 @@ const getPlayoffsRankings = async (games) => {
 module.exports.playoffsSemis = async () => {
   try {
     const games = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = lm.league_id AND l.week = ?',
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE m.week = ? AND m.team_a = t.id AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [10]
     );
 
@@ -630,7 +636,7 @@ module.exports.playoffsSemis = async () => {
 module.exports.playoffsFinals = async () => {
   try {
     const games = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = lm.league_id AND l.week = ?',
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE m.week = ? AND m.team_a = t.id AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [11]
     );
 

@@ -60,7 +60,7 @@ module.exports.getAllLeagues = async (req, res) => {
 
   try {
     const leagueData = await mysql(
-      'SELECT l.name, l.id as leagueId, lm.team_name, l.draft_complete, t.id as teamId FROM league_members lm, league l, team t WHERE lm.user_id = ? AND lm.league_id = l.id AND lm.id = t.league_member_id AND l.week = t.week',
+      'SELECT l.name, l.week, l.id as leagueId, lm.team_name, l.draft_complete, t.id as teamId FROM league_members lm, league l, team t WHERE lm.user_id = ? AND lm.league_id = l.id AND lm.id = t.league_member_id AND l.week = t.week',
       [userId]
     );
 
@@ -447,9 +447,9 @@ module.exports.getPlayoffsSchedule = async (req, res) => {
   try {
     await checkValidUserInLeague(userId, league_id, res);
 
-    const firstRound = await createPlayoffsSchedule(league_id, 10);
-    const semis = await createPlayoffsSchedule(league_id, 11);
-    const finals = await createPlayoffsSchedule(league_id, 12);
+    const firstRound = await createPlayoffsSchedule(league_id, 10, 'first');
+    const semis = await createPlayoffsSchedule(league_id, 11, 'semis');
+    const finals = await createPlayoffsSchedule(league_id, 12, 'finals');
 
     const playoffSchedule = {
       firstRound,
