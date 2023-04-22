@@ -32,7 +32,7 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
     const weekRand = Math.floor(Math.random() * randomAffinity.length);
 
     const newTeamA = await mysql(
-      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE id = ?',
+      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE league_member_id = ?',
       [teamA]
     );
 
@@ -42,7 +42,7 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
     );
 
     const newTeamB = await mysql(
-      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE id = ?',
+      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE league_member_id = ?',
       [teamB]
     );
 
@@ -53,10 +53,11 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
 
     const teamIdB = newTeamB.insertId || 0;
     const teamScoreByeA = !newTeamB.insertId ? 1 : 0;
+    const activeWeek = (week === 10 || week > 10) ? 1 : 0;
 
     await mysql(
       'INSERT INTO `matchup` (`league_id`, `team_a`, `team_b`, `score_a`, `score_b`, `week`, `active`) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [leagueId, newTeamA.insertId, teamIdB, teamScoreByeA, 0, week, 0]
+      [leagueId, newTeamA.insertId, teamIdB, teamScoreByeA, 0, week, activeWeek]
     );
 
     return;
@@ -519,30 +520,29 @@ module.exports.playoffsFirstRound = async () => {
       [10]
     );
 
-    for (let index = 0; index < games.length; index++) {
-      const rankings = await getRankings([games[index]]);
+    const rankings = await getRankings(games);
+    const leagueId = games[0].leagueId;
 
-      await insertNewMatchup(games[index].leagueId, rankings[0], 0, 10);
-      await insertNewMatchup(
-        games[index].leagueId,
-        rankings[2],
-        rankings[5],
-        10
-      );
-      await insertNewMatchup(
-        games[index].leagueId,
-        rankings[3],
-        rankings[4],
-        10
-      );
-      await insertNewMatchup(games[index].leagueId, rankings[1], 0, 10);
-    }
+    await insertNewMatchup(leagueId, rankings[0].teamId, 0, 10);
+    await insertNewMatchup(leagueId, rankings[1].teamId, 0, 10);
+    await insertNewMatchup(
+      leagueId,
+      rankings[2].teamId,
+      rankings[5].teamId,
+      10
+    );
+    await insertNewMatchup(
+      leagueId,
+      rankings[3].teamId,
+      rankings[4].teamId,
+      10
+    );
   } catch (error) {
     throw new Error('Can not get the first round of playoffs');
   }
 };
 
-const getPlayoffsRankings = async (games) => {
+const getPlayoffsRankings = async (games, week = null) => {
   try {
     const teamA = [];
     const teamB = [];
@@ -553,48 +553,78 @@ const getPlayoffsRankings = async (games) => {
     });
 
     const rankingsA = await getLeagueMemebrInfo(teamA);
-    const rankingsB = await getLeagueMemebrInfo(teamB);
+    let rankingsB = await getLeagueMemebrInfo(teamB);
 
     const mainRankings = [];
+    
+    if (week === 11) {
+      const byeTeams = [
+        {
+          team_name: 'Bye Team Name - 0',
+          id: 'Bye Team Id - 0'
+        },
+        {
+          team_name: 'Bye Team Name - 1',
+          id: 'Bye Team Id - 1'
+        }
+      ];
+
+      rankingsB = byeTeams.concat(rankingsB);
+    }
 
     for (let index = 0; index < games.length; index++) {
-      mainRankings.find((rank) => {
-        if (rank.team === rankingsA[index].team_name) {
-          rank.win =
-            games[index].score_a > games[index].score_b
-              ? rank.win + 1
-              : rank.win;
-          rank.loss =
-            games[index].score_a < games[index].score_b
-              ? rank.loss + 1
-              : rank.loss;
-        }
-      });
+      const hasRankingA = mainRankings.some(
+        (rank) => rank.team === rankingsA[index].team_name
+      );
+      const hasRankingB = mainRankings.some(
+        (rank) => rank.team === rankingsB[index].team_name
+      );
 
-      if (games[index].score_a > games[index].score_b) {
-        mainRankings.push({
-          team: rankingsA[index].team_name,
-          teamId: rankingsA[index].id,
+      if (hasRankingA) {
+        mainRankings.find((rank) => {
+          if (rank.team === rankingsA[index].team_name) {
+            rank.win =
+              games[index].score_a > games[index].score_b
+                ? rank.win + 1
+                : rank.win;
+            rank.loss =
+              games[index].score_a < games[index].score_b
+                ? rank.loss + 1
+                : rank.loss;
+          }
         });
       }
 
-      mainRankings.find((rank) => {
-        if (rank.team === rankingsB[index].team_name) {
-          rank.win =
-            games[index].score_a > games[index].score_b
-              ? rank.win + 1
-              : rank.win;
-          rank.loss =
-            games[index].score_a < games[index].score_b
-              ? rank.loss + 1
-              : rank.loss;
-        }
-      });
-
-      if (games[index].score_a < games[index].score_b) {
+      if (!hasRankingA) {
         mainRankings.push({
-          team: rankingsB[index].team_name,
-          teamId: rankingsB[index].id,
+          team: rankingsA[index].team_name,
+          teamId: rankingsA[index].id,
+          win: games[index].score_a > games[index].score_b ? 1 : 0,
+          loss: games[index].score_a < games[index].score_b ? 1 : 0,
+        });
+      }
+
+      if (hasRankingB) {
+        mainRankings.find((rank) => {
+          if (rank.team === rankingsB[index].team_name) {
+            rank.win =
+              games[index].score_b > games[index].score_a
+                ? rank.win + 1
+                : rank.win;
+            rank.loss =
+              games[index].score_b < games[index].score_a
+                ? rank.loss + 1
+                : rank.loss;
+          }
+        });
+      }
+
+      if (!hasRankingB) {
+        mainRankings.push({
+          team: games[index].team_b === 0 ? `Bye Team Name - ${index}` : rankingsB[index].team_name,
+          teamId: games[index].team_b === 0 ? `Bye Team Id - ${index}` : rankingsB[index].id,
+          win: games[index].score_b > games[index].score_a ? 1 : 0,
+          loss: games[index].score_b < games[index].score_a ? 1 : 0,
         });
       }
     }
@@ -612,22 +642,21 @@ module.exports.playoffsSemis = async () => {
       [10]
     );
 
-    for (let index = 0; index < games.length; index++) {
-      const rankings = await getPlayoffsRankings(games[index]);
+    const rankings = await getPlayoffsRankings(games, 11);
+    const leagueId = games[0].leagueId;
 
-      await insertNewMatchup(
-        games[index].leagueId,
-        rankings[0],
-        rankings[1],
-        11
-      );
-      await insertNewMatchup(
-        games[index].leagueId,
-        rankings[2],
-        rankings[3],
-        11
-      );
-    }
+    await insertNewMatchup(
+      leagueId,
+      rankings[0].teamId,
+      rankings[3].teamId,
+      11
+    );
+    await insertNewMatchup(
+      leagueId,
+      rankings[1].teamId,
+      rankings[2].teamId,
+      11
+    );
   } catch (error) {
     throw new Error('Can not get the playoffs semis');
   }
@@ -640,16 +669,15 @@ module.exports.playoffsFinals = async () => {
       [11]
     );
 
-    for (let index = 0; index < games.length; index++) {
-      const rankings = await getPlayoffsRankings(games[index]);
+    const rankings = await getPlayoffsRankings(games);
+    const leagueId = games[0].leagueId;
 
-      await insertNewMatchup(
-        games[index].leagueId,
-        rankings[0],
-        rankings[1],
-        12
-      );
-    }
+    await insertNewMatchup(
+      leagueId,
+      rankings[0].teamId,
+      rankings[1].teamId,
+      12
+    );
   } catch (error) {
     throw new Error('Can not get the playoffs finals');
   }
