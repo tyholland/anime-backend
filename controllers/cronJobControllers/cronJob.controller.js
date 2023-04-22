@@ -55,6 +55,23 @@ module.exports.startRule = async (req, res) => {
   }
 };
 
+module.exports.roundOne = async (req, res) => {
+  try {
+    // Create playoffs schedule
+    await playoffsFirstRound();
+
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Run Start Rule',
+    });
+  }
+};
+
 module.exports.voteRule = async (req, res) => {
   try {
     // Stop users from changing their roster. Start matchup voting

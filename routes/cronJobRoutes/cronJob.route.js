@@ -10,4 +10,5 @@ module.exports = (app) => {
   app.get('/cron/start', startRule);
   app.get('/cron/vote', voteRule);
   app.get('/cron/schedule', scheduleRule);
+  app.get('/cron/round1', scheduleRule);
 };

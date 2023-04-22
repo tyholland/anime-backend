@@ -520,7 +520,7 @@ module.exports.playoffsFirstRound = async () => {
     );
 
     for (let index = 0; index < games.length; index++) {
-      const rankings = await getRankings(games[index]);
+      const rankings = await getRankings([games[index]]);
 
       await insertNewMatchup(games[index].leagueId, rankings[0], 0, 10);
       await insertNewMatchup(
