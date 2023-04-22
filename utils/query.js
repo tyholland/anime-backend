@@ -43,21 +43,44 @@ module.exports.startNewWeek = async () => {
         return;
       }
 
+      // Make new week available to change roster
       await mysql(
         'UPDATE league SET week = ?, is_roster_active = ? WHERE id = ?',
         [newWeek, 1, id]
       );
 
+      // Make the new week matchup active
       await mysql(
         'UPDATE matchup SET active = ? WHERE league_id = ? AND week = ?',
         [1, id, newWeek]
       );
 
+      // Show recap modal
       if (newWeek > 1) {
         await mysql('UPDATE league_members SET recap = ? WHERE league_id = ?', [
           1,
           id,
         ]);
+      }
+
+      // Update new week with latest team roster
+      const leagueMembers = await mysql(
+        'SELECT * FROM league_members WHERE league_id = ?',
+        [id]
+      );
+
+      for (let res = 0; res < leagueMembers.length; res++) {
+        const memberId = leagueMembers[res].id;
+
+        const roster = await mysql(
+          'SELECT * FROM team WHERE week = ? AND league_member_id = ?',
+          [week, memberId]
+        );
+
+        await mysql(
+          'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, points = ? WHERE league_member_id = ? AND week = ?',
+          [roster[0].captain, roster[0].brawler_a, roster[0].brawler_b, roster[0].bs_brawler, roster[0].bs_support, roster[0].support, roster[0].villain, roster[0].battlefield, roster[0].points, memberId, newWeek]
+        );
       }
     }
   } catch (err) {

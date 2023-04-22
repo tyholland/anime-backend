@@ -30,10 +30,11 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
 
   try {
     const weekRand = Math.floor(Math.random() * randomAffinity.length);
+    const previousWeek = week - 1;
 
     const newTeamA = await mysql(
-      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE league_member_id = ?',
-      [teamA]
+      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE league_member_id = ? AND week = ?',
+      [teamA, previousWeek]
     );
 
     await mysql(
@@ -42,8 +43,8 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
     );
 
     const newTeamB = await mysql(
-      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE league_member_id = ?',
-      [teamB]
+      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE league_member_id = ? AND week = ?',
+      [teamB, previousWeek]
     );
 
     await mysql(
