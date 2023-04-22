@@ -31,7 +31,6 @@ module.exports.middleware = () => {
       '/cron/start',
       '/cron/vote',
       '/cron/schedule',
-      '/cron/round1',
       /^\/admin\/player\/formula\/.*/,
       /^\/player\/.*/,
       /^\/bracket\/.*/,

@@ -473,7 +473,7 @@ module.exports.createTenTeamSchedule = async () => {
 module.exports.createPlayoffsSchedule = async (leagueId, week, round) => {
   try {
     const games = await mysql(
-      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b FROM league_members lm, team t, matchup m, league l WHERE l.id = ? AND l.id = lm.league_id AND lm.id = t.league_member_id AND t.week = ? AND (m.team_a = t.id OR m.team_b = t.id)',
+      'SELECT id, team_a, team_b, score_a, score_b FROM matchup WHERE league_id = ? AND week = ?',
       [leagueId, week]
     );
 
@@ -490,20 +490,33 @@ module.exports.createPlayoffsSchedule = async (leagueId, week, round) => {
     });
 
     const scheduleA = await getLeagueMemebrInfo(teamA);
-    const scheduleB = await getLeagueMemebrInfo(teamB);
+    let scheduleB = await getLeagueMemebrInfo(teamB);
 
     const playoffSchedule = [];
-    const isFirst = round === 'first';
+
+    if (round === 'first') {
+      const byeTeams = [
+        {
+          team_name: 'Bye',
+          id: 'Bye - 0'
+        },
+        {
+          team_name: 'Bye',
+          id: 'Bye - 1'
+        }
+      ];
+
+      scheduleB = byeTeams.concat(scheduleB);
+    }
 
     for (let index = 0; index < games.length; index++) {
-      const isBye = isFirst && (index === 0 || index === 3);
-
       playoffSchedule.push({
         teamA: scheduleA[index].team_name,
-        teamB: isBye ? 'Bye' : scheduleB[index].team_name,
+        teamB: games[index].team_b === 0 ? 'Bye' : scheduleB[index].team_name,
         scoreA: games[index].score_a < 0 ? 0 : games[index].score_a,
         scoreB: games[index].score_b < 0 ? 0 : games[index].score_b,
         week: index + 1,
+        match: games[index].id
       });
     }
 

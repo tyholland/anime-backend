@@ -29,7 +29,7 @@ module.exports.getLeague = async (req, res) => {
     );
 
     const matchupData = await mysql(
-      'SELECT m.id as matchupId FROM team t, matchup m WHERE t.id = ? AND t.week = m.week AND (t.id = m.team_a OR t.id = m.team_b)',
+      'SELECT m.id as matchupId, m.team_b FROM team t, matchup m WHERE t.id = ? AND t.week = m.week AND (t.id = m.team_a OR t.id = m.team_b)',
       [leagueData[0].teamId]
     );
 
@@ -256,7 +256,7 @@ module.exports.getScoreboard = async (req, res) => {
     await checkValidUserInLeague(userId, league_id, res);
 
     const games = await mysql(
-      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b FROM matchup m, league l WHERE m.league_id = ? AND m.week = l.week',
+      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM matchup m, league l WHERE l.id = ? AND l.id = m.league_id AND l.week = m.week',
       [league_id]
     );
 
@@ -269,14 +269,29 @@ module.exports.getScoreboard = async (req, res) => {
     });
 
     const scoreboardA = await getLeagueMemebrInfo(teamA);
-    const scoreboardB = await getLeagueMemebrInfo(teamB);
+    let scoreboardB = await getLeagueMemebrInfo(teamB);
 
     const mainScoreboard = [];
+
+    if (games[0].week === 10) {
+      const byeTeams = [
+        {
+          team_name: 'Bye',
+          id: 'Bye - 0'
+        },
+        {
+          team_name: 'Bye',
+          id: 'Bye - 1'
+        }
+      ];
+
+      scoreboardB = byeTeams.concat(scoreboardB);
+    }
 
     for (let index = 0; index < games.length; index++) {
       mainScoreboard.push({
         teamA: scoreboardA[index].team_name,
-        teamB: scoreboardB[index].team_name,
+        teamB: games[index].team_b === 0 ? 'Bye' : scoreboardB[index].team_name,
         scoreA: games[index].score_a < 0 ? 0 : games[index].score_a,
         scoreB: games[index].score_b < 0 ? 0 : games[index].score_b,
         match: games[index].id,

@@ -253,14 +253,29 @@ module.exports.getSchedule = async (req, res) => {
     });
 
     const scheduleA = await getLeagueMemebrInfo(teamA);
-    const scheduleB = await getLeagueMemebrInfo(teamB);
+    let scheduleB = await getLeagueMemebrInfo(teamB);
 
     const mainSchedule = [];
+
+    if (games[0].week === 10) {
+      const byeTeams = [
+        {
+          team_name: 'Bye',
+          id: 'Bye - 0'
+        },
+        {
+          team_name: 'Bye',
+          id: 'Bye - 1'
+        }
+      ];
+
+      scheduleB = byeTeams.concat(scheduleB);
+    }
 
     for (let index = 0; index < games.length; index++) {
       mainSchedule.push({
         teamA: scheduleA[index].team_name,
-        teamB: scheduleB[index].team_name,
+        teamB: games[index].team_b === 0 ? 'Bye' : scheduleB[index].team_name,
         scoreA: games[index].score_a < 0 ? 0 : games[index].score_a,
         scoreB: games[index].score_b < 0 ? 0 : games[index].score_b,
         week: index + 1,
