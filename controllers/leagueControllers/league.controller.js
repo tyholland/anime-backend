@@ -400,7 +400,7 @@ module.exports.getLeagueAdminData = async (req, res) => {
     return res.status(200).json({
       league: leagueData[0],
       teams,
-      hasDraft: leagueData[0].draft_complete === 0 && draftRounds.length > 0,
+      hasDraft: leagueData[0].draft_complete === 1 || draftRounds.length > 0,
     });
   } catch (error) {
     console.log(error);
