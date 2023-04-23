@@ -294,24 +294,22 @@ module.exports.activateWeeklyAffinity = async () => {
     }
 
     for (let index = 0; index < teams.length; index++) {
-      const { id, league_id, week } = teams[index];
+      const { id } = teams[index];
 
       // Update activeAffinity to be true
       await mysql('UPDATE team SET activeAffinity = ? WHERE id = ?', [1, id]);
+    }
 
-      // Update matchup scores
-      const matchup = await mysql(
-        'SELECT * FROM matchup WHERE league_id = ? AND week = ?',
-        [league_id, week]
-      );
+    // Update matchup scores
+    const matchup = await mysql(
+      'SELECT * FROM matchup WHERE league_id = ? AND week = ?',
+      [teams[0].league_id, teams[0].week]
+    );
 
-      for (let index = 0; index < matchup.length; index++) {
-        const { id, team_a, team_b } = matchup[index];
+    for (let index = 0; index < matchup.length; index++) {
+      const { id, team_a, team_b } = matchup[index];
 
-        if (team_b === 0) {
-          return;
-        }
-
+      if (team_b !== 0) {
         const scoreA = await getFullTeamMatchupPoints(team_a, 'team_b', id);
         const scoreB = await getFullTeamMatchupPoints(team_b, 'team_a', id);
 
