@@ -308,6 +308,10 @@ module.exports.activateWeeklyAffinity = async () => {
       for (let index = 0; index < matchup.length; index++) {
         const { id, team_a, team_b } = matchup[index];
 
+        if (team_b === 0) {
+          return;
+        }
+
         const scoreA = await getFullTeamMatchupPoints(team_a, 'team_b', id);
         const scoreB = await getFullTeamMatchupPoints(team_b, 'team_a', id);
 
