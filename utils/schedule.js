@@ -534,6 +534,13 @@ module.exports.playoffsFirstRound = async () => {
       [10]
     );
 
+    if (!games.length) {
+      return res.status(200).json({
+        success: false,
+        msg: 'No games available for first round of playoffs'
+      });
+    }
+
     const rankings = await getRankings(games);
     const leagueId = games[0].leagueId;
 
@@ -656,6 +663,13 @@ module.exports.playoffsSemis = async () => {
       [10]
     );
 
+    if (!games.length) {
+      return res.status(200).json({
+        success: false,
+        msg: 'No games available for playoff semis'
+      });
+    }
+
     const rankings = await getPlayoffsRankings(games, 11);
     const leagueId = games[0].leagueId;
 
@@ -682,6 +696,13 @@ module.exports.playoffsFinals = async () => {
       'SELECT m.team_a, m.team_b, m.score_a, m.score_b, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE m.week = ? AND m.team_a = t.id AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [11]
     );
+
+    if (!games.length) {
+      return res.status(200).json({
+        success: false,
+        msg: 'No game available for championship'
+      });
+    }
 
     const rankings = await getPlayoffsRankings(games);
     const leagueId = games[0].leagueId;
