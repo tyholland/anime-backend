@@ -184,7 +184,7 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
     });
 
     const rankingsA = await this.getLeagueMemebrInfo(teamA);
-    const rankingsB = await this.getLeagueMemebrInfo(teamB);
+    let rankingsB = await this.getLeagueMemebrInfo(teamB);
 
     const mainRankings = [];
 
@@ -220,6 +220,21 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
     }
 
     for (let index = 0; index < games.length; index++) {
+      if (games[index].week === 10 && rankingsA.length > rankingsB.length) {
+        const byeTeams = [
+          {
+            team_name: 'Bye',
+            id: 'Bye - 0'
+          },
+          {
+            team_name: 'Bye',
+            id: 'Bye - 1'
+          }
+        ];
+  
+        rankingsB = byeTeams.concat(rankingsB);
+      }
+
       const hasRankingA = mainRankings.some(
         (rank) => rank.team === rankingsA[index].team_name
       );
@@ -268,7 +283,7 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
 
       if (!hasRankingB) {
         mainRankings.push({
-          team: rankingsB[index].team_name,
+          team: games[index].team_b === 0 ? 'Bye' : rankingsB[index].team_name,
           teamId: rankingsB[index].id,
           win: games[index].score_b > games[index].score_a ? 1 : 0,
           loss: games[index].score_b < games[index].score_a ? 1 : 0,

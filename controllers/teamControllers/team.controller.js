@@ -240,7 +240,7 @@ module.exports.getSchedule = async (req, res) => {
 
   try {
     const games = await mysql(
-      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b FROM league_members lm, team t, matchup m WHERE lm.user_id = ? AND lm.league_id = ? AND lm.id = t.league_member_id AND (m.team_a = t.id OR m.team_b = t.id)',
+      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM league_members lm, team t, matchup m WHERE lm.user_id = ? AND lm.league_id = ? AND lm.id = t.league_member_id AND (m.team_a = t.id OR m.team_b = t.id)',
       [userId, league_id]
     );
 
@@ -257,22 +257,22 @@ module.exports.getSchedule = async (req, res) => {
 
     const mainSchedule = [];
 
-    if (games[0].week === 10) {
-      const byeTeams = [
-        {
-          team_name: 'Bye',
-          id: 'Bye - 0'
-        },
-        {
-          team_name: 'Bye',
-          id: 'Bye - 1'
-        }
-      ];
-
-      scheduleB = byeTeams.concat(scheduleB);
-    }
-
     for (let index = 0; index < games.length; index++) {
+      if (games[index].week === 10 && scheduleA.length > scheduleB.length) {
+        const byeTeams = [
+          {
+            team_name: 'Bye',
+            id: 'Bye - 0'
+          },
+          {
+            team_name: 'Bye',
+            id: 'Bye - 1'
+          }
+        ];
+  
+        scheduleB = byeTeams.concat(scheduleB);
+      }
+
       mainSchedule.push({
         teamA: scheduleA[index].team_name,
         teamB: games[index].team_b === 0 ? 'Bye' : scheduleB[index].team_name,

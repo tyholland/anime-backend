@@ -273,22 +273,22 @@ module.exports.getScoreboard = async (req, res) => {
 
     const mainScoreboard = [];
 
-    if (games[0].week === 10) {
-      const byeTeams = [
-        {
-          team_name: 'Bye',
-          id: 'Bye - 0'
-        },
-        {
-          team_name: 'Bye',
-          id: 'Bye - 1'
-        }
-      ];
-
-      scoreboardB = byeTeams.concat(scoreboardB);
-    }
-
     for (let index = 0; index < games.length; index++) {
+      if (games[index].week === 10 && scoreboardA.length > scoreboardB.length) {
+        const byeTeams = [
+          {
+            team_name: 'Bye',
+            id: 'Bye - 0'
+          },
+          {
+            team_name: 'Bye',
+            id: 'Bye - 1'
+          }
+        ];
+  
+        scoreboardB = byeTeams.concat(scoreboardB);
+      }
+
       mainScoreboard.push({
         teamA: scoreboardA[index].team_name,
         teamB: games[index].team_b === 0 ? 'Bye' : scoreboardB[index].team_name,
@@ -317,7 +317,7 @@ module.exports.getStandings = async (req, res) => {
     await checkValidUserInLeague(userId, league_id, res);
 
     let games = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND m.week < l.week',
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND m.week < l.week',
       [league_id]
     );
 
@@ -325,7 +325,7 @@ module.exports.getStandings = async (req, res) => {
       isFirstWeek = true;
 
       games = await mysql(
-        'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b FROM matchup m, league l WHERE m.league_id = ? AND m.week = l.week',
+        'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM matchup m, league l WHERE m.league_id = ? AND m.week = l.week',
         [league_id]
       );
     }
