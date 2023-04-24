@@ -535,10 +535,7 @@ module.exports.playoffsFirstRound = async () => {
     );
 
     if (!games.length) {
-      return res.status(200).json({
-        success: false,
-        msg: 'No games available for first round of playoffs'
-      });
+      return;
     }
 
     const rankings = await getRankings(games);
@@ -664,10 +661,7 @@ module.exports.playoffsSemis = async () => {
     );
 
     if (!games.length) {
-      return res.status(200).json({
-        success: false,
-        msg: 'No games available for playoff semis'
-      });
+      return;
     }
 
     const rankings = await getPlayoffsRankings(games, 11);
@@ -698,10 +692,7 @@ module.exports.playoffsFinals = async () => {
     );
 
     if (!games.length) {
-      return res.status(200).json({
-        success: false,
-        msg: 'No game available for championship'
-      });
+      return;
     }
 
     const rankings = await getPlayoffsRankings(games);
