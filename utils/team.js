@@ -121,18 +121,23 @@ const getWeekRecap = async (week, userId, leagueId) => {
     const opponent = currentTeamId === team_a ? team_b : team_a;
     const winner = score_a > score_b ? team_a : team_b;
     const loser = score_a < score_b ? team_a : team_b;
+    let opponentTeam = 'Bye';
 
     const otherTeam = await mysql(
       'SELECT team_name FROM league_members lm, team t WHERE t.id = ? AND t.league_member_id = lm.id',
       [opponent]
     );
 
+    if (otherTeam.length > 0) {
+      opponentTeam = otherTeam[0].team_name;
+    }
+
     return {
       week: week - 1,
       currentTeam: team_name,
       score: `${score_a} to ${score_b}`,
-      winner: winner === currentTeamId ? team_name : otherTeam[0].team_name,
-      loser: loser === currentTeamId ? team_name : otherTeam[0].team_name,
+      winner: winner === currentTeamId ? team_name : opponentTeam,
+      loser: loser === currentTeamId ? team_name : opponentTeam,
     };
   } catch (err) {
     throw new Error('Can not get week recap');

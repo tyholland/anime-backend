@@ -36,8 +36,8 @@ module.exports.affinityRule = async (req, res) => {
 module.exports.startRule = async (req, res) => {
   try {
     // Create Semis and Finals matchups and teams
-    await playoffsSemis();
     await playoffsFinals();
+    await playoffsSemis();
 
     // Start new week or end league
     await startNewWeek();
