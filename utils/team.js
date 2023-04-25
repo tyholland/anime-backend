@@ -37,7 +37,7 @@ module.exports.createNewTeam = async (userId, leagueId, res) => {
 module.exports.getSpecificTeamInfo = async (member_id, userId) => {
   try {
     const member = await mysql(
-      'SELECT lm.team_name, lm.points, lm.id, l.name, lm.league_id, l.week as leagueWeek FROM league_members lm, league l WHERE lm.id = ? AND lm.league_id = l.id',
+      'SELECT lm.team_name, lm.points, lm.id, l.name, lm.league_id, l.draft_complete, l.active, l.week as leagueWeek FROM league_members lm, league l WHERE lm.id = ? AND lm.league_id = l.id',
       [member_id]
     );
 
