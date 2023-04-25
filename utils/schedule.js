@@ -560,7 +560,7 @@ module.exports.playoffsFirstRound = async () => {
   }
 };
 
-const getPlayoffsRankings = async (games, week = null) => {
+const getPlayoffsRankings = async (games) => {
   try {
     const teamA = [];
     const teamB = [];
@@ -574,23 +574,23 @@ const getPlayoffsRankings = async (games, week = null) => {
     let rankingsB = await getLeagueMemebrInfo(teamB);
 
     const mainRankings = [];
-    
-    if (week === 11) {
-      const byeTeams = [
-        {
-          team_name: 'Bye Team Name - 0',
-          id: 'Bye Team Id - 0'
-        },
-        {
-          team_name: 'Bye Team Name - 1',
-          id: 'Bye Team Id - 1'
-        }
-      ];
-
-      rankingsB = byeTeams.concat(rankingsB);
-    }
 
     for (let index = 0; index < games.length; index++) {
+      if (games[index].week === 10 && games[index].team_b === 0) {
+        const byeTeams = [
+          {
+            team_name: 'Bye Team Name - 0',
+            id: 'Bye Team Id - 0'
+          },
+          {
+            team_name: 'Bye Team Name - 1',
+            id: 'Bye Team Id - 1'
+          }
+        ];
+  
+        rankingsB = byeTeams.concat(rankingsB);
+      }
+
       const hasRankingA = mainRankings.some(
         (rank) => rank.team === rankingsA[index].team_name
       );
@@ -656,7 +656,7 @@ const getPlayoffsRankings = async (games, week = null) => {
 module.exports.playoffsSemis = async () => {
   try {
     const games = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE m.week = ? AND m.team_a = t.id AND t.league_member_id = lm.id AND lm.league_id = l.id',
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE m.week = ? AND m.team_a = t.id AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [10]
     );
 
@@ -664,7 +664,7 @@ module.exports.playoffsSemis = async () => {
       return;
     }
 
-    const rankings = await getPlayoffsRankings(games, 11);
+    const rankings = await getPlayoffsRankings(games);
     const leagueId = games[0].leagueId;
 
     await insertNewMatchup(
@@ -687,7 +687,7 @@ module.exports.playoffsSemis = async () => {
 module.exports.playoffsFinals = async () => {
   try {
     const games = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE m.week = ? AND m.team_a = t.id AND t.league_member_id = lm.id AND lm.league_id = l.id',
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE m.week = ? AND m.team_a = t.id AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [11]
     );
 

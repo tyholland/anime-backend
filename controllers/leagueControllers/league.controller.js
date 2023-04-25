@@ -274,19 +274,15 @@ module.exports.getScoreboard = async (req, res) => {
     const mainScoreboard = [];
 
     for (let index = 0; index < games.length; index++) {
-      if (games[index].week === 10 && scoreboardA.length > scoreboardB.length) {
-        const byeTeams = [
+      if (games[index].week === 10 && games[index].team_b === 0) {
+        const byeTeam = [
           {
-            team_name: 'Bye',
-            id: 'Bye - 0'
+            team_name: `Bye Team Name - ${index}`,
+            id: `Bye Team Id - ${index}`
           },
-          {
-            team_name: 'Bye',
-            id: 'Bye - 1'
-          }
         ];
   
-        scoreboardB = byeTeams.concat(scoreboardB);
+        scoreboardB = byeTeam.concat(scoreboardB);
       }
 
       mainScoreboard.push({
@@ -330,7 +326,9 @@ module.exports.getStandings = async (req, res) => {
       );
     }
 
-    const rankings = await getRankings(games, isFirstWeek);
+    let rankings = await getRankings(games, isFirstWeek);
+
+    rankings = rankings.filter(item => item.team !== undefined);
 
     return res.status(200).json(rankings);
   } catch (error) {

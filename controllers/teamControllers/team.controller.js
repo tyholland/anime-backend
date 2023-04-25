@@ -259,18 +259,14 @@ module.exports.getSchedule = async (req, res) => {
 
     for (let index = 0; index < games.length; index++) {
       if (games[index].week === 10 && scheduleA.length > scheduleB.length) {
-        const byeTeams = [
+        const byeTeam = [
           {
-            team_name: 'Bye',
-            id: 'Bye - 0'
+            team_name: `Bye Team Name - ${index}`,
+            id: `Bye Team Id - ${index}`
           },
-          {
-            team_name: 'Bye',
-            id: 'Bye - 1'
-          }
         ];
   
-        scheduleB = byeTeams.concat(scheduleB);
+        scheduleB = byeTeam.concat(scheduleB);
       }
 
       mainSchedule.push({
