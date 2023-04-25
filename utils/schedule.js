@@ -579,13 +579,9 @@ const getPlayoffsRankings = async (games) => {
       if (games[index].week === 10 && games[index].team_b === 0) {
         const byeTeams = [
           {
-            team_name: 'Bye Team Name - 0',
-            id: 'Bye Team Id - 0'
+            team_name: `Bye Team Name - ${index}`,
+            id: `Bye Team Id - ${index}`
           },
-          {
-            team_name: 'Bye Team Name - 1',
-            id: 'Bye Team Id - 1'
-          }
         ];
   
         rankingsB = byeTeams.concat(rankingsB);
@@ -656,8 +652,8 @@ const getPlayoffsRankings = async (games) => {
 module.exports.playoffsSemis = async () => {
   try {
     const games = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE m.week = ? AND m.team_a = t.id AND t.league_member_id = lm.id AND lm.league_id = l.id',
-      [10]
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE m.week = ? AND m.team_a = t.id AND t.league_member_id = lm.id AND lm.league_id = l.id AND l.week = ?',
+      [10, 10]
     );
 
     if (!games.length) {
@@ -687,8 +683,8 @@ module.exports.playoffsSemis = async () => {
 module.exports.playoffsFinals = async () => {
   try {
     const games = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE m.week = ? AND m.team_a = t.id AND t.league_member_id = lm.id AND lm.league_id = l.id',
-      [11]
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE m.week = ? AND m.team_a = t.id AND t.league_member_id = lm.id AND lm.league_id = l.id AND l.week = ?',
+      [11, 11]
     );
 
     if (!games.length) {
