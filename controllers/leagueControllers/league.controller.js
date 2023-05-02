@@ -24,7 +24,7 @@ module.exports.getLeague = async (req, res) => {
 
   try {
     const leagueData = await mysql(
-      'SELECT l.name, l.num_teams, l.week, l.creator_id, l.draft_active, l.draft_complete FROM league l, league_members lm WHERE l.id = ? AND l.id = lm.league_id AND lm.user_id = ?',
+      'SELECT l.name, l.num_teams, l.week, l.creator_id, l.draft_active, l.draft_complete, l.active FROM league l, league_members lm WHERE l.id = ? AND l.id = lm.league_id AND lm.user_id = ?',
       [league_id, userId]
     );
 
@@ -66,7 +66,7 @@ module.exports.getAllLeagues = async (req, res) => {
 
   try {
     const leagueData = await mysql(
-      'SELECT l.name, l.week, l.id as leagueId, lm.team_name, l.draft_complete FROM league_members lm, league l WHERE lm.user_id = ? AND lm.league_id = l.id',
+      'SELECT l.name, l.week, l.id as leagueId, l.active, lm.team_name, l.draft_complete FROM league_members lm, league l WHERE lm.user_id = ? AND lm.league_id = l.id',
       [userId]
     );
 
@@ -98,7 +98,13 @@ module.exports.getAllLeagues = async (req, res) => {
         draft_complete === 0 && draftRounds.length > 0;
     }
 
-    return res.status(200).json(leagueData);
+    const pastLeague = leagueData.filter(league => league.active === 0);
+    const activeLeague = leagueData.filter(league => league.active === 1);
+
+    return res.status(200).json({
+      current: activeLeague,
+      past: pastLeague
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
