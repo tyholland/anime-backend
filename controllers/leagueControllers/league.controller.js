@@ -24,13 +24,18 @@ module.exports.getLeague = async (req, res) => {
 
   try {
     const leagueData = await mysql(
-      'SELECT l.name, l.num_teams, l.week, l.creator_id, l.draft_active, l.draft_complete, t.id as teamId FROM league l, league_members lm, team t WHERE l.id = ? AND l.id = lm.league_id AND lm.user_id = ? AND lm.id = t.league_member_id AND l.week = t.week',
+      'SELECT l.name, l.num_teams, l.week, l.creator_id, l.draft_active, l.draft_complete FROM league l, league_members lm WHERE l.id = ? AND l.id = lm.league_id AND lm.user_id = ?',
       [league_id, userId]
+    );
+
+    const teamData = await mysql(
+      'SELECT t.id as teamId FROM league_members lm, league l, team t WHERE lm.user_id = ? AND lm.league_id = ? AND lm.id = t.league_member_id AND l.week = t.week',
+      [userId, league_id]
     );
 
     const matchupData = await mysql(
       'SELECT m.id as matchupId, m.team_b FROM team t, matchup m WHERE t.id = ? AND t.week = m.week AND (t.id = m.team_a OR t.id = m.team_b)',
-      [leagueData[0].teamId]
+      [teamData[0]?.teamId]
     );
 
     const draftRounds = await mysql('SELECT * FROM draft WHERE league_id = ?', [
@@ -45,6 +50,7 @@ module.exports.getLeague = async (req, res) => {
       leagueData,
       matchupData,
       hasDraft: draftRounds.length > 0,
+      teamData,
     });
   } catch (error) {
     console.log(error);
@@ -60,16 +66,21 @@ module.exports.getAllLeagues = async (req, res) => {
 
   try {
     const leagueData = await mysql(
-      'SELECT l.name, l.week, l.id as leagueId, lm.team_name, l.draft_complete, t.id as teamId FROM league_members lm, league l, team t WHERE lm.user_id = ? AND lm.league_id = l.id AND lm.id = t.league_member_id AND l.week = t.week',
+      'SELECT l.name, l.week, l.id as leagueId, lm.team_name, l.draft_complete FROM league_members lm, league l WHERE lm.user_id = ? AND lm.league_id = l.id',
       [userId]
     );
 
     for (let index = 0; index < leagueData.length; index++) {
-      const { teamId, leagueId, draft_complete } = leagueData[index];
+      const { leagueId, draft_complete } = leagueData[index];
+
+      const teamData = await mysql(
+        'SELECT t.id as teamId FROM league_members lm, league l, team t WHERE lm.user_id = ? AND lm.league_id = ? AND lm.id = t.league_member_id AND l.week = t.week',
+        [userId, leagueData[index].leagueId]
+      );
 
       const matchupData = await mysql(
         'SELECT m.id as matchupId FROM team t, matchup m WHERE t.id = ? AND t.week = m.week AND (t.id = m.team_a OR t.id = m.team_b)',
-        [teamId]
+        [teamData[0]?.teamId]
       );
 
       if (matchupData.length) {
@@ -82,6 +93,7 @@ module.exports.getAllLeagues = async (req, res) => {
       );
 
       leagueData[index].matchupId = matchupData[0]?.matchupId;
+      leagueData[index].teamId = teamData[0]?.teamId;
       leagueData[index].hasDraft =
         draft_complete === 0 && draftRounds.length > 0;
     }
