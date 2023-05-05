@@ -72,11 +72,18 @@ module.exports.getDraft = async (req, res) => {
     const totalSeconds =
       Math.abs(currentTime.getTime() - startTime.getTime()) / 1000;
 
+    const member = await mysql('SELECT * FROM league_members WHERE user_id = ? AND league_id = ?', [userId, league_id]);
+
+    if (member[0].draft_reset_timer === 1) {
+      await mysql('UPDATE league_members SET draft_reset_timer = ? WHERE user_id = ? AND league_id = ?', [0, userId, league_id]);
+    }
+
     return res.status(200).json({
       draft: draft[0],
       userTeamId: specificTeam[0].id,
       remainingTime: Math.floor(defaultTime - totalSeconds),
       draftComplete: league[0].draft_complete === 1,
+      resetTimer: member[0].draft_reset_timer === 1
     });
   } catch (error) {
     console.log(error);
@@ -198,18 +205,24 @@ module.exports.draftNextRound = async (req, res) => {
     }
 
     const round = draft[0].round;
-    const nextRound = round + 1;
+    const nextRound = draft[0].next;
+
+    if (round === nextRound) {
+      return res
+        .status(200)
+        .json({ newRound: nextRound, draftComplete: nextRound === 9 });
+    }
 
     await mysql(
-      'UPDATE draft SET active = ? WHERE league_id = ? AND round = ?',
-      [0, league_id, round]
+      'UPDATE draft SET active = ? WHERE league_id = ? AND round = ? AND next = ?',
+      [0, league_id, round, nextRound]
     );
 
     if (nextRound < 9) {
       const date = new Date().toISOString();
 
       await mysql(
-        'UPDATE draft SET active = ?, start_time = ?, pick_order = ? WHERE league_id = ? AND round = ?',
+        'UPDATE draft SET active = ?, start_time = ?, pick_order = ?, next = ? WHERE league_id = ? AND round = ?',
         [1, date, 0, league_id, nextRound]
       );
     }
@@ -236,7 +249,7 @@ module.exports.draftNextRound = async (req, res) => {
 
 module.exports.addDraftPlayers = async (req, res) => {
   const { team_id } = req.params;
-  const { thePlayers, teams, pick, draftId, pickOrder } = req.body;
+  const { thePlayers, teams, pick, draftId, pickOrder, leagueId, round } = req.body;
 
   try {
     if (thePlayers) {
@@ -344,8 +357,19 @@ module.exports.addDraftPlayers = async (req, res) => {
     // Update Draft
     await mysql(
       'UPDATE draft SET teams = ?, recent_pick = ?, pick_order = ?, start_time = ? WHERE id = ?',
-      [teams, pick, pickOrder, date, draftId]
+      [teams, pick, pickOrder + 1, date, draftId]
     );
+
+    const newRound = pickOrder + 1;
+    if (newRound === 6) {
+      await mysql('UPDATE draft SET next = ? WHERE id = ?', [round + 1, draftId]);
+    }
+
+    const members = await mysql('SELECT * FROM league_members WHERE league_id = ?', [leagueId]);
+
+    for (let index = 0; index < members.length; index++) {
+      await mysql('UPDATE league_members SET draft_reset_timer = ? WHERE user_id = ? AND league_id = ?', [1, members[index].user_id, leagueId]);
+    }
 
     return res.status(200).json({
       success: true,
