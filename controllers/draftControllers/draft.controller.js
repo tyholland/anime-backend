@@ -223,7 +223,7 @@ module.exports.draftNextRound = async (req, res) => {
 
       await mysql(
         'UPDATE draft SET active = ?, start_time = ?, pick_order = ?, next = ? WHERE league_id = ? AND round = ?',
-        [1, date, 0, league_id, nextRound]
+        [1, date, 0, nextRound, league_id, nextRound]
       );
     }
 
@@ -356,8 +356,8 @@ module.exports.addDraftPlayers = async (req, res) => {
 
     // Update Draft
     await mysql(
-      'UPDATE draft SET teams = ?, recent_pick = ?, pick_order = ?, start_time = ? WHERE id = ?',
-      [teams, pick, pickOrder + 1, date, draftId]
+      'UPDATE draft SET teams = ?, recent_pick = ?, pick_order = ?, start_time = ? WHERE id = ? AND active = ?',
+      [teams, pick, pickOrder + 1, date, draftId, 1]
     );
 
     const newRound = pickOrder + 1;
