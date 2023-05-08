@@ -75,7 +75,8 @@ module.exports.getSpecificTeamInfo = async (member_id, userId) => {
       member: member[0],
       rank: rankings,
     };
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     throw new Error('Can not get team info');
   }
 };
@@ -94,6 +95,7 @@ module.exports.getUserPoints = async (characterIds) => {
 
     return defaultPoints - totalPoints;
   } catch (err) {
+    console.log(err);
     throw new Error('Can not get user points');
   }
 };
@@ -140,6 +142,7 @@ const getWeekRecap = async (week, userId, leagueId) => {
       loser: loser === currentTeamId ? team_name : opponentTeam,
     };
   } catch (err) {
+    console.log(err);
     throw new Error('Can not get week recap');
   }
 };
@@ -448,6 +451,7 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
 
     return totalTeamPoints;
   } catch (err) {
+    console.log(err);
     throw new Error('Can not get full team matchup points');
   }
 };

@@ -15,6 +15,7 @@ const insertNewBracketVoting = async (
       [userId, bracketId, player1, player2, 0, 0, rank, 1, 1, date]
     );
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create new bracket vote');
   }
 };
@@ -29,6 +30,7 @@ const getGameWinner = async (voting, match) => {
       ? game.player_b_id
       : game.player_a_id;
   } catch (err) {
+    console.log(err);
     throw new Error('Can not get game winner and update voting status');
   }
 };
@@ -103,6 +105,7 @@ module.exports.createBracketFirstRound = async (bracketId) => {
       bracket[0].id,
     ]);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create bracket first round');
   }
 };
@@ -164,6 +167,7 @@ module.exports.createBracketSecondRound = async (bracketId) => {
       bracket[0].id,
     ]);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create bracket second round');
   }
 };
@@ -207,6 +211,7 @@ module.exports.createBracketThirdRound = async (bracketId) => {
       bracket[0].id,
     ]);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create bracket third round');
   }
 };
@@ -241,6 +246,7 @@ module.exports.createBracketFinalRound = async (bracketId) => {
       bracket[0].id,
     ]);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create bracket fourth round');
   }
 };
@@ -265,6 +271,7 @@ module.exports.createBracketChamp = async (bracketId) => {
       [5, 0, winner15, bracket[0].id]
     );
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create bracket champ');
   }
 };

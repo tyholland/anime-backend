@@ -11,9 +11,10 @@ const {
   getLeagueAdminData,
   removeTeamFromLeague,
   getPlayoffsSchedule,
+  getLeagueChamp
 } = require('../../controllers/leagueControllers/league.controller');
 const { authenticateToken } = require('../../utils');
-const { cacheFiveMins } = require('../../utils/cache');
+const { cacheFiveMins, cacheThirtyMins } = require('../../utils/cache');
 const cache = require('../../utils/cache').instance();
 
 module.exports = (app) => {
@@ -62,5 +63,11 @@ module.exports = (app) => {
     cache(cacheFiveMins),
     authenticateToken,
     getPlayoffsSchedule
+  );
+  app.get(
+    '/league/champion/:league_id',
+    cache(cacheThirtyMins),
+    authenticateToken,
+    getLeagueChamp
   );
 };

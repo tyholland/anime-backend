@@ -77,6 +77,10 @@ module.exports.startNewWeek = async () => {
           [week, memberId]
         );
 
+        if (!roster.length) {
+          return;
+        }
+
         await mysql(
           'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, points = ? WHERE league_member_id = ? AND week = ?',
           [roster[0].captain, roster[0].brawler_a, roster[0].brawler_b, roster[0].bs_brawler, roster[0].bs_support, roster[0].support, roster[0].villain, roster[0].battlefield, roster[0].points, memberId, newWeek]
@@ -84,6 +88,7 @@ module.exports.startNewWeek = async () => {
       }
     }
   } catch (err) {
+    console.log(err);
     throw new Error('Can not start new week');
   }
 };
@@ -104,6 +109,7 @@ module.exports.stopRosterStartVoting = async () => {
       );
     }
   } catch (err) {
+    console.log(err);
     throw new Error('Can not stop roster change and start voting');
   }
 };
@@ -136,6 +142,7 @@ module.exports.stopUserVoting = async () => {
       }
     }
   } catch (err) {
+    console.log(err);
     throw new Error('Can not stop voting');
   }
 };
@@ -304,6 +311,7 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
 
     return sortRankings(mainRankings);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not get rankings');
   }
 };

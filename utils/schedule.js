@@ -63,6 +63,7 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
 
     return;
   } catch (err) {
+    console.log(err);
     throw new Error(`Can not insert new matchup for week: ${week}`);
   }
 };
@@ -131,6 +132,7 @@ module.exports.createSixTeamSchedule = async () => {
     await insertNewMatchup(leagueId, team2, team4, 9);
     await insertNewMatchup(leagueId, team5, team1, 9);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create six team schedule');
   }
 };
@@ -209,6 +211,7 @@ module.exports.createSevenTeamSchedule = async () => {
     await insertNewMatchup(leagueId, 0, team6, 9);
     await insertNewMatchup(leagueId, team2, team5, 9);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create seven team schedule');
   }
 };
@@ -288,6 +291,7 @@ module.exports.createEightTeamSchedule = async () => {
     await insertNewMatchup(leagueId, team5, team7, 9);
     await insertNewMatchup(leagueId, team6, team8, 9);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create eight team schedule');
   }
 };
@@ -377,6 +381,7 @@ module.exports.createNineTeamSchedule = async () => {
     await insertNewMatchup(leagueId, team1, team5, 9);
     await insertNewMatchup(leagueId, team6, team9, 9);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create nine team schedule');
   }
 };
@@ -467,6 +472,7 @@ module.exports.createTenTeamSchedule = async () => {
     await insertNewMatchup(leagueId, team1, team5, 9);
     await insertNewMatchup(leagueId, team6, team9, 9);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create ten team schedule');
   }
 };
@@ -523,6 +529,7 @@ module.exports.createPlayoffsSchedule = async (leagueId, week, round) => {
 
     return playoffSchedule;
   } catch (err) {
+    console.log(err);
     throw new Error('Can not create playoffs schedule');
   }
 };
@@ -555,7 +562,8 @@ module.exports.playoffsFirstRound = async () => {
       rankings[4].teamId,
       10
     );
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     throw new Error('Can not get the first round of playoffs');
   }
 };
@@ -645,6 +653,7 @@ const getPlayoffsRankings = async (games) => {
 
     return sortRankings(mainRankings);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not get playoffs rankings');
   }
 };
@@ -675,7 +684,8 @@ module.exports.playoffsSemis = async () => {
       rankings[2].teamId,
       11
     );
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     throw new Error('Can not get the playoffs semis');
   }
 };
@@ -700,7 +710,8 @@ module.exports.playoffsFinals = async () => {
       rankings[1].teamId,
       12
     );
-  } catch (error) {
+  } catch (err) {
+    console.log(err);
     throw new Error('Can not get the playoffs finals');
   }
 };

@@ -116,7 +116,7 @@ module.exports.getAllLeagues = async (req, res) => {
 
 module.exports.createLeague = async (req, res) => {
   const { name, numTeams } = req.body;
-  const { userId } = req.user;
+  const { userId, email } = req.user;
   const date = new Date().toISOString();
   const randomStr = (Math.random() + 1).toString(36).substring(5);
   const hash = `ABZ-${randomStr}`;
@@ -128,6 +128,8 @@ module.exports.createLeague = async (req, res) => {
     );
 
     await addLeagueSegment(name, newLeague.insertId);
+
+    await addMemberToSegment(name, newLeague.insertId, email);
 
     return await createNewTeam(userId, newLeague.insertId, res);
   } catch (error) {
@@ -494,6 +496,38 @@ module.exports.getPlayoffsSchedule = async (req, res) => {
     return res.status(500).json({
       error,
       action: 'Get playoff schedule',
+    });
+  }
+};
+
+module.exports.getLeagueChamp = async (req, res) => {
+  const { userId } = req.user;
+  const { league_id } = req.params;
+
+  try {
+    await checkValidUserInLeague(userId, league_id, res);
+
+    const finalsMatchup = await mysql('SELECT * FROM matchup WHERE league_id = ? AND week = ? AND active = ?', [league_id, 12, 0]);
+
+    if (!finalsMatchup.length) {
+      return res.status(400).json({
+        message: 'This league has not reached the Finals yet',
+      });
+    }
+
+    const isTeamA = finalsMatchup[0].score_a > finalsMatchup[0].score_b;
+    const champ = isTeamA ? finalsMatchup[0].team_a : finalsMatchup[0].team_b;
+
+    const champTeam = await mysql('SELECT lm.team_name FROM team t, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id', [champ]);
+
+    return res.status(200).json({
+      champ: champTeam[0].team_name
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+      action: 'Get league champ',
     });
   }
 };

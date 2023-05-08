@@ -23,6 +23,7 @@ const updateCampaign = async (campaignId, subject, preview, segmentId) => {
       },
     });
   } catch (err) {
+    console.log(err);
     throw new Error('Can not update campaign email');
   }
 };
@@ -39,6 +40,7 @@ const getLeagueSegement = async (leagueName, leagueId) => {
 
     return theList.id;
   } catch (err) {
+    console.log(err);
     throw new Error('Can not get league segment');
   }
 };
@@ -53,6 +55,7 @@ module.exports.sendLeagueStartEmail = async (leagueName, leagueId) => {
     await updateCampaign(campaignId, subject, preview, segmentId);
     await mailchimp.campaigns.send(campaignId);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not send email for league starting');
   }
 };
@@ -67,6 +70,7 @@ module.exports.sendLeagueEndedEmail = async (leagueName, leagueId) => {
     await updateCampaign(campaignId, subject, preview, segmentId);
     await mailchimp.campaigns.send(campaignId);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not send email for league ending');
   }
 };
@@ -81,6 +85,7 @@ module.exports.sendLeagueDeletedEmail = async (leagueName, leagueId) => {
     await updateCampaign(campaignId, subject, preview, segmentId);
     await mailchimp.campaigns.send(campaignId);
   } catch (err) {
+    console.log(err);
     throw new Error('Can not send email for league being deleted');
   }
 };
@@ -94,6 +99,7 @@ module.exports.addLeagueSegment = async (leagueName, leagueId) => {
       static_segment: [],
     });
   } catch (err) {
+    console.log(err);
     throw new Error('Can not add new segment for league');
   }
 };
@@ -106,6 +112,7 @@ module.exports.addMemberToList = async (email) => {
       tags: [process.env.SERVER_ENV],
     });
   } catch (err) {
+    console.log(err);
     throw new Error('Can not add member to list');
   }
 };
@@ -118,6 +125,7 @@ module.exports.addMemberToSegment = async (leagueName, leagueId, email) => {
       email_address: email,
     });
   } catch (err) {
+    console.log(err);
     throw new Error('Can not add member to segment');
   }
 };
