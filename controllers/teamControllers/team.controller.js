@@ -240,7 +240,7 @@ module.exports.getSchedule = async (req, res) => {
 
   try {
     const games = await mysql(
-      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM league_members lm, team t, matchup m WHERE lm.user_id = ? AND lm.league_id = ? AND lm.id = t.league_member_id AND (m.team_a = t.id OR m.team_b = t.id)',
+      'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b, m.week, l.active as leagueActive FROM league_members lm, team t, matchup m, league l WHERE lm.user_id = ? AND l.id = ? AND l.id = lm.league_id AND lm.id = t.league_member_id AND (m.team_a = t.id OR m.team_b = t.id)',
       [userId, league_id]
     );
 
@@ -276,6 +276,7 @@ module.exports.getSchedule = async (req, res) => {
         scoreB: games[index].score_b < 0 ? 0 : games[index].score_b,
         week: index + 1,
         match: games[index].id,
+        leagueComplete: games[index].leagueActive === 0
       });
     }
 
