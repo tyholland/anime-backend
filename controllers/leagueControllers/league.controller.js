@@ -346,6 +346,15 @@ module.exports.getStandings = async (req, res) => {
       );
     }
 
+    const leagueEnd = await mysql(
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND l.active = ?',
+      [league_id, 0]
+    );
+
+    if (leagueEnd.length) {
+      games = leagueEnd;
+    }
+
     let rankings = await getRankings(games, isFirstWeek);
 
     rankings = rankings.filter(item => item.team !== undefined);
