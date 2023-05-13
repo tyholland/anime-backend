@@ -1,6 +1,6 @@
 const mysql = require('./mysql').instance();
 const { sortRankings } = require('./index');
-const { sendLeagueEndedEmail } = require('./mailchimp');
+const { sendLeagueEndedEmail, sendLeagueStartEmail } = require('./mailchimp');
 const { getFullTeamMatchupPoints } = require('./team');
 
 module.exports.startNewWeek = async () => {
@@ -32,6 +32,12 @@ module.exports.startNewWeek = async () => {
             teams[i].id,
           ]);
         }
+          
+        const league = await mysql('SELECT name FROM league WHERE id = ?', [
+          id,
+        ]);
+    
+        await sendLeagueStartEmail(league[0].name, id);
       }
 
       if (week === 12) {

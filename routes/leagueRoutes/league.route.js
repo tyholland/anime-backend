@@ -7,7 +7,6 @@ const {
   joinLeague,
   getScoreboard,
   getStandings,
-  startLeague,
   getLeagueAdminData,
   removeTeamFromLeague,
   getPlayoffsSchedule,
@@ -46,7 +45,6 @@ module.exports = (app) => {
     authenticateToken,
     getStandings
   );
-  app.post('/league/start', authenticateToken, startLeague);
   app.get(
     '/league/admin/settings/:league_id',
     cache(cacheFiveMins),

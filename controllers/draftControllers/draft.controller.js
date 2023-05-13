@@ -228,11 +228,24 @@ module.exports.draftNextRound = async (req, res) => {
     }
 
     // Draft is complete
+    // Start League
     if (nextRound === 9) {
       await mysql(
         'UPDATE league SET draft_active = ?, draft_complete = ?, week = ? WHERE id = ?',
         [0, 1, 0, league_id]
       );
+
+      const members = await mysql(
+        'SELECT id FROM league_members WHERE league_id = ?',
+        [league_id]
+      );
+  
+      for (let index = 0; index < members.length; index++) {
+        await mysql(
+          'UPDATE team SET week = ? WHERE league_member_id = ? AND week = ?',
+          [0, members[index].id, -1]
+        );
+      }
     }
 
     return res
