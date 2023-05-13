@@ -96,8 +96,8 @@ module.exports.startNewWeek = async () => {
 module.exports.stopRosterStartVoting = async () => {
   try {
     const leagues = await mysql(
-      'SELECT id FROM league WHERE active = ? AND (week != ? OR week != ?)',
-      [1, 0, -1]
+      'SELECT id FROM league WHERE active = ? AND week > ?',
+      [1, 0]
     );
 
     for (let index = 0; index < leagues.length; index++) {
@@ -117,8 +117,8 @@ module.exports.stopRosterStartVoting = async () => {
 module.exports.stopUserVoting = async () => {
   try {
     const leagues = await mysql(
-      'SELECT id, week FROM league WHERE active = ? AND (week != ? OR week != ?)',
-      [1, 0, -1]
+      'SELECT id, week FROM league WHERE active = ? AND week > ?',
+      [1, 0]
     );
 
     for (let index = 0; index < leagues.length; index++) {

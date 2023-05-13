@@ -8,8 +8,8 @@
     "dev": "env-cmd -f .env.local nodemon ./index.js",
     "start": "node index.js",
     "clean": "rm -rf node_modules && yarn && yarn prepare",
-    "lint": "eslint .",
-    "lint-fix": "eslint . --fix",
+    "eslint": "eslint .",
+    "eslint-fix": "eslint . --fix",
     "unit-test": "jest",
     "prepare": "husky install"
   },
