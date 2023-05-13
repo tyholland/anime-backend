@@ -293,7 +293,7 @@ module.exports.addDraftPlayers = async (req, res) => {
       if (userPoints < 0) {
         return res.status(400).json({
           message:
-            'The Scouter says your power level is OVER 9000! Please readjust your roster',
+            'The Scouter says your power level is OVER 9000! Please choose another character',
         });
       }
 
