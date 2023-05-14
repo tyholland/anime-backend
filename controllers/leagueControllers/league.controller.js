@@ -346,7 +346,7 @@ module.exports.getStandings = async (req, res) => {
     }
 
     const leagueEnd = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND l.active = ?',
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND l.active = ? AND l.id = m.league_id',
       [league_id, 0]
     );
 
