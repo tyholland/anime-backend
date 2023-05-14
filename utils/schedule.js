@@ -30,10 +30,10 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
 
   try {
     const weekRand = Math.floor(Math.random() * randomAffinity.length);
-    const previousWeek = week - 1;
+    const previousWeek = week === 0 ? 0 : week - 1;
 
     const newTeamA = await mysql(
-      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`, `affinity`, `activeAffinity`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status, affinity, activeAffinity FROM team WHERE league_member_id = ? AND week = ?',
+      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE league_member_id = ? AND week = ?',
       [teamA, previousWeek]
     );
 
@@ -43,7 +43,7 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
     );
 
     const newTeamB = await mysql(
-      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`, `affinity`, `activeAffinity`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status, affinity, activeAffinity FROM team WHERE league_member_id = ? AND week = ?',
+      'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status FROM team WHERE league_member_id = ? AND week = ?',
       [teamB, previousWeek]
     );
 
