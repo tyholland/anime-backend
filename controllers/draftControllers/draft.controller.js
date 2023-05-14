@@ -373,8 +373,10 @@ module.exports.addDraftPlayers = async (req, res) => {
       [teams, pick, pickOrder + 1, date, draftId, 1]
     );
 
+    const leagueNum = await mysql('SELECT num_teams FROM league WHERE id = ?', [leagueId]);
+
     const newRound = pickOrder + 1;
-    if (newRound === 6) {
+    if (newRound === leagueNum[0].num_teams) {
       await mysql('UPDATE draft SET next = ? WHERE id = ?', [round + 1, draftId]);
     }
 
