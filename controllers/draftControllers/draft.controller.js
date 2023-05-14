@@ -100,7 +100,7 @@ module.exports.createDraft = async (req, res) => {
 
   try {
     const teams = await mysql(
-      'SELECT * FROM league_members WHERE league_id = ?',
+      'SELECT id, user_id, team_name FROM league_members WHERE league_id = ?',
       [league_id]
     );
     const shuffledTeams = shuffleArray(teams);
