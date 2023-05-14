@@ -332,7 +332,7 @@ module.exports.getStandings = async (req, res) => {
     await checkValidUserInLeague(userId, league_id, res);
 
     let games = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND m.week < l.week',
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND l.id = m.league_id AND m.week < l.week',
       [league_id]
     );
 
