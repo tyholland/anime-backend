@@ -352,14 +352,20 @@ module.exports.getBracket = async (req, res) => {
 };
 
 module.exports.getAllBrackets = async (req, res) => {
-  const { userId } = req.user;
+  const { user_id } = req.params;
 
   try {
-    const brackets = await mysql('SELECT * FROM bracket WHERE creator_id = ?', [
-      userId,
+    const allBrackets = await mysql('SELECT * FROM bracket WHERE active = ? AND creator_id != ?', [
+      1, user_id
+    ]);
+    const userBrackets = await mysql('SELECT * FROM bracket WHERE creator_id = ?', [
+      user_id,
     ]);
 
-    return res.status(200).json(brackets);
+    return res.status(200).json({
+      userBrackets,
+      allBrackets
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({

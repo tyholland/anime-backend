@@ -11,7 +11,7 @@ const {
   startChampRound,
 } = require('../../controllers/bracketControllers/bracket.controller');
 const { authenticateToken } = require('../../utils');
-const { cacheOneYear, cacheOneDay } = require('../../utils/cache');
+const { cacheOneYear, cacheFiveMins } = require('../../utils/cache');
 const cache = require('../../utils/cache').instance();
 
 module.exports = (app) => {
@@ -19,9 +19,8 @@ module.exports = (app) => {
   app.put('/bracket/add', addVotes);
   app.get('/bracket/:bracket_id', getBracket);
   app.get(
-    '/bracket/all/items',
-    cache(cacheOneDay),
-    authenticateToken,
+    '/bracket/all/items/:user_id',
+    cache(cacheFiveMins),
     getAllBrackets
   );
   app.get('/bracket/round1/:bracket_id', authenticateToken, startRound1);

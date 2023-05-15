@@ -35,6 +35,7 @@ module.exports.middleware = () => {
       /^\/player\/.*/,
       /^\/bracket\/.*/,
       /^\/bracket\/champ\/.*/,
+      /^\/bracket\/all\/items\/.*/,
       /^\/matchup\/votes\/.*/,
 
       '/',
