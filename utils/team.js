@@ -367,6 +367,11 @@ module.exports.getFullTeamMatchupPoints = async (teamId, team, matchupId) => {
 
     const characterIds = characterArr.filter((item) => !!item);
 
+    // Team has no characters added
+    if (!characterIds.length) {
+      return 0;
+    }
+
     const players = await mysql('SELECT * FROM players WHERE id in (?)', [
       characterIds,
     ]);
