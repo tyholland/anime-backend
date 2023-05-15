@@ -22,8 +22,8 @@ module.exports.startNewWeek = async () => {
 
       if (week === 0) {
         const teams = await mysql(
-          'SELECT t.id FROM league_members lm, team t WHERE lm.league_id = ? AND lm.id = t.league_member_id',
-          [id]
+          'SELECT t.id FROM league_members lm, team t WHERE lm.league_id = ? AND lm.id = t.league_member_id AND t.week = ?',
+          [id, 0]
         );
 
         for (let i = 0; i < teams.length; i++) {
