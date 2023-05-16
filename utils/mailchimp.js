@@ -50,10 +50,12 @@ module.exports.sendLeagueStartEmail = async (leagueName, leagueId) => {
     const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName} has just started`;
     const preview = `${leagueName} started`;
-    const campaignId = '031c1ccb3d';
+    const campaignId = '71f4877be2';
 
-    await updateCampaign(campaignId, subject, preview, segmentId);
-    await mailchimp.campaigns.send(campaignId);
+    const newCampaign = await mailchimp.campaigns.replicate(campaignId);
+
+    await updateCampaign(newCampaign.id, subject, preview, segmentId);
+    await mailchimp.campaigns.send(newCampaign.id,);
   } catch (err) {
     console.log(err);
     throw new Error('Can not send email for league starting');
@@ -65,10 +67,12 @@ module.exports.sendLeagueEndedEmail = async (leagueName, leagueId) => {
     const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName} has just ended`;
     const preview = `${leagueName} ended`;
-    const campaignId = '242cddbae1';
+    const campaignId = 'ca6de0027b';
 
-    await updateCampaign(campaignId, subject, preview, segmentId);
-    await mailchimp.campaigns.send(campaignId);
+    const newCampaign = await mailchimp.campaigns.replicate(campaignId);
+
+    await updateCampaign(newCampaign.id, subject, preview, segmentId);
+    await mailchimp.campaigns.send(newCampaign.id);
   } catch (err) {
     console.log(err);
     throw new Error('Can not send email for league ending');
@@ -82,11 +86,64 @@ module.exports.sendLeagueDeletedEmail = async (leagueName, leagueId) => {
     const preview = `${leagueName} deleted`;
     const campaignId = 'c74b67925f';
 
-    await updateCampaign(campaignId, subject, preview, segmentId);
-    await mailchimp.campaigns.send(campaignId);
+    const newCampaign = await mailchimp.campaigns.replicate(campaignId);
+
+    await updateCampaign(newCampaign.id, subject, preview, segmentId);
+    await mailchimp.campaigns.send(newCampaign.id);
   } catch (err) {
     console.log(err);
     throw new Error('Can not send email for league being deleted');
+  }
+};
+
+module.exports.sendLeagueNewWeek = async (leagueName, leagueId, week) => {
+  try {
+    const segmentId = await getLeagueSegement(leagueName, leagueId);
+    const subject = `Week ${week} for ${leagueName} has started`;
+    const preview = `${leagueName} - Week ${week}`;
+    const campaignId = '840a595246';
+
+    const newCampaign = await mailchimp.campaigns.replicate(campaignId);
+
+    await updateCampaign(newCampaign.id, subject, preview, segmentId);
+    await mailchimp.campaigns.send(newCampaign.id,);
+  } catch (err) {
+    console.log(err);
+    throw new Error('Can not send email for league new week');
+  }
+};
+
+module.exports.sendLeagueAffinityDrop = async (leagueName, leagueId) => {
+  try {
+    const segmentId = await getLeagueSegement(leagueName, leagueId);
+    const subject = `${leagueName}'s Weekly Affinity has dropped`;
+    const preview = `${leagueName} Affinity Drop`;
+    const campaignId = 'ef5f61db5a';
+
+    const newCampaign = await mailchimp.campaigns.replicate(campaignId);
+
+    await updateCampaign(newCampaign.id, subject, preview, segmentId);
+    await mailchimp.campaigns.send(newCampaign.id,);
+  } catch (err) {
+    console.log(err);
+    throw new Error('Can not send email for league affinity drop');
+  }
+};
+
+module.exports.sendLeagueVoting = async (leagueName, leagueId) => {
+  try {
+    const segmentId = await getLeagueSegement(leagueName, leagueId);
+    const subject = `${leagueName}'s Matchup Voting has started`;
+    const preview = `${leagueName} started`;
+    const campaignId = '5cbbe0a1aa';
+
+    const newCampaign = await mailchimp.campaigns.replicate(campaignId);
+
+    await updateCampaign(newCampaign.id, subject, preview, segmentId);
+    await mailchimp.campaigns.send(newCampaign.id,);
+  } catch (err) {
+    console.log(err);
+    throw new Error('Can not send email for league voting');
   }
 };
 

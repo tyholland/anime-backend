@@ -1,6 +1,6 @@
 const mysql = require('./mysql').instance();
 const { sortRankings } = require('./index');
-const { sendLeagueEndedEmail, sendLeagueStartEmail } = require('./mailchimp');
+const { sendLeagueEndedEmail, sendLeagueStartEmail, sendLeagueNewWeek, sendLeagueVoting, sendLeagueAffinityDrop } = require('./mailchimp');
 const { getFullTeamMatchupPoints } = require('./team');
 
 module.exports.startNewWeek = async () => {
@@ -13,6 +13,10 @@ module.exports.startNewWeek = async () => {
     for (let index = 0; index < leagues.length; index++) {
       const { week, id, name } = leagues[index];
       const newWeek = week + 1;
+          
+      const league = await mysql('SELECT name FROM league WHERE id = ?', [
+        id,
+      ]);
 
       // Make previous week inactive
       await mysql(
@@ -32,10 +36,6 @@ module.exports.startNewWeek = async () => {
             teams[i].id,
           ]);
         }
-          
-        const league = await mysql('SELECT name FROM league WHERE id = ?', [
-          id,
-        ]);
     
         await sendLeagueStartEmail(league[0].name, id);
       }
@@ -54,6 +54,10 @@ module.exports.startNewWeek = async () => {
         'UPDATE league SET week = ?, is_roster_active = ? WHERE id = ?',
         [newWeek, 1, id]
       );
+
+      if (week > 0) {
+        await sendLeagueNewWeek(league[0].name, id, newWeek);
+      }
 
       // Make the new week matchup active
       await mysql(
@@ -102,17 +106,19 @@ module.exports.startNewWeek = async () => {
 module.exports.stopRosterStartVoting = async () => {
   try {
     const leagues = await mysql(
-      'SELECT id FROM league WHERE active = ? AND week > ?',
+      'SELECT id, name FROM league WHERE active = ? AND week > ?',
       [1, 0]
     );
 
     for (let index = 0; index < leagues.length; index++) {
-      const { id } = leagues[index];
+      const { id, name } = leagues[index];
 
       await mysql(
         'UPDATE league SET is_roster_active = ?, is_voting_active = ? WHERE id = ?',
         [0, 1, id]
       );
+
+      await sendLeagueVoting(name, id);
     }
   } catch (err) {
     console.log(err);
@@ -325,7 +331,7 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
 module.exports.activateWeeklyAffinity = async () => {
   try {
     const teams = await mysql(
-      'SELECT t.id, t.week, l.id as league_id FROM league l, league_members lm, team t WHERE l.active = ? AND (l.week != ? OR l.week != ?) AND l.id = lm.league_id AND lm.id = t.league_member_id AND l.week = t.week',
+      'SELECT t.id, t.week, l.id as league_id, l.name as leagueName FROM league l, league_members lm, team t WHERE l.active = ? AND (l.week != ? OR l.week != ?) AND l.id = lm.league_id AND lm.id = t.league_member_id AND l.week = t.week',
       [1, 0, -1]
     );
 
@@ -334,10 +340,12 @@ module.exports.activateWeeklyAffinity = async () => {
     }
 
     for (let index = 0; index < teams.length; index++) {
-      const { id } = teams[index];
+      const { id, leagueName, league_id } = teams[index];
 
       // Update activeAffinity to be true
       await mysql('UPDATE team SET activeAffinity = ? WHERE id = ? AND week > ?', [1, id, 0]);
+
+      await sendLeagueAffinityDrop(leagueName, league_id);
     }
 
     // Update matchup scores
