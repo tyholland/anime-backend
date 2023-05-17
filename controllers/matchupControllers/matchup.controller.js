@@ -228,8 +228,8 @@ module.exports.getAllMatchupVotes = async (req, res) => {
 
     if (currentUser) {
       const votedOn = await mysql(
-        'SELECT v.id FROM votes v, votes_user vs WHERE v.active = ? AND v.is_bracket = ? AND v.id = vs.votes_id AND vs.user_id = ?',
-        [1, 0, currentUser.user_id]
+        'SELECT v.id FROM votes v, votes_user vs WHERE v.active = ? AND v.id = vs.votes_id AND vs.user_id = ?',
+        [1, currentUser.user_id]
       );
 
       const voteIds = [];
@@ -237,19 +237,19 @@ module.exports.getAllMatchupVotes = async (req, res) => {
 
       votes = voteIds.length
         ? await mysql(
-          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName, m.id as matchupId FROM votes v, matchup m, league l WHERE NOT v.id IN (?) AND v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
-          [voteIds, 1, 0]
+          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, m.id as matchupId, v.is_bracket FROM votes v, matchup m WHERE NOT v.id IN (?) AND v.active = ? AND v.matchup_id = m.id',
+          [voteIds, 1]
         )
         : await mysql(
-          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName, m.id as matchupId FROM votes v, matchup m, league l WHERE v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
-          [1, 0]
+          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, m.id as matchupId, v.is_bracket FROM votes v, matchup m WHERE v.active = ? AND v.matchup_id = m.id',
+          [1]
         );
     }
 
     if (!currentUser) {
       votes = await mysql(
-        'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, l.name as leagueName, m.id as matchupId FROM votes v, matchup m, league l WHERE v.active = ? AND v.is_bracket = ? AND v.matchup_id = m.id AND m.league_id = l.id',
-        [1, 0]
+        'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, m.id as matchupId, v.is_bracket FROM votes v, matchup m WHERE v.active = ? AND v.matchup_id = m.id',
+        [1]
       );
     }
 
@@ -262,29 +262,42 @@ module.exports.getAllMatchupVotes = async (req, res) => {
     const allVotes = [];
 
     for (let index = 0; index < votes.length; index++) {
-      const { matchupId } = votes[index];
-
-      const matchup = await mysql(
-        'SELECT team_a, team_b FROM matchup WHERE id = ?',
-        [matchupId]
-      );
-
-      const teamA = await mysql(
-        'SELECT lm.team_name FROM league_members lm, team t WHERE t.id = ? AND t.league_member_id = lm.id',
-        [matchup[0].team_a]
-      );
-
-      const teamB = await mysql(
-        'SELECT lm.team_name FROM league_members lm, team t WHERE t.id = ? AND t.league_member_id = lm.id',
-        [matchup[0].team_b]
-      );
-
+      const { matchupId, is_bracket } = votes[index];
       const currentVote = votes[index];
-      allVotes.push({
-        ...currentVote,
-        teamA: teamA[0].team_name,
-        teamB: teamB[0].team_name,
-      });
+
+      if (is_bracket) {
+        const bracketInfo = await mysql(
+          'SELECT name FROM bracket WHERE id = ?',
+          [matchupId]
+        );
+
+        allVotes.push({
+          ...currentVote,
+          bracket: bracketInfo[0].name
+        });
+      } else {
+        const matchup = await mysql(
+          'SELECT m.team_a, m.team_b, l.name as leagueName FROM matchup m, league l WHERE m.id = ? AND m.league_id = l.id',
+          [matchupId]
+        );
+
+        const teamA = await mysql(
+          'SELECT lm.team_name FROM league_members lm, team t WHERE t.id = ? AND t.league_member_id = lm.id',
+          [matchup[0].team_a]
+        );
+
+        const teamB = await mysql(
+          'SELECT lm.team_name FROM league_members lm, team t WHERE t.id = ? AND t.league_member_id = lm.id',
+          [matchup[0].team_b]
+        );
+
+        allVotes.push({
+          ...currentVote,
+          teamA: teamA[0].team_name,
+          teamB: teamB[0].team_name,
+          leagueName: matchup[0].leagueName
+        });
+      }
     }
 
     return res.status(200).json(allVotes);
