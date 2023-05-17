@@ -174,6 +174,8 @@ module.exports.updateTeam = async (req, res) => {
       ? await mysql('SELECT * FROM players WHERE id in (?)', [characterIds])
       : [];
 
+    const listOfPlayers = [];
+
     players.forEach((item) => {
       const affinities = getAffinitiesTypes(item);
       const isBattlefield = item.id === battlefield.id;
@@ -199,6 +201,14 @@ module.exports.updateTeam = async (req, res) => {
       );
 
       teamPoints += item.power_level + boost.total;
+
+      listOfPlayers.push({
+        id: item.id,
+        name: item.name,
+        rank: item.category,
+        affinity: affinities,
+        cost: item.cost,
+      });
     });
 
     await mysql(
@@ -223,7 +233,7 @@ module.exports.updateTeam = async (req, res) => {
     ]);
 
     return res.status(200).json({
-      success: true,
+      players: listOfPlayers
     });
   } catch (error) {
     console.log(error);
