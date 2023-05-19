@@ -237,18 +237,18 @@ module.exports.getAllMatchupVotes = async (req, res) => {
 
       votes = voteIds.length
         ? await mysql(
-          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, m.id as matchupId, v.is_bracket FROM votes v, matchup m WHERE NOT v.id IN (?) AND v.active = ? AND v.matchup_id = m.id',
+          'SELECT id, active, player_a_id, player_b_id, player_a_count, player_b_count, matchup_id, is_bracket FROM votes WHERE NOT id IN (?) AND active = ?',
           [voteIds, 1]
         )
         : await mysql(
-          'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, m.id as matchupId, v.is_bracket FROM votes v, matchup m WHERE v.active = ? AND v.matchup_id = m.id',
+          'SELECT id, active, player_a_id, player_b_id, player_a_count, player_b_count, matchup_id, is_bracket FROM votes WHERE active = ?',
           [1]
         );
     }
 
     if (!currentUser) {
       votes = await mysql(
-        'SELECT v.id, v.active, v.player_a_id, v.player_b_id, v.player_a_count, v.player_b_count, m.id as matchupId, v.is_bracket FROM votes v, matchup m WHERE v.active = ? AND v.matchup_id = m.id',
+        'SELECT id, active, player_a_id, player_b_id, player_a_count, player_b_count, matchup_id, is_bracket FROM votes WHERE active = ?',
         [1]
       );
     }
@@ -262,13 +262,13 @@ module.exports.getAllMatchupVotes = async (req, res) => {
     const allVotes = [];
 
     for (let index = 0; index < votes.length; index++) {
-      const { matchupId, is_bracket } = votes[index];
+      const { matchup_id, is_bracket } = votes[index];
       const currentVote = votes[index];
 
       if (is_bracket) {
         const bracketInfo = await mysql(
           'SELECT name FROM bracket WHERE id = ?',
-          [matchupId]
+          [matchup_id]
         );
 
         allVotes.push({
@@ -278,7 +278,7 @@ module.exports.getAllMatchupVotes = async (req, res) => {
       } else {
         const matchup = await mysql(
           'SELECT m.team_a, m.team_b, l.name as leagueName FROM matchup m, league l WHERE m.id = ? AND m.league_id = l.id',
-          [matchupId]
+          [matchup_id]
         );
 
         const teamA = await mysql(
