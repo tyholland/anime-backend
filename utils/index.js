@@ -2,9 +2,11 @@
 const secret = process.env.SECRET;
 const jwt = require('jsonwebtoken');
 const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
 
 module.exports.formatDate = () => {
+  dayjs.extend(utc);
   dayjs.extend(timezone);
   const currentDate = new Date();
   const date = dayjs.tz(currentDate, 'America/New_York');
@@ -413,6 +415,7 @@ module.exports.getBoostPoints = (
   const weekPoints = Math.floor(weekBoost);
   const votingPoints = Math.floor(votingBoost);
 
+  dayjs.extend(utc);
   dayjs.extend(timezone);
   const currentDate = new Date();
   const date = dayjs.tz(currentDate, 'America/New_York');
@@ -475,6 +478,7 @@ module.exports.getDamagePoints = (
   const votingPoints =
     votingDamage === 0 ? 0 : Math.floor(power_level * votingDamage);
 
+  dayjs.extend(utc);
   dayjs.extend(timezone);
   const currentDate = new Date();
   const date = dayjs.tz(currentDate, 'America/New_York');
