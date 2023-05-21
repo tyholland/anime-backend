@@ -1,12 +1,16 @@
 /* eslint-disable no-useless-escape */
 const secret = process.env.SECRET;
 const jwt = require('jsonwebtoken');
+const dayjs = require('dayjs');
+const timezone = require('dayjs/plugin/timezone');
 
 module.exports.formatDate = () => {
-  const date = new Date();
-  const formattedDate = `${date.getFullYear()}-${
-    date.getMonth() + 1
-  }-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+  dayjs.extend(timezone);
+  const currentDate = new Date();
+  const date = dayjs.tz(currentDate, 'America/New_York');
+  const formattedDate = `${date.year()}-${
+    date.month() + 1
+  }-${date.date()} ${date.hour()}:${date.minute()}`;
   return formattedDate;
 };
 
@@ -409,8 +413,10 @@ module.exports.getBoostPoints = (
   const weekPoints = Math.floor(weekBoost);
   const votingPoints = Math.floor(votingBoost);
 
-  const date = new Date();
-  const isVotingWeekDamage = date.getDay() === 0;
+  dayjs.extend(timezone);
+  const currentDate = new Date();
+  const date = dayjs.tz(currentDate, 'America/New_York');
+  const isVotingWeekDamage = date.day() === 0;
 
   if (
     (isAffinityActive === 1 && isVotingWeekDamage) ||
@@ -469,9 +475,11 @@ module.exports.getDamagePoints = (
   const votingPoints =
     votingDamage === 0 ? 0 : Math.floor(power_level * votingDamage);
 
-  const date = new Date();
-  const isVillainBattlefieldDamage = date.getDay() === 5 || date.getDay() === 6;
-  const isVotingWeekDamage = date.getDay() === 0;
+  dayjs.extend(timezone);
+  const currentDate = new Date();
+  const date = dayjs.tz(currentDate, 'America/New_York');
+  const isVillainBattlefieldDamage = date.day() === 5 || date.day() === 6;
+  const isVotingWeekDamage = date.day() === 0;
 
   if (
     (isAffinityActive === 1 && isVotingWeekDamage) ||
