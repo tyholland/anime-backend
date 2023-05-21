@@ -340,13 +340,13 @@ module.exports.activateWeeklyAffinity = async () => {
     }
 
     for (let index = 0; index < teams.length; index++) {
-      const { id, leagueName, league_id } = teams[index];
+      const { id } = teams[index];
 
       // Update activeAffinity to be true
       await mysql('UPDATE team SET activeAffinity = ? WHERE id = ? AND week > ?', [1, id, 0]);
-
-      await sendLeagueAffinityDrop(leagueName, league_id);
     }
+
+    await sendLeagueAffinityDrop(teams[0].leagueName, teams[0].league_id);
 
     // Update matchup scores
     const matchup = await mysql(
