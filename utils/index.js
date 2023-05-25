@@ -399,7 +399,8 @@ module.exports.getBoostPoints = (
   character,
   teamAffinity,
   isAffinityActive,
-  week
+  week,
+  isBench = false
 ) => {
   const { power_level } = character;
   const weekBoost =
@@ -410,10 +411,10 @@ module.exports.getBoostPoints = (
     getBattlefieldBoost(players, affinities, battlefield, week) * power_level;
   const votingBoost = getVotingBoost(votes, character) * power_level;
 
-  const supportPoints = isSupportInvalid ? 0 : Math.floor(boostSupport);
-  const fieldPoints = isBattlefield ? 0 : Math.floor(battlefieldSupport);
-  const weekPoints = Math.floor(weekBoost);
-  const votingPoints = Math.floor(votingBoost);
+  const supportPoints = isSupportInvalid || isBench ? 0 : Math.floor(boostSupport);
+  const fieldPoints = isBattlefield || isBench ? 0 : Math.floor(battlefieldSupport);
+  const weekPoints = isBench ? 0 : Math.floor(weekBoost);
+  const votingPoints = isBench ? 0 : Math.floor(votingBoost);
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
@@ -439,10 +440,10 @@ module.exports.getBoostPoints = (
   const totalPoints = supportPoints + fieldPoints;
 
   return {
-    week: 'Available on Sunday',
+    week: isBench ? 0 : 'Available on Sunday',
     support: supportPoints,
     battlefield: fieldPoints,
-    voting: 'Available on Sunday',
+    voting: isBench ? 0 : 'Available on Sunday',
     total: totalPoints,
   };
 };
@@ -581,7 +582,8 @@ module.exports.characterAttr = (players, char, rank, details) => {
     main[0],
     affinity,
     activeAffinity,
-    week
+    week,
+    isBench,
   );
 
   const damage = this.getDamagePoints(

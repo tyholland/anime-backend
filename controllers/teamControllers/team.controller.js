@@ -189,6 +189,7 @@ module.exports.updateTeam = async (req, res) => {
       const isBattlefield = item.id === battlefield.id;
       const isBsSupport = item.id === bsSupport.id;
       const isSupport = item.id === support.id;
+      const isBench = item.id === bench0.id || item.id === bench1.id || item.id === bench2.id || item.id === bench3.id;
       const specificSupport =
         item.id === bsBrawler.id ? bsSupport.id : support.id;
       const isSupportInvalid = isSupport || isBsSupport || isBattlefield;
@@ -205,7 +206,8 @@ module.exports.updateTeam = async (req, res) => {
         item,
         team[0].affinity,
         team[0].activeAffinity,
-        team[0].week
+        team[0].week,
+        isBench
       );
 
       teamPoints += item.power_level + boost.total;

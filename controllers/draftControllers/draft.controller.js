@@ -350,7 +350,7 @@ module.exports.addDraftPlayers = async (req, res) => {
           item,
           team[0].affinity,
           team[0].activeAffinity,
-          team[0].week
+          team[0].week,
         );
 
         teamPoints += item.power_level + boost.total;
