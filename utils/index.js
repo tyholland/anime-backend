@@ -560,7 +560,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
     };
   }
 
-  const { id, name, power_level, weakness, bye_week, cost } = main[0];
+  const { id, name, power_level, weakness, bye_week, cost, category } = main[0];
 
   const isBattlefield = rank === 'battlefield';
   const isBsBrawler = rank === 'bs_brawler';
@@ -611,6 +611,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
       affinity: affinities,
       originalPower: 0,
       cost: 0,
+      type: category,
       boost: {
         week: 0,
         support: 0,
@@ -635,6 +636,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
     affinity: affinities,
     originalPower: power_level,
     cost,
+    type: category,
     boost: {
       week: boost.week,
       support: boost.support,

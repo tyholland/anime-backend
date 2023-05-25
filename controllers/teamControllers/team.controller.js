@@ -167,12 +167,12 @@ module.exports.updateTeam = async (req, res) => {
     ];
     const characterIds = characterArr.filter((item) => !!item);
 
-    const userPoints = await getUserPoints(characterIds, team[0].num_bench);
+    const { userPoints, allowedPoints } = await getUserPoints(characterIds, team[0].num_bench);
 
     if (userPoints < 0) {
       return res.status(400).json({
         message:
-          'The Scouter says your power level is OVER 9000! Please choose another character',
+          `The Scouter says your power level is OVER ${allowedPoints}! Please choose another character`,
       });
     }
 
@@ -216,6 +216,7 @@ module.exports.updateTeam = async (req, res) => {
         id: item.id,
         name: item.name,
         rank: item.category,
+        type: item.category,
         affinity: affinities,
         cost: item.cost,
       });

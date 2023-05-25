@@ -314,12 +314,12 @@ module.exports.addDraftPlayers = async (req, res) => {
       ];
       const characterIds = characterArr.filter((item) => !!item);
 
-      const userPoints = await getUserPoints(characterIds);
+      const { userPoints, allowedPoints } = await getUserPoints(characterIds);
 
       if (userPoints < 0) {
         return res.status(400).json({
           message:
-            'The Scouter says your power level is OVER 9000! Please choose another character',
+            `The Scouter says your power level is OVER ${allowedPoints}! Please choose another character`,
         });
       }
 

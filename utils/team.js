@@ -96,10 +96,16 @@ module.exports.getUserPoints = async (characterIds, bench = 0) => {
       const additionalBenchPoints = bench * 400;
       const totalTeamPoints = defaultPoints + additionalBenchPoints;
 
-      return totalTeamPoints - totalPoints;
+      return {
+        userPoints: totalTeamPoints - totalPoints,
+        allowedPoints: totalTeamPoints
+      };
     }
 
-    return defaultPoints - totalPoints;
+    return {
+      userPoints: defaultPoints - totalPoints,
+      allowedPoints: defaultPoints
+    };
   } catch (err) {
     console.log(err);
     throw new Error('Can not get user points');
@@ -202,7 +208,7 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
       bench3,
     ];
 
-    const userPoints = await this.getUserPoints(characterArr, memberInfo.num_bench);
+    const { userPoints } = await this.getUserPoints(characterArr, memberInfo.num_bench);
 
     if (matchup.length) {
       characterArr = [
