@@ -92,8 +92,8 @@ module.exports.startNewWeek = async () => {
         }
 
         await mysql(
-          'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, points = ? WHERE league_member_id = ? AND week = ?',
-          [roster[0].captain, roster[0].brawler_a, roster[0].brawler_b, roster[0].bs_brawler, roster[0].bs_support, roster[0].support, roster[0].villain, roster[0].battlefield, roster[0].points, memberId, newWeek]
+          'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, bench0 = ?, bench1 = ?, bench2 = ?, bench3 = ?, points = ? WHERE league_member_id = ? AND week = ?',
+          [roster[0].captain, roster[0].brawler_a, roster[0].brawler_b, roster[0].bs_brawler, roster[0].bs_support, roster[0].support, roster[0].villain, roster[0].battlefield, roster[0].bench0, roster[0].bench1, roster[0].bench2, roster[0].bench3, roster[0].points, memberId, newWeek]
         );
       }
     }
