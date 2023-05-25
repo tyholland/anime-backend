@@ -565,9 +565,10 @@ module.exports.characterAttr = (players, char, rank, details) => {
   const isBsBrawler = rank === 'bs_brawler';
   const isBsSupport = rank === 'bs_support';
   const isSupport = rank === 'support';
+  const isBench = rank === 'bench';
   const affinities = this.getAffinitiesTypes(main[0]);
   const specificSupport = isBsBrawler ? bs_support : support;
-  const isSupportInvalid = isSupport || isBsSupport || isBattlefield;
+  const isSupportInvalid = isSupport || isBsSupport || isBattlefield || isBench;
 
   const boost = this.getBoostPoints(
     isBattlefield,

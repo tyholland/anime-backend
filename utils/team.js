@@ -1,15 +1,15 @@
 const mysql = require('./mysql').instance();
 const { characterAttr } = require('./index');
+const defaultPoints = 9000;
 
 module.exports.createNewTeam = async (userId, leagueId, res) => {
   try {
     const user = await mysql(
-      'SELECT u.email, l.week FROM users u, league l WHERE u.id = ? AND l.id = ?',
+      'SELECT u.email, l.week, l.num_bench FROM users u, league l WHERE u.id = ? AND l.id = ?',
       [userId, leagueId]
     );
 
     const defaultTeam = `Team ${user[0].email.split('@')[0]}`;
-    const defaultPoints = 9000;
 
     const members = await mysql(
       'INSERT INTO `league_members` (`user_id`, `league_id`, `team_name`, `points`) VALUES (?, ?, ?, ?)',
@@ -81,17 +81,23 @@ module.exports.getSpecificTeamInfo = async (member_id, userId) => {
   }
 };
 
-module.exports.getUserPoints = async (characterIds) => {
+module.exports.getUserPoints = async (characterIds, bench = 0) => {
   try {
     const players = characterIds.length
       ? await mysql('SELECT * FROM players WHERE id in (?)', [characterIds])
       : [];
 
     let totalPoints = 0;
-    const defaultPoints = 9000;
     players.forEach((item) => {
       totalPoints += item.cost;
     });
+
+    if (bench > 0) {
+      const additionalBenchPoints = bench * 400;
+      const totalTeamPoints = defaultPoints + additionalBenchPoints;
+
+      return totalTeamPoints - totalPoints;
+    }
 
     return defaultPoints - totalPoints;
   } catch (err) {
@@ -162,6 +168,10 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
     status,
     affinity,
     activeAffinity,
+    bench0,
+    bench1,
+    bench2,
+    bench3,
   } = data;
 
   let homeTeam = 'team_a';
@@ -186,9 +196,13 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
       support,
       villain,
       battlefield,
+      bench0,
+      bench1,
+      bench2,
+      bench3,
     ];
 
-    const userPoints = await this.getUserPoints(characterArr);
+    const userPoints = await this.getUserPoints(characterArr, memberInfo.num_bench);
 
     if (matchup.length) {
       characterArr = [
@@ -202,6 +216,10 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
         battlefield,
         matchup[0].villain,
         matchup[0].battlefield,
+        bench0,
+        bench1,
+        bench2,
+        bench3,
       ];
     }
 
@@ -248,6 +266,18 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
           battlefield: {
             id: null,
           },
+          bench0: {
+            id: null,
+          },
+          bench1: {
+            id: null,
+          },
+          bench2: {
+            id: null,
+          },
+          bench3: {
+            id: null,
+          },
           week,
           affinity,
           activeAffinity,
@@ -255,6 +285,7 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
         info: {
           ...member,
           rank,
+          benchSize: memberInfo.num_bench
         },
         recap,
       });
@@ -310,6 +341,10 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
           'battlefield',
           details
         ),
+        bench0: characterAttr(players, bench0, 'bench', details),
+        bench1: characterAttr(players, bench1, 'bench', details),
+        bench2: characterAttr(players, bench2, 'bench', details),
+        bench3: characterAttr(players, bench3, 'bench', details),
         week,
         affinity,
         activeAffinity,
@@ -317,6 +352,7 @@ module.exports.formatTeam = async (data, memberInfo, userId, res) => {
       info: {
         ...member,
         rank,
+        benchSize: memberInfo.num_bench
       },
       recap,
     });

@@ -20,7 +20,7 @@ module.exports.getTeam = async (req, res) => {
     const team = await getTeamQuery(team_id);
 
     const member = await mysql(
-      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, l.week, lm.league_id FROM league_members lm, league l, team t WHERE lm.user_id = ? AND t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
+      'SELECT lm.id, lm.team_name, lm.points as userPoints, l.name, l.week, lm.league_id, l.num_bench FROM league_members lm, league l, team t WHERE lm.user_id = ? AND t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id',
       [userId, team_id]
     );
 
@@ -133,11 +133,15 @@ module.exports.updateTeam = async (req, res) => {
     support,
     villain,
     battlefield,
+    bench0,
+    bench1,
+    bench2,
+    bench3,
   } = req.body;
 
   try {
     const team = await mysql(
-      'SELECT t.league_member_id, t.affinity, t.activeAffinity, l.week FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id AND t.week = l.week AND l.is_roster_active = ?',
+      'SELECT t.league_member_id, t.affinity, t.activeAffinity, l.week, l.num_bench FROM team t, league l, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id AND lm.league_id = l.id AND t.week = l.week AND l.is_roster_active = ?',
       [team_id, 1]
     );
 
@@ -156,10 +160,14 @@ module.exports.updateTeam = async (req, res) => {
       support.id,
       villain.id,
       battlefield.id,
+      bench0.id,
+      bench1.id,
+      bench2.id,
+      bench3.id,
     ];
     const characterIds = characterArr.filter((item) => !!item);
 
-    const userPoints = await getUserPoints(characterIds);
+    const userPoints = await getUserPoints(characterIds, team[0].num_bench);
 
     if (userPoints < 0) {
       return res.status(400).json({
@@ -212,7 +220,7 @@ module.exports.updateTeam = async (req, res) => {
     });
 
     await mysql(
-      'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, points = ? WHERE id = ?',
+      'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, bench0 = ?, bench1 = ?, bench2 = ?, bench3 = ?, points = ? WHERE id = ?',
       [
         captain.id,
         brawlerA.id,
@@ -222,6 +230,10 @@ module.exports.updateTeam = async (req, res) => {
         support.id,
         villain.id,
         battlefield.id,
+        bench0.id,
+        bench1.id,
+        bench2.id,
+        bench3.id,
         teamPoints,
         team_id,
       ]

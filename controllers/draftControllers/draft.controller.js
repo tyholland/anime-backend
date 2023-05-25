@@ -236,14 +236,27 @@ module.exports.draftNextRound = async (req, res) => {
       );
 
       const members = await mysql(
-        'SELECT id FROM league_members WHERE league_id = ?',
+        'SELECT id, points FROM league_members WHERE league_id = ?',
+        [league_id]
+      );
+
+      const league = await mysql(
+        'SELECT num_bench FROM league WHERE id = ?',
         [league_id]
       );
   
       for (let index = 0; index < members.length; index++) {
+        const additionalBenchPoints = league[0].num_bench * 400;
+        const totalTeamPoints = members[index].points + additionalBenchPoints;
+
         await mysql(
           'UPDATE team SET week = ? WHERE league_member_id = ? AND week = ?',
           [0, members[index].id, -1]
+        );
+
+        await mysql(
+          'UPDATE league_members SET points = ? WHERE id = ?',
+          [totalTeamPoints, members[index].id]
         );
       }
     }

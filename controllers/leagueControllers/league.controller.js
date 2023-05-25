@@ -114,7 +114,7 @@ module.exports.getAllLeagues = async (req, res) => {
 };
 
 module.exports.createLeague = async (req, res) => {
-  const { name, numTeams } = req.body;
+  const { name, numTeams, numBench } = req.body;
   const { userId, email } = req.user;
   const date = new Date().toISOString();
   const randomStr = (Math.random() + 1).toString(36).substring(5);
@@ -122,8 +122,8 @@ module.exports.createLeague = async (req, res) => {
 
   try {
     const newLeague = await mysql(
-      'INSERT INTO `league` (`name`, `num_teams`, `active`, `creator_id`, `is_roster_active`, `is_voting_active`, `hash`, `create_date`, week) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, numTeams, 1, userId, 0, 0, hash, date, -1]
+      'INSERT INTO `league` (`name`, `num_teams`, `active`, `creator_id`, `is_roster_active`, `is_voting_active`, `hash`, `create_date`, week, `num_bench`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, numTeams, 1, userId, 0, 0, hash, date, -1, numBench]
     );
 
     await addLeagueSegment(name, newLeague.insertId);
