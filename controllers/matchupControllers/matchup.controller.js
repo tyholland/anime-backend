@@ -52,10 +52,15 @@ module.exports.getMatchup = async (req, res) => {
       [matchup_id, 1, 0]
     );
 
+    const userA = await mysql('SELECT lm.user_id FROM league_members lm, matchup m, team t WHERE m.id = ? AND m.team_a = t.id AND t.league_member_id = lm.id', [matchup_id]);
+
+    const userB = await mysql('SELECT lm.user_id FROM league_members lm, matchup m, team t WHERE m.id = ? AND m.team_b = t.id AND t.league_member_id = lm.id', [matchup_id]);
+
     return res.status(200).json({
       matchup: newMatchupData[0],
       votes,
       isVotingActive: league[0].is_voting_active,
+      isUser: userA[0].user_id === userId || userB[0].user_id === userId
     });
   } catch (error) {
     console.log(error);
