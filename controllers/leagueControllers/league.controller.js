@@ -97,12 +97,12 @@ module.exports.getAllLeagues = async (req, res) => {
         draft_complete === 0 && draftRounds.length > 0;
     }
 
-    const pastLeague = leagueData.filter(league => league.active === 0);
-    const activeLeague = leagueData.filter(league => league.active === 1);
+    const pastLeague = leagueData.filter((league) => league.active === 0);
+    const activeLeague = leagueData.filter((league) => league.active === 1);
 
     return res.status(200).json({
       current: activeLeague,
-      past: pastLeague
+      past: pastLeague,
     });
   } catch (error) {
     console.log(error);
@@ -193,7 +193,7 @@ module.exports.joinLeague = async (req, res) => {
 };
 
 module.exports.updateLeague = async (req, res) => {
-  const { name, teams, isActive } = req.body;
+  const { name, teams, bench, draft, isActive } = req.body;
   const { league_id } = req.params;
 
   if (profanity.isProfane(name)) {
@@ -203,10 +203,26 @@ module.exports.updateLeague = async (req, res) => {
   }
 
   try {
-    await mysql(
-      'UPDATE league SET name = ?, num_teams = ?, active = ? WHERE id = ?',
-      [name, teams, isActive, league_id]
-    );
+    if (bench) {
+      await mysql(
+        'UPDATE league SET name = ?, num_bench = ?, active = ? WHERE id = ?',
+        [name, bench, isActive, league_id]
+      );
+    }
+
+    if (teams) {
+      await mysql(
+        'UPDATE league SET name = ?, num_teams = ?, active = ? WHERE id = ?',
+        [name, teams, isActive, league_id]
+      );
+    }
+
+    if (draft) {
+      await mysql(
+        'UPDATE league SET name = ?, draft_schedule = ?, active = ? WHERE id = ?',
+        [name, draft, isActive, league_id]
+      );
+    }
 
     return res.status(200).json({
       success: true,
@@ -297,10 +313,10 @@ module.exports.getScoreboard = async (req, res) => {
         const byeTeam = [
           {
             team_name: `Bye Team Name - ${index}`,
-            id: `Bye Team Id - ${index}`
+            id: `Bye Team Id - ${index}`,
           },
         ];
-  
+
         scoreboardB = byeTeam.concat(scoreboardB);
       }
 
@@ -356,7 +372,7 @@ module.exports.getStandings = async (req, res) => {
 
     let rankings = await getRankings(games, isFirstWeek);
 
-    rankings = rankings.filter(item => item.team !== undefined);
+    rankings = rankings.filter((item) => item.team !== undefined);
 
     return res.status(200).json(rankings);
   } catch (error) {
@@ -479,7 +495,10 @@ module.exports.getLeagueChamp = async (req, res) => {
   try {
     await checkValidUserInLeague(userId, league_id, res);
 
-    const finalsMatchup = await mysql('SELECT * FROM matchup WHERE league_id = ? AND week = ? AND active = ?', [league_id, 12, 0]);
+    const finalsMatchup = await mysql(
+      'SELECT * FROM matchup WHERE league_id = ? AND week = ? AND active = ?',
+      [league_id, 12, 0]
+    );
 
     if (!finalsMatchup.length) {
       return res.status(400).json({
@@ -490,10 +509,13 @@ module.exports.getLeagueChamp = async (req, res) => {
     const isTeamA = finalsMatchup[0].score_a > finalsMatchup[0].score_b;
     const champ = isTeamA ? finalsMatchup[0].team_a : finalsMatchup[0].team_b;
 
-    const champTeam = await mysql('SELECT lm.team_name FROM team t, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id', [champ]);
+    const champTeam = await mysql(
+      'SELECT lm.team_name FROM team t, league_members lm WHERE t.id = ? AND t.league_member_id = lm.id',
+      [champ]
+    );
 
     return res.status(200).json({
-      champ: champTeam[0].team_name
+      champ: champTeam[0].team_name,
     });
   } catch (error) {
     console.log(error);
