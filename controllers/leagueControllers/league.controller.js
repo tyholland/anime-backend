@@ -23,7 +23,7 @@ module.exports.getLeague = async (req, res) => {
 
   try {
     const leagueData = await mysql(
-      'SELECT l.name, l.num_teams, l.week, l.creator_id, l.draft_active, l.draft_complete, l.active FROM league l, league_members lm WHERE l.id = ? AND l.id = lm.league_id AND lm.user_id = ?',
+      'SELECT l.name, l.num_teams, l.week, l.creator_id, l.draft_active, l.draft_complete, l.active, l.draft_schedule FROM league l, league_members lm WHERE l.id = ? AND l.id = lm.league_id AND lm.user_id = ?',
       [league_id, userId]
     );
 

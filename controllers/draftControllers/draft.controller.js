@@ -21,7 +21,7 @@ module.exports.getDraft = async (req, res) => {
 
     if (!league.length) {
       const admin = await mysql(
-        'SELECT l.creator_id, l.draft_complete, d.teams, l.name FROM league l, draft d WHERE l.id = ? AND l.id = d.league_id',
+        'SELECT l.creator_id, l.draft_complete, d.teams, l.name, l.draft_schedule FROM league l, draft d WHERE l.id = ? AND l.id = d.league_id',
         [league_id]
       );
 
@@ -31,6 +31,7 @@ module.exports.getDraft = async (req, res) => {
         leagueName: admin[0].name,
         draftComplete: admin[0].draft_complete === 1,
         draft: admin,
+        draftSchedule: admin[0].draft_schedule,
       });
     }
 
@@ -72,10 +73,16 @@ module.exports.getDraft = async (req, res) => {
     const totalSeconds =
       Math.abs(currentTime.getTime() - startTime.getTime()) / 1000;
 
-    const member = await mysql('SELECT * FROM league_members WHERE user_id = ? AND league_id = ?', [userId, league_id]);
+    const member = await mysql(
+      'SELECT * FROM league_members WHERE user_id = ? AND league_id = ?',
+      [userId, league_id]
+    );
 
     if (member[0].draft_reset_timer === 1) {
-      await mysql('UPDATE league_members SET draft_reset_timer = ? WHERE user_id = ? AND league_id = ?', [0, userId, league_id]);
+      await mysql(
+        'UPDATE league_members SET draft_reset_timer = ? WHERE user_id = ? AND league_id = ?',
+        [0, userId, league_id]
+      );
     }
 
     return res.status(200).json({
@@ -83,7 +90,8 @@ module.exports.getDraft = async (req, res) => {
       userTeamId: specificTeam[0].id,
       remainingTime: Math.floor(defaultTime - totalSeconds),
       draftComplete: league[0].draft_complete === 1,
-      resetTimer: member[0].draft_reset_timer === 1
+      resetTimer: member[0].draft_reset_timer === 1,
+      draftSchedule: league[0].draft_schedule,
     });
   } catch (error) {
     console.log(error);
@@ -240,11 +248,10 @@ module.exports.draftNextRound = async (req, res) => {
         [league_id]
       );
 
-      const league = await mysql(
-        'SELECT num_bench FROM league WHERE id = ?',
-        [league_id]
-      );
-  
+      const league = await mysql('SELECT num_bench FROM league WHERE id = ?', [
+        league_id,
+      ]);
+
       for (let index = 0; index < members.length; index++) {
         const additionalBenchPoints = league[0].num_bench * 400;
         const totalTeamPoints = members[index].points + additionalBenchPoints;
@@ -254,10 +261,10 @@ module.exports.draftNextRound = async (req, res) => {
           [0, members[index].id, -1]
         );
 
-        await mysql(
-          'UPDATE league_members SET points = ? WHERE id = ?',
-          [totalTeamPoints, members[index].id]
-        );
+        await mysql('UPDATE league_members SET points = ? WHERE id = ?', [
+          totalTeamPoints,
+          members[index].id,
+        ]);
       }
     }
 
@@ -275,7 +282,8 @@ module.exports.draftNextRound = async (req, res) => {
 
 module.exports.addDraftPlayers = async (req, res) => {
   const { team_id } = req.params;
-  const { thePlayers, teams, pick, draftId, pickOrder, leagueId, round } = req.body;
+  const { thePlayers, teams, pick, draftId, pickOrder, leagueId, round } =
+    req.body;
 
   try {
     if (thePlayers) {
@@ -318,8 +326,7 @@ module.exports.addDraftPlayers = async (req, res) => {
 
       if (userPoints < 0) {
         return res.status(400).json({
-          message:
-            `The Scouter says your power level is OVER ${allowedPoints}! Please choose another character`,
+          message: `The Scouter says your power level is OVER ${allowedPoints}! Please choose another character`,
         });
       }
 
@@ -350,7 +357,7 @@ module.exports.addDraftPlayers = async (req, res) => {
           item,
           team[0].affinity,
           team[0].activeAffinity,
-          team[0].week,
+          team[0].week
         );
 
         teamPoints += item.power_level + boost.total;
@@ -386,17 +393,28 @@ module.exports.addDraftPlayers = async (req, res) => {
       [teams, pick, pickOrder + 1, date, draftId, 1]
     );
 
-    const leagueNum = await mysql('SELECT num_teams FROM league WHERE id = ?', [leagueId]);
+    const leagueNum = await mysql('SELECT num_teams FROM league WHERE id = ?', [
+      leagueId,
+    ]);
 
     const newRound = pickOrder + 1;
     if (newRound === leagueNum[0].num_teams) {
-      await mysql('UPDATE draft SET next = ? WHERE id = ?', [round + 1, draftId]);
+      await mysql('UPDATE draft SET next = ? WHERE id = ?', [
+        round + 1,
+        draftId,
+      ]);
     }
 
-    const members = await mysql('SELECT * FROM league_members WHERE league_id = ?', [leagueId]);
+    const members = await mysql(
+      'SELECT * FROM league_members WHERE league_id = ?',
+      [leagueId]
+    );
 
     for (let index = 0; index < members.length; index++) {
-      await mysql('UPDATE league_members SET draft_reset_timer = ? WHERE user_id = ? AND league_id = ?', [1, members[index].user_id, leagueId]);
+      await mysql(
+        'UPDATE league_members SET draft_reset_timer = ? WHERE user_id = ? AND league_id = ?',
+        [1, members[index].user_id, leagueId]
+      );
     }
 
     return res.status(200).json({
