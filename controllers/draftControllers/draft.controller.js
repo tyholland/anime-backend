@@ -3,6 +3,7 @@ const {
   getAffinitiesTypes,
   getBoostPoints,
 } = require('../../utils');
+const { sendLeagueDraftSchedule } = require('../../utils/mailchimp');
 const { checkValidUserInLeague } = require('../../utils/query');
 const { getUserPoints } = require('../../utils/team');
 const mysql = require('../../utils/mysql').instance();
@@ -162,6 +163,16 @@ module.exports.createDraft = async (req, res) => {
       'INSERT INTO `draft` (`round`, `league_id`, `teams`, `pick_order`, `active`, `start_time`) VALUES (?, ?, ?, ?, ?, ?)',
       [8, league_id, JSON.stringify(reverseShuffle), 0, 0, date]
     );
+
+    const league = await mysql(
+      'SELECT * FROM league WHERE id = ?',
+      [league_id]
+    );
+
+    const schedule = JSON.parse(league[0].draft_schedule);
+    const draftDate = `${schedule.date.month} ${schedule.date.day}, ${schedule.date.year}`;
+
+    await sendLeagueDraftSchedule(league[0].name, league_id, draftDate);
 
     return res.status(200).json({ success: true });
   } catch (error) {

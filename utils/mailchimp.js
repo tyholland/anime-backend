@@ -147,6 +147,23 @@ module.exports.sendLeagueVoting = async (leagueName, leagueId) => {
   }
 };
 
+module.exports.sendLeagueDraftSchedule = async (leagueName, leagueId, draftDate) => {
+  try {
+    const segmentId = await getLeagueSegement(leagueName, leagueId);
+    const subject = `${leagueName}'s Draft is scheduled for ${draftDate}`;
+    const preview = `${leagueName} Draft is scheduled`;
+    const campaignId = '88df742a86';
+
+    const newCampaign = await mailchimp.campaigns.replicate(campaignId);
+
+    await updateCampaign(newCampaign.id, subject, preview, segmentId);
+    await mailchimp.campaigns.send(newCampaign.id,);
+  } catch (err) {
+    console.log(err);
+    throw new Error('Can not send email for league draft schedule');
+  }
+};
+
 module.exports.addLeagueSegment = async (leagueName, leagueId) => {
   const segment = `${leagueName} - ${leagueId} - ${process.env.SERVER_ENV}`;
 
