@@ -106,7 +106,7 @@ module.exports.getAnimeNews = async (req, res) => {
     console.log(error);
     return res.status(500).json({
       error,
-      action: 'Get specific player',
+      action: 'Get anime news',
     });
   }
 };
