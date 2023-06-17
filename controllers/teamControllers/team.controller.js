@@ -126,10 +126,10 @@ module.exports.updateTeam = async (req, res) => {
   const { team_id } = req.params;
   const {
     captain,
-    brawlerA,
-    brawlerB,
-    bsBrawler,
-    bsSupport,
+    brawler_a,
+    brawler_b,
+    bs_brawler,
+    bs_support,
     support,
     villain,
     battlefield,
@@ -153,10 +153,10 @@ module.exports.updateTeam = async (req, res) => {
 
     const characterArr = [
       captain.id,
-      brawlerA.id,
-      brawlerB.id,
-      bsBrawler.id,
-      bsSupport.id,
+      brawler_a.id,
+      brawler_b.id,
+      bs_brawler.id,
+      bs_support.id,
       support.id,
       villain.id,
       battlefield.id,
@@ -187,11 +187,11 @@ module.exports.updateTeam = async (req, res) => {
     players.forEach((item) => {
       const affinities = getAffinitiesTypes(item);
       const isBattlefield = item.id === battlefield.id;
-      const isBsSupport = item.id === bsSupport.id;
+      const isBsSupport = item.id === bs_support.id;
       const isSupport = item.id === support.id;
       const isBench = item.id === bench0.id || item.id === bench1.id || item.id === bench2.id || item.id === bench3.id;
       const specificSupport =
-        item.id === bsBrawler.id ? bsSupport.id : support.id;
+        item.id === bs_brawler.id ? bs_support.id : support.id;
       const isSupportInvalid = isSupport || isBsSupport || isBattlefield;
       const votes = [];
 
@@ -219,6 +219,7 @@ module.exports.updateTeam = async (req, res) => {
         type: item.category,
         affinity: affinities,
         cost: item.cost,
+        teamPoints
       });
     });
 
@@ -226,10 +227,10 @@ module.exports.updateTeam = async (req, res) => {
       'UPDATE team SET captain = ?, brawler_a = ?, brawler_b = ?, bs_brawler = ?, bs_support = ?, support = ?, villain = ?, battlefield = ?, bench0 = ?, bench1 = ?, bench2 = ?, bench3 = ?, points = ? WHERE id = ?',
       [
         captain.id,
-        brawlerA.id,
-        brawlerB.id,
-        bsBrawler.id,
-        bsSupport.id,
+        brawler_a.id,
+        brawler_b.id,
+        bs_brawler.id,
+        bs_support.id,
         support.id,
         villain.id,
         battlefield.id,
