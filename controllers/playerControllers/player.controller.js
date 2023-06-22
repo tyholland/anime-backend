@@ -56,7 +56,7 @@ module.exports.getPlayablePlayers = async (req, res) => {
       [team_id]
     );
     const playerList = await mysql(
-      'SELECT t.captain, t.brawler_a, t.brawler_b, t.bs_brawler, t.bs_support, t.support, t.villain, t.battlefield FROM league l, league_members lm, team t WHERE l.id = ? AND lm.league_id = l.id AND t.league_member_id = lm.id AND t.week = l.week',
+      'SELECT t.captain, t.brawler_a, t.brawler_b, t.bs_brawler, t.bs_support, t.support, t.villain, t.battlefield, t.bench0, t.bench1, t.bench2, t.bench3 FROM league l, league_members lm, team t WHERE l.id = ? AND lm.league_id = l.id AND t.league_member_id = lm.id AND t.week = l.week',
       [league[0].id]
     );
 
@@ -71,7 +71,11 @@ module.exports.getPlayablePlayers = async (req, res) => {
             list.bs_support === player.id ||
             list.support === player.id ||
             list.villain === player.id ||
-            list.battlefield === player.id
+            list.battlefield === player.id ||
+            list.bench0 === player.id ||
+            list.bench1 === player.id ||
+            list.bench2 === player.id ||
+            list.bench3 === player.id
         )
       ) {
         return;
