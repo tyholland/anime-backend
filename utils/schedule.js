@@ -1,6 +1,6 @@
 const mysql = require('./mysql').instance();
 const { sortRankings, randomAffinity } = require('./index');
-const { getLeagueMemebrInfo, getRankings } = require('./query');
+const { getLeagueMemberInfo, getRankings } = require('./query');
 
 const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
   if (week === 1) {
@@ -31,10 +31,21 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
   try {
     const weekRand = Math.floor(Math.random() * randomAffinity.length);
     const previousWeek = week > 9 ? week - 1 : 0;
+    let currentTeamA = teamA;
+    let currentTeamB = teamB;
+
+    if (week > 9) {
+      // Get teamId of playoff teams
+      currentTeamA = await mysql('SELECT id FROM team WHERE league_member_id = ? AND week = ?', [teamA, previousWeek]);
+      currentTeamB = await mysql('SELECT id FROM team WHERE league_member_id = ? AND week = ?', [teamB, previousWeek]);
+      
+      currentTeamA = currentTeamA[0].id;
+      currentTeamB = currentTeamB[0].id;
+    }
 
     const newTeamA = await mysql(
       'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`, `bench0`, `bench1`, `bench2`, `bench3`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status, bench0, bench1, bench2, bench3 FROM team WHERE id = ? AND week = ?',
-      [teamA, previousWeek]
+      [currentTeamA, previousWeek]
     );
 
     await mysql(
@@ -44,7 +55,7 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
 
     const newTeamB = await mysql(
       'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`, `bench0`, `bench1`, `bench2`, `bench3`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status, bench0, bench1, bench2, bench3 FROM team WHERE id = ? AND week = ?',
-      [teamB, previousWeek]
+      [currentTeamB, previousWeek]
     );
 
     await mysql(
@@ -496,8 +507,8 @@ module.exports.createPlayoffsSchedule = async (leagueId, week, round) => {
       teamB.push(item.team_b);
     });
 
-    const scheduleA = await getLeagueMemebrInfo(teamA);
-    let scheduleB = await getLeagueMemebrInfo(teamB);
+    const scheduleA = await getLeagueMemberInfo(teamA);
+    let scheduleB = await getLeagueMemberInfo(teamB);
 
     const playoffSchedule = [];
 
@@ -548,18 +559,18 @@ module.exports.playoffsFirstRound = async () => {
     const rankings = await getRankings(games);
     const leagueId = games[0].leagueId;
 
-    await insertNewMatchup(leagueId, rankings[0].leagueTeamId, 0, 10);
-    await insertNewMatchup(leagueId, rankings[1].leagueTeamId, 0, 10);
+    await insertNewMatchup(leagueId, rankings[0].teamId, 0, 10);
+    await insertNewMatchup(leagueId, rankings[1].teamId, 0, 10);
     await insertNewMatchup(
       leagueId,
-      rankings[2].leagueTeamId,
-      rankings[5].leagueTeamId,
+      rankings[2].teamId,
+      rankings[5].teamId,
       10
     );
     await insertNewMatchup(
       leagueId,
-      rankings[3].leagueTeamId,
-      rankings[4].leagueTeamId,
+      rankings[3].teamId,
+      rankings[4].teamId,
       10
     );
   } catch (err) {
@@ -578,8 +589,8 @@ const getPlayoffsRankings = async (games) => {
       teamB.push(item.team_b);
     });
 
-    const rankingsA = await getLeagueMemebrInfo(teamA);
-    let rankingsB = await getLeagueMemebrInfo(teamB);
+    const rankingsA = await getLeagueMemberInfo(teamA);
+    let rankingsB = await getLeagueMemberInfo(teamB);
 
     const mainRankings = [];
 
@@ -621,7 +632,6 @@ const getPlayoffsRankings = async (games) => {
         mainRankings.push({
           team: rankingsA[index].team_name,
           teamId: rankingsA[index].id,
-          leagueTeamId: rankingsA[index].teamId,
           win: games[index].score_a > games[index].score_b ? 1 : 0,
           loss: games[index].score_a < games[index].score_b ? 1 : 0,
         });
@@ -646,7 +656,6 @@ const getPlayoffsRankings = async (games) => {
         mainRankings.push({
           team: games[index].team_b === 0 ? `Bye Team Name - ${index}` : rankingsB[index].team_name,
           teamId: games[index].team_b === 0 ? `Bye Team Id - ${index}` : rankingsB[index].id,
-          leagueTeamId: rankingsB[index].teamId,
           win: games[index].score_b > games[index].score_a ? 1 : 0,
           loss: games[index].score_b < games[index].score_a ? 1 : 0,
         });
@@ -676,14 +685,14 @@ module.exports.playoffsSemis = async () => {
 
     await insertNewMatchup(
       leagueId,
-      rankings[0].leagueTeamId,
-      rankings[3].leagueTeamId,
+      rankings[0].teamId,
+      rankings[3].teamId,
       11
     );
     await insertNewMatchup(
       leagueId,
-      rankings[1].leagueTeamId,
-      rankings[2].leagueTeamId,
+      rankings[1].teamId,
+      rankings[2].teamId,
       11
     );
   } catch (err) {
@@ -708,8 +717,8 @@ module.exports.playoffsFinals = async () => {
 
     await insertNewMatchup(
       leagueId,
-      rankings[0].leagueTeamId,
-      rankings[1].leagueTeamId,
+      rankings[0].teamId,
+      rankings[1].teamId,
       12
     );
   } catch (err) {

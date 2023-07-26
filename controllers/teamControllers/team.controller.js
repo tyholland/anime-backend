@@ -1,6 +1,6 @@
 const mysql = require('../../utils/mysql').instance();
 const { getAffinitiesTypes, getBoostPoints } = require('../../utils/index');
-const { getLeagueMemebrInfo } = require('../../utils/query');
+const { getLeagueMemberInfo } = require('../../utils/query');
 const {
   formatTeam,
   getTeamQuery,
@@ -278,8 +278,8 @@ module.exports.getSchedule = async (req, res) => {
       teamB.push(item.team_b);
     });
 
-    const scheduleA = await getLeagueMemebrInfo(teamA);
-    let scheduleB = await getLeagueMemebrInfo(teamB);
+    const scheduleA = await getLeagueMemberInfo(teamA);
+    let scheduleB = await getLeagueMemberInfo(teamB);
 
     const mainSchedule = [];
 

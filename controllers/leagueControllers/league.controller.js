@@ -5,7 +5,7 @@ const {
   sendLeagueDeletedEmail,
 } = require('../../utils/mailchimp');
 const {
-  getLeagueMemebrInfo,
+  getLeagueMemberInfo,
   checkValidUserInLeague,
   getRankings,
   checkMatchupUserExists,
@@ -303,8 +303,8 @@ module.exports.getScoreboard = async (req, res) => {
       teamB.push(item.team_b);
     });
 
-    const scoreboardA = await getLeagueMemebrInfo(teamA);
-    let scoreboardB = await getLeagueMemebrInfo(teamB);
+    const scoreboardA = await getLeagueMemberInfo(teamA);
+    let scoreboardB = await getLeagueMemberInfo(teamB);
 
     const mainScoreboard = [];
 
