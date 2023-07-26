@@ -40,7 +40,7 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
       currentTeamB = await mysql('SELECT id FROM team WHERE league_member_id = ? AND week = ?', [teamB, previousWeek]);
       
       currentTeamA = currentTeamA[0].id;
-      currentTeamB = currentTeamB[0].id;
+      currentTeamB = currentTeamB.length ? currentTeamB[0].id : teamB;
     }
 
     const newTeamA = await mysql(
