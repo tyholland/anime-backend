@@ -537,8 +537,8 @@ module.exports.createPlayoffsSchedule = async (leagueId, week, round) => {
 module.exports.playoffsFirstRound = async () => {
   try {
     const games = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = lm.league_id AND l.week = ? AND m.week < l.week',
-      [10]
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week, l.id as leagueId FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND t.id = m.team_a AND l.id = lm.league_id AND l.week = ? AND m.week < ?',
+      [10, 10]
     );
 
     if (!games.length) {
