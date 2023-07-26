@@ -30,7 +30,7 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
 
   try {
     const weekRand = Math.floor(Math.random() * randomAffinity.length);
-    const previousWeek = 0;
+    const previousWeek = week > 9 ? week - 1 : 0;
 
     const newTeamA = await mysql(
       'INSERT INTO `team` (`league_member_id`, `captain`, `brawler_a`, `brawler_b`, `bs_brawler`, `bs_support`, `support`, `villain`, `battlefield`, `week`, `points`, `status`, `bench0`, `bench1`, `bench2`, `bench3`) SELECT league_member_id, captain, brawler_a, brawler_b, bs_brawler, bs_support, support, villain, battlefield, week, points, status, bench0, bench1, bench2, bench3 FROM team WHERE id = ? AND week = ?',
