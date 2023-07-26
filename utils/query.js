@@ -181,7 +181,7 @@ module.exports.stopUserVoting = async () => {
 
 module.exports.getLeagueMemebrInfo = async (arrayOfIds) => {
   return await mysql(
-    'SELECT lm.team_name, lm.id FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
+    'SELECT lm.team_name, lm.id, t.id as teamId FROM league_members lm, team t WHERE t.id IN (?) AND lm.id = t.league_member_id',
     [arrayOfIds]
   );
 };
@@ -311,6 +311,7 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
         mainRankings.push({
           team: rankingsA[index].team_name,
           teamId: rankingsA[index].id,
+          leagueTeamId: rankingsA[index].teamId,
           win: games[index].score_a > games[index].score_b ? 1 : 0,
           loss: games[index].score_a < games[index].score_b ? 1 : 0,
         });
@@ -335,6 +336,7 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
         mainRankings.push({
           team: games[index].team_b === 0 ? 'Bye' : rankingsB[index].team_name,
           teamId: rankingsB[index].id,
+          leagueTeamId: rankingsB[index].teamId,
           win: games[index].score_b > games[index].score_a ? 1 : 0,
           loss: games[index].score_b < games[index].score_a ? 1 : 0,
         });

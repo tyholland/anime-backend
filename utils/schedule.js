@@ -548,18 +548,18 @@ module.exports.playoffsFirstRound = async () => {
     const rankings = await getRankings(games);
     const leagueId = games[0].leagueId;
 
-    await insertNewMatchup(leagueId, rankings[0].teamId, 0, 10);
-    await insertNewMatchup(leagueId, rankings[1].teamId, 0, 10);
+    await insertNewMatchup(leagueId, rankings[0].leagueTeamId, 0, 10);
+    await insertNewMatchup(leagueId, rankings[1].leagueTeamId, 0, 10);
     await insertNewMatchup(
       leagueId,
-      rankings[2].teamId,
-      rankings[5].teamId,
+      rankings[2].leagueTeamId,
+      rankings[5].leagueTeamId,
       10
     );
     await insertNewMatchup(
       leagueId,
-      rankings[3].teamId,
-      rankings[4].teamId,
+      rankings[3].leagueTeamId,
+      rankings[4].leagueTeamId,
       10
     );
   } catch (err) {
@@ -621,6 +621,7 @@ const getPlayoffsRankings = async (games) => {
         mainRankings.push({
           team: rankingsA[index].team_name,
           teamId: rankingsA[index].id,
+          leagueTeamId: rankingsA[index].teamId,
           win: games[index].score_a > games[index].score_b ? 1 : 0,
           loss: games[index].score_a < games[index].score_b ? 1 : 0,
         });
@@ -645,6 +646,7 @@ const getPlayoffsRankings = async (games) => {
         mainRankings.push({
           team: games[index].team_b === 0 ? `Bye Team Name - ${index}` : rankingsB[index].team_name,
           teamId: games[index].team_b === 0 ? `Bye Team Id - ${index}` : rankingsB[index].id,
+          leagueTeamId: rankingsB[index].teamId,
           win: games[index].score_b > games[index].score_a ? 1 : 0,
           loss: games[index].score_b < games[index].score_a ? 1 : 0,
         });
@@ -674,14 +676,14 @@ module.exports.playoffsSemis = async () => {
 
     await insertNewMatchup(
       leagueId,
-      rankings[0].teamId,
-      rankings[3].teamId,
+      rankings[0].leagueTeamId,
+      rankings[3].leagueTeamId,
       11
     );
     await insertNewMatchup(
       leagueId,
-      rankings[1].teamId,
-      rankings[2].teamId,
+      rankings[1].leagueTeamId,
+      rankings[2].leagueTeamId,
       11
     );
   } catch (err) {
@@ -706,8 +708,8 @@ module.exports.playoffsFinals = async () => {
 
     await insertNewMatchup(
       leagueId,
-      rankings[0].teamId,
-      rankings[1].teamId,
+      rankings[0].leagueTeamId,
+      rankings[1].leagueTeamId,
       12
     );
   } catch (err) {
