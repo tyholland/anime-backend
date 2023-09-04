@@ -8,6 +8,9 @@ const {
   sendLeagueAffinityDrop,
 } = require('./mailchimp');
 const { getFullTeamMatchupPoints } = require('./team');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
 
 module.exports.startNewWeek = async () => {
   try {
@@ -349,6 +352,32 @@ module.exports.getRankings = async (games, isFirstWeek = false) => {
 };
 
 module.exports.activateWeeklyAffinity = async () => {
+  dayjs.extend(utc);
+  dayjs.extend(timezone);
+  const currentDate = new Date();
+  const date = dayjs.tz(currentDate, 'America/New_York');
+  const isThursday = date.day() === 4;
+  const isSunday = date.day() === 0;
+
+  let affinityObj = {
+    thursday: 0,
+    sunday: 0
+  };
+
+  if (isThursday) {
+    affinityObj = {
+      thursday: 1,
+      sunday: 0
+    };
+  }
+
+  if (isSunday) {
+    affinityObj = {
+      thursday: 1,
+      sunday: 1
+    };
+  }
+
   try {
     const teams = await mysql(
       'SELECT t.id, t.week, l.id as league_id, l.name as leagueName FROM league l, league_members lm, team t WHERE l.active = ? AND l.week > ? AND l.id = lm.league_id AND lm.id = t.league_member_id AND l.week = t.week',
@@ -365,7 +394,7 @@ module.exports.activateWeeklyAffinity = async () => {
       // Update activeAffinity to be true
       await mysql(
         'UPDATE team SET activeAffinity = ? WHERE id = ? AND week > ?',
-        [1, id, 0]
+        [JSON.stringify(affinityObj), id, 0]
       );
     }
 

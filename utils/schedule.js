@@ -29,7 +29,8 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
   }
 
   try {
-    const weekRand = Math.floor(Math.random() * randomAffinity.length);
+    const weekRandOne = Math.floor(Math.random() * randomAffinity.length);
+    const weekRandTwo = Math.floor(Math.random() * randomAffinity.length);
     const previousWeek = week > 9 ? week - 1 : 0;
     let currentTeamA = teamA;
     let currentTeamB = teamB;
@@ -48,9 +49,14 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
       [currentTeamA, previousWeek]
     );
 
+    const affinityTeamA = {
+      thursday: randomAffinity[weekRandOne],
+      sunday: randomAffinity[weekRandTwo]
+    };
+
     await mysql(
       'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
-      [week, 'home', randomAffinity[weekRand], newTeamA.insertId]
+      [week, 'home', JSON.stringify(affinityTeamA), newTeamA.insertId]
     );
 
     const newTeamB = await mysql(
@@ -58,9 +64,14 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
       [currentTeamB, previousWeek]
     );
 
+    const affinityTeamB = {
+      thursday: randomAffinity[weekRandOne],
+      sunday: randomAffinity[weekRandTwo]
+    };
+
     await mysql(
       'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
-      [week, 'away', randomAffinity[weekRand], newTeamB.insertId]
+      [week, 'away', JSON.stringify(affinityTeamB), newTeamB.insertId]
     );
 
     const teamIdB = newTeamB.insertId || 0;

@@ -173,6 +173,8 @@ module.exports.randomAffinity = [
   'wind, water',
   'darkness, ice',
   'arcane, fire',
+  'celestial, electric',
+  'earth, wind',
 ];
 
 const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
