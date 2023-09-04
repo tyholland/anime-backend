@@ -55,7 +55,7 @@ module.exports.loginUser = async (req, res) => {
     const user = {
       email,
       userId: account[0].user_id,
-      firebaseId,
+      firebaseId
     };
     const accessToken = jwt.sign(user, secret, { expiresIn: '5d' });
 
@@ -110,7 +110,7 @@ module.exports.createUser = async (req, res) => {
         userId: oldUser[0].user_id,
         firebaseId,
       };
-      const accessToken = jwt.sign(accessObj, secret);
+      const accessToken = jwt.sign(accessObj, secret, { expiresIn: '5d' });
 
       return res.status(200).json({
         ...oldUser[0],
@@ -135,7 +135,7 @@ module.exports.createUser = async (req, res) => {
       userId: account[0].user_id,
       firebaseId,
     };
-    const accessToken = jwt.sign(accessObj, secret);
+    const accessToken = jwt.sign(accessObj, secret, { expiresIn: '5d' });
 
     return res.status(200).json({
       ...account[0],
