@@ -518,7 +518,6 @@ module.exports.getDamagePoints = (
   const activeAffinities = JSON.parse(isAffinityActive);
 
   if (
-    (activeAffinities.thursday === 1 && isThursday) ||
     (activeAffinities.sunday === 1 && isVotingWeekDamage) ||
     (activeAffinities.sunday === 1 && activeAffinities.thursday === 1)
   ) {
@@ -533,8 +532,20 @@ module.exports.getDamagePoints = (
     };
   }
 
+  if (activeAffinities.thursday === 1 && isThursday) {
+    const totalPoints = weekPoints;
+
+    return {
+      week: weekPoints,
+      villain: 'Available on Friday',
+      battlefield: 'Available on Friday',
+      voting: 'Available on Sunday',
+      total: totalPoints,
+    };
+  }
+
   if (isVillainBattlefieldDamage) {
-    const totalPoints = villainPoints + fieldPoints;
+    const totalPoints = villainPoints + fieldPoints + weekPoints;
 
     return {
       week: weekPoints,
