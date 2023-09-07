@@ -177,9 +177,13 @@ module.exports.randomAffinity = [
   'earth, wind',
 ];
 
+const getParsedObject = (item) => {
+  return JSON.parse(item.replace(/\'/g, ''));
+};
+
 const getAffinityItems = (teamAffinity, isAffinityActive) => {
-  const activeAffinities = JSON.parse(isAffinityActive);
-  const teamAffinities = JSON.parse(teamAffinity);
+  const activeAffinities = getParsedObject(isAffinityActive);
+  const teamAffinities = getParsedObject(teamAffinity);
   let affinity = [];
 
   if (activeAffinities.thursday === 0 && activeAffinities.sunday === 0) {
@@ -448,7 +452,7 @@ module.exports.getBoostPoints = (
   const date = dayjs.tz(currentDate, 'America/New_York');
   const isVotingWeekDamage = date.day() === 0;
   const isThursday = date.day() === 4;
-  const activeAffinities = JSON.parse(isAffinityActive);
+  const activeAffinities = getParsedObject(isAffinityActive);
 
   if (
     (activeAffinities.thursday === 1 && isThursday) ||
@@ -515,7 +519,7 @@ module.exports.getDamagePoints = (
   const isVillainBattlefieldDamage = date.day() === 5 || date.day() === 6;
   const isVotingWeekDamage = date.day() === 0;
   const isThursday = date.day() === 4;
-  const activeAffinities = JSON.parse(isAffinityActive);
+  const activeAffinities = getParsedObject(isAffinityActive);
 
   if (
     (activeAffinities.sunday === 1 && isVotingWeekDamage) ||
