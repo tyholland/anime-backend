@@ -178,7 +178,7 @@ module.exports.randomAffinity = [
 ];
 
 const getParsedObject = (item) => {
-  return JSON.parse(item.replace(/\'/g, ''));
+  return JSON.parse(item.replace(/'/g, ''));
 };
 
 const getAffinityItems = (teamAffinity, isAffinityActive) => {
