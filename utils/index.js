@@ -173,14 +173,38 @@ module.exports.randomAffinity = [
   'wind, water',
   'darkness, ice',
   'arcane, fire',
+  'celestial, electric',
+  'earth, wind',
 ];
 
-const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
-  if (isAffinityActive === 0) {
+const getAffinityItems = (teamAffinity, isAffinityActive) => {
+  const activeAffinities = JSON.parse(isAffinityActive);
+  const teamAffinities = JSON.parse(teamAffinity);
+  let affinity = [];
+
+  if (activeAffinities.thursday === 0 && activeAffinities.sunday === 0) {
     return 0;
   }
 
-  const affinity = teamAffinity.split(',');
+  if (activeAffinities.thursday === 1 && activeAffinities.sunday === 0) {
+    affinity = teamAffinities.thursday.split(',');
+  }
+
+  if (activeAffinities.sunday === 1) {
+    const affinityThursday = teamAffinities.thursday.split(',');
+    const affinitySunday = teamAffinities.sunday.split(',');
+    affinity = affinityThursday.concat(affinitySunday);
+  }
+
+  return affinity;
+};
+
+const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
+  const affinity = getAffinityItems(teamAffinity, isAffinityActive);
+
+  if (affinity === 0) {
+    return 0;
+  }
 
   const weekAffinity = [];
   let affinityVal = 0;
@@ -207,11 +231,11 @@ const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
 };
 
 const getWeeklyDamage = (weakness, teamAffinity, isAffinityActive) => {
-  if (weakness === 'None' || isAffinityActive === 0) {
+  const affinity = getAffinityItems(teamAffinity, isAffinityActive);
+
+  if (weakness === 'None' || affinity === 0) {
     return 0;
   }
-
-  const affinity = teamAffinity.split(',');
 
   const weekAffinity = [];
   let affinityVal = 0;
@@ -411,8 +435,10 @@ module.exports.getBoostPoints = (
     getBattlefieldBoost(players, affinities, battlefield, week) * power_level;
   const votingBoost = getVotingBoost(votes, character) * power_level;
 
-  const supportPoints = isSupportInvalid || isBench ? 0 : Math.floor(boostSupport);
-  const fieldPoints = isBattlefield || isBench ? 0 : Math.floor(battlefieldSupport);
+  const supportPoints =
+    isSupportInvalid || isBench ? 0 : Math.floor(boostSupport);
+  const fieldPoints =
+    isBattlefield || isBench ? 0 : Math.floor(battlefieldSupport);
   const weekPoints = isBench ? 0 : Math.floor(weekBoost);
   const votingPoints = isBench ? 0 : Math.floor(votingBoost);
 
@@ -421,10 +447,13 @@ module.exports.getBoostPoints = (
   const currentDate = new Date();
   const date = dayjs.tz(currentDate, 'America/New_York');
   const isVotingWeekDamage = date.day() === 0;
+  const isThursday = date.day() === 4;
+  const activeAffinities = JSON.parse(isAffinityActive);
 
   if (
-    (isAffinityActive === 1 && isVotingWeekDamage) ||
-    isAffinityActive === 1
+    (activeAffinities.thursday === 1 && isThursday) ||
+    (activeAffinities.sunday === 1 && isVotingWeekDamage) ||
+    (activeAffinities.sunday === 1 && activeAffinities.thursday === 1)
   ) {
     const totalPoints = supportPoints + fieldPoints + weekPoints + votingPoints;
 
@@ -440,7 +469,7 @@ module.exports.getBoostPoints = (
   const totalPoints = supportPoints + fieldPoints;
 
   return {
-    week: isBench ? 0 : 'Available on Sunday',
+    week: isBench ? 0 : 'Available on Thursday',
     support: supportPoints,
     battlefield: fieldPoints,
     voting: isBench ? 0 : 'Available on Sunday',
@@ -485,10 +514,12 @@ module.exports.getDamagePoints = (
   const date = dayjs.tz(currentDate, 'America/New_York');
   const isVillainBattlefieldDamage = date.day() === 5 || date.day() === 6;
   const isVotingWeekDamage = date.day() === 0;
+  const isThursday = date.day() === 4;
+  const activeAffinities = JSON.parse(isAffinityActive);
 
   if (
-    (isAffinityActive === 1 && isVotingWeekDamage) ||
-    isAffinityActive === 1
+    (activeAffinities.sunday === 1 && isVotingWeekDamage) ||
+    (activeAffinities.sunday === 1 && activeAffinities.thursday === 1)
   ) {
     const totalPoints = villainPoints + fieldPoints + weekPoints + votingPoints;
 
@@ -501,11 +532,23 @@ module.exports.getDamagePoints = (
     };
   }
 
-  if (isVillainBattlefieldDamage) {
-    const totalPoints = villainPoints + fieldPoints;
+  if (activeAffinities.thursday === 1 && isThursday) {
+    const totalPoints = weekPoints;
 
     return {
-      week: 'Available on Sunday',
+      week: weekPoints,
+      villain: 'Available on Friday',
+      battlefield: 'Available on Friday',
+      voting: 'Available on Sunday',
+      total: totalPoints,
+    };
+  }
+
+  if (isVillainBattlefieldDamage) {
+    const totalPoints = villainPoints + fieldPoints + weekPoints;
+
+    return {
+      week: weekPoints,
       villain: villainPoints,
       battlefield: fieldPoints,
       voting: 'Available on Sunday',
@@ -514,7 +557,7 @@ module.exports.getDamagePoints = (
   }
 
   return {
-    week: 'Available on Sunday',
+    week: 'Available on Thursday',
     villain: 'Available on Friday',
     battlefield: 'Available on Friday',
     voting: 'Available on Sunday',
@@ -583,7 +626,7 @@ module.exports.characterAttr = (players, char, rank, details) => {
     affinity,
     activeAffinity,
     week,
-    isBench,
+    isBench
   );
 
   const damage = this.getDamagePoints(
