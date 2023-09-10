@@ -348,8 +348,8 @@ module.exports.getStandings = async (req, res) => {
     await checkValidUserInLeague(userId, league_id, res);
 
     let games = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND l.id = m.league_id AND m.week < l.week',
-      [league_id]
+      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND l.id = m.league_id AND m.week < ?',
+      [league_id, 10]
     );
 
     if (!games.length) {
@@ -359,15 +359,6 @@ module.exports.getStandings = async (req, res) => {
         'SELECT m.id, m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM matchup m, league l WHERE m.league_id = ? AND m.week = l.week',
         [league_id]
       );
-    }
-
-    const leagueEnd = await mysql(
-      'SELECT m.team_a, m.team_b, m.score_a, m.score_b, m.week FROM league_members lm, team t, matchup m, league l WHERE lm.id = t.league_member_id AND m.team_a = t.id AND l.id = ? AND l.active = ? AND l.id = m.league_id',
-      [league_id, 0]
-    );
-
-    if (leagueEnd.length) {
-      games = leagueEnd;
     }
 
     let rankings = await getRankings(games, isFirstWeek);
