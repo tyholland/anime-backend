@@ -172,7 +172,7 @@ module.exports.createDraft = async (req, res) => {
     const schedule = JSON.parse(league[0].draft_schedule);
     const draftDate = `${schedule.date.month} ${schedule.date.day}, ${schedule.date.year}`;
 
-    await sendLeagueDraftSchedule(league[0].name, league_id, draftDate);
+    await sendLeagueDraftSchedule(league[0].name, league[0].segment, draftDate);
 
     return res.status(200).json({ success: true });
   } catch (error) {

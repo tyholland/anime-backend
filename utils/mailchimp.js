@@ -28,26 +28,8 @@ const updateCampaign = async (campaignId, subject, preview, segmentId) => {
   }
 };
 
-const getLeagueSegement = async (leagueName, leagueId) => {
+module.exports.sendLeagueStartEmail = async (leagueName, segmentId) => {
   try {
-    const data = await mailchimp.lists.listSegments(mainListId);
-    const { segments } = data;
-
-    const theList = segments.filter(
-      (list) =>
-        list.name === `${leagueName} - ${leagueId} - ${process.env.SERVER_ENV}`
-    )[0];
-
-    return theList.id;
-  } catch (err) {
-    console.log(err);
-    throw new Error('Can not get league segment');
-  }
-};
-
-module.exports.sendLeagueStartEmail = async (leagueName, leagueId) => {
-  try {
-    const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName} has just started`;
     const preview = `${leagueName} started`;
     const campaignId = '71f4877be2';
@@ -62,9 +44,8 @@ module.exports.sendLeagueStartEmail = async (leagueName, leagueId) => {
   }
 };
 
-module.exports.sendLeagueEndedEmail = async (leagueName, leagueId) => {
+module.exports.sendLeagueEndedEmail = async (leagueName, segmentId) => {
   try {
-    const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName} has just ended`;
     const preview = `${leagueName} ended`;
     const campaignId = 'ca6de0027b';
@@ -79,9 +60,8 @@ module.exports.sendLeagueEndedEmail = async (leagueName, leagueId) => {
   }
 };
 
-module.exports.sendLeagueDeletedEmail = async (leagueName, leagueId) => {
+module.exports.sendLeagueDeletedEmail = async (leagueName, segmentId) => {
   try {
-    const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName} was deleted`;
     const preview = `${leagueName} deleted`;
     const campaignId = 'c74b67925f';
@@ -96,9 +76,8 @@ module.exports.sendLeagueDeletedEmail = async (leagueName, leagueId) => {
   }
 };
 
-module.exports.sendLeagueNewWeek = async (leagueName, leagueId, week) => {
+module.exports.sendLeagueNewWeek = async (leagueName, segmentId, week) => {
   try {
-    const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `Week ${week} for ${leagueName} has started`;
     const preview = `${leagueName} - Week ${week}`;
     const campaignId = '840a595246';
@@ -113,9 +92,8 @@ module.exports.sendLeagueNewWeek = async (leagueName, leagueId, week) => {
   }
 };
 
-module.exports.sendLeagueAffinityDrop = async (leagueName, leagueId) => {
+module.exports.sendLeagueAffinityDrop = async (leagueName, segmentId) => {
   try {
-    const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName}'s Weekly Affinity has dropped`;
     const preview = `${leagueName} Affinity Drop`;
     const campaignId = 'ef5f61db5a';
@@ -130,9 +108,8 @@ module.exports.sendLeagueAffinityDrop = async (leagueName, leagueId) => {
   }
 };
 
-module.exports.sendLeagueVoting = async (leagueName, leagueId) => {
+module.exports.sendLeagueVoting = async (leagueName, segmentId) => {
   try {
-    const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName}'s Matchup Voting has started`;
     const preview = `${leagueName} started`;
     const campaignId = '5cbbe0a1aa';
@@ -147,9 +124,8 @@ module.exports.sendLeagueVoting = async (leagueName, leagueId) => {
   }
 };
 
-module.exports.sendLeagueDraftSchedule = async (leagueName, leagueId, draftDate) => {
+module.exports.sendLeagueDraftSchedule = async (leagueName, segmentId, draftDate) => {
   try {
-    const segmentId = await getLeagueSegement(leagueName, leagueId);
     const subject = `${leagueName}'s Draft is scheduled for ${draftDate}`;
     const preview = `${leagueName} Draft is scheduled`;
     const campaignId = '88df742a86';

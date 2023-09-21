@@ -15,15 +15,13 @@ const timezone = require('dayjs/plugin/timezone');
 module.exports.startNewWeek = async () => {
   try {
     const leagues = await mysql(
-      'SELECT id, week, name FROM league WHERE active = ? AND week != ?',
+      'SELECT id, week, name, segment FROM league WHERE active = ? AND week != ?',
       [1, -1]
     );
 
     for (let index = 0; index < leagues.length; index++) {
-      const { week, id, name } = leagues[index];
+      const { week, id, name, segment } = leagues[index];
       const newWeek = week + 1;
-
-      const league = await mysql('SELECT name FROM league WHERE id = ?', [id]);
 
       // Make previous week inactive
       await mysql(
@@ -44,7 +42,7 @@ module.exports.startNewWeek = async () => {
           ]);
         }
 
-        await sendLeagueStartEmail(league[0].name, id);
+        await sendLeagueStartEmail(name, segment);
       }
 
       if (week === 12) {
@@ -52,7 +50,7 @@ module.exports.startNewWeek = async () => {
           'UPDATE league SET active = ?, is_roster_active = ?, is_voting_active = ? WHERE id = ?',
           [0, 0, 0, id]
         );
-        await sendLeagueEndedEmail(name, id);
+        await sendLeagueEndedEmail(name, segment);
         return;
       }
 
@@ -63,7 +61,7 @@ module.exports.startNewWeek = async () => {
       );
 
       if (week > 0) {
-        await sendLeagueNewWeek(league[0].name, id, newWeek);
+        await sendLeagueNewWeek(name, segment, newWeek);
       }
 
       // Make the new week matchup active
@@ -129,19 +127,19 @@ module.exports.startNewWeek = async () => {
 module.exports.stopRosterStartVoting = async () => {
   try {
     const leagues = await mysql(
-      'SELECT id, name FROM league WHERE active = ? AND week > ?',
+      'SELECT id, name, segment FROM league WHERE active = ? AND week > ?',
       [1, 0]
     );
 
     for (let index = 0; index < leagues.length; index++) {
-      const { id, name } = leagues[index];
+      const { id, name, segment } = leagues[index];
 
       await mysql(
         'UPDATE league SET is_roster_active = ?, is_voting_active = ? WHERE id = ?',
         [0, 1, id]
       );
 
-      await sendLeagueVoting(name, id);
+      await sendLeagueVoting(name, segment);
     }
   } catch (err) {
     console.log(err);
@@ -399,15 +397,15 @@ module.exports.activateWeeklyAffinity = async () => {
     }
 
     const leagues = await mysql(
-      'SELECT DISTINCT id, name FROM league WHERE active = ? AND week > ?',
+      'SELECT DISTINCT id, name, segment FROM league WHERE active = ? AND week > ?',
       [1, 0]
     );
 
     for (let index = 0; index < leagues.length; index++) {
-      const { id, name } = leagues[index];
+      const { name, segment } = leagues[index];
 
       // Send email out to leagues
-      await sendLeagueAffinityDrop(name, id);
+      await sendLeagueAffinityDrop(name, segment);
     }
 
     // Update matchup scores

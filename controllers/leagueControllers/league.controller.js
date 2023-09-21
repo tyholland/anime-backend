@@ -118,7 +118,7 @@ module.exports.createLeague = async (req, res) => {
   const { userId, email } = req.user;
   const date = new Date().toISOString();
   const randomStr = (Math.random() + 1).toString(36).substring(5);
-  const hash = `ABZ-${randomStr}`;
+  const hash = `AFL-${randomStr}`;
 
   try {
     const newLeague = await mysql(
@@ -256,7 +256,7 @@ module.exports.deleteLeague = async (req, res) => {
       });
     }
 
-    await sendLeagueDeletedEmail(league[0].name, league_id);
+    await sendLeagueDeletedEmail(league[0].name, league[0].segment);
 
     await mysql('DELETE FROM league WHERE id = ? AND week = ?', [
       league_id,
