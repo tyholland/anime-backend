@@ -168,10 +168,12 @@ module.exports.addLeagueSegment = async (leagueName, leagueId) => {
   const segment = `${leagueName} - ${leagueId} - ${process.env.SERVER_ENV}`;
 
   try {
-    await mailchimp.lists.createSegment(mainListId, {
+    const newSegment = await mailchimp.lists.createSegment(mainListId, {
       name: segment,
       static_segment: [],
     });
+
+    return newSegment;
   } catch (err) {
     console.log(err);
     throw new Error('Can not add new segment for league');
@@ -191,11 +193,9 @@ module.exports.addMemberToList = async (email) => {
   }
 };
 
-module.exports.addMemberToSegment = async (leagueName, leagueId, email) => {
+module.exports.addMemberToSegmentWithId = async (segmentId, email) => {
   try {
-    const segmentId = await getLeagueSegement(leagueName, leagueId);
-
-    await mailchimp.lists.createSegmentMember(mainListId, segmentId, {
+    await mailchimp.lists.createSegmentMember(mainListId, `${segmentId}`, {
       email_address: email,
     });
   } catch (err) {

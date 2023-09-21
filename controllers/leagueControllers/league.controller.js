@@ -1,8 +1,8 @@
 const mysql = require('../../utils/mysql').instance();
 const {
   addLeagueSegment,
-  addMemberToSegment,
   sendLeagueDeletedEmail,
+  addMemberToSegmentWithId,
 } = require('../../utils/mailchimp');
 const {
   getLeagueMemberInfo,
@@ -126,9 +126,14 @@ module.exports.createLeague = async (req, res) => {
       [name, numTeams, 1, userId, 0, 0, hash, date, -1, numBench]
     );
 
-    await addLeagueSegment(name, newLeague.insertId);
+    const newSegment = await addLeagueSegment(name, newLeague.insertId);
 
-    await addMemberToSegment(name, newLeague.insertId, email);
+    await addMemberToSegmentWithId(newSegment.id, email);
+
+    await mysql(
+      'UPDATE league SET segment = ? WHERE id = ?',
+      [newSegment.id, newLeague.insertId]
+    );
 
     return await createNewTeam(userId, newLeague.insertId, res);
   } catch (error) {
@@ -153,7 +158,7 @@ module.exports.joinLeague = async (req, res) => {
       });
     }
 
-    const { active, num_teams, id, name } = league[0];
+    const { active, num_teams, id, segment } = league[0];
 
     if (active === 0) {
       return res.status(400).json({
@@ -180,7 +185,7 @@ module.exports.joinLeague = async (req, res) => {
       });
     }
 
-    await addMemberToSegment(name, id, email);
+    await addMemberToSegmentWithId(segment, email);
 
     return await createNewTeam(userId, id, res);
   } catch (error) {
