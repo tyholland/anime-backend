@@ -18,7 +18,7 @@ const updateCampaign = async (campaignId, subject, preview, segmentId) => {
       recipients: {
         list_id: mainListId,
         segment_opts: {
-          saved_segment_id: segmentId,
+          saved_segment_id: parseInt(segmentId),
         },
       },
     });
