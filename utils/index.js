@@ -178,7 +178,7 @@ module.exports.randomAffinity = [
 ];
 
 const getParsedObject = (item) => {
-  return JSON.parse(item.replace(/'/g, '')) || JSON.parse(item);
+  return JSON.parse(item.replace(/'/g, ''));
 };
 
 const getAffinityItems = (teamAffinity, isAffinityActive) => {
@@ -204,7 +204,7 @@ const getAffinityItems = (teamAffinity, isAffinityActive) => {
 };
 
 const getWeeklyBoost = (affinities, teamAffinity, isAffinityActive) => {
-  const affinity = getAffinityItems(teamAffinity, isAffinityActive);
+  let affinity = getAffinityItems(teamAffinity, isAffinityActive);
 
   if (affinity === 0) {
     return 0;

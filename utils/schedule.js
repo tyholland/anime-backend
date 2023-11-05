@@ -4,7 +4,8 @@ const { getLeagueMemberInfo, getRankings } = require('./query');
 
 const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
   if (week === 1) {
-    const rand = Math.floor(Math.random() * randomAffinity.length);
+    const weekRandOne = Math.floor(Math.random() * randomAffinity.length);
+    const weekRandTwo = Math.floor(Math.random() * randomAffinity.length);
 
     try {
       await mysql(
@@ -12,14 +13,24 @@ const insertNewMatchup = async (leagueId, teamA, teamB, week) => {
         [leagueId, teamA, teamB, 0, 0, week, 1]
       );
 
-      await mysql(
-        'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
-        [0, 'home', randomAffinity[rand], teamA]
-      );
+      const affinityTeamA = {
+        thursday: randomAffinity[weekRandOne],
+        sunday: randomAffinity[weekRandTwo]
+      };
 
       await mysql(
         'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
-        [0, 'away', randomAffinity[rand], teamB]
+        [0, 'home', JSON.stringify(affinityTeamA), teamA]
+      );
+
+      const affinityTeamB = {
+        thursday: randomAffinity[weekRandOne],
+        sunday: randomAffinity[weekRandTwo]
+      };
+
+      await mysql(
+        'UPDATE team SET week = ?, status = ?, affinity = ? WHERE id = ?',
+        [0, 'away', JSON.stringify(affinityTeamB), teamB]
       );
 
       return;
